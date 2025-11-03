@@ -1,0 +1,29 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="WrongWayWarningStyles.uss" />
+
+    <!-- Wrong Way Warning Overlay -->
+    <ui:VisualElement name="wrong-way-warning-overlay" class="warning-overlay" style="display: none; opacity: 0;">
+
+        <!-- Top Border -->
+        <ui:VisualElement class="warning-border warning-border--top" />
+
+        <!-- Right Border -->
+        <ui:VisualElement class="warning-border warning-border--right" />
+
+        <!-- Bottom Border -->
+        <ui:VisualElement class="warning-border warning-border--bottom" />
+
+        <!-- Left Border -->
+        <ui:VisualElement class="warning-border warning-border--left" />
+
+        <!-- Center Warning Message -->
+        <ui:VisualElement name="wrong-way-message" class="wrong-way-message">
+            <ui:VisualElement class="wrong-way-card">
+                <ui:Label text="⚠" class="wrong-way-icon" />
+                <ui:Label text="WRONG WAY!" class="wrong-way-title" />
+                <ui:Label text="Turn around and follow the arrows" class="wrong-way-subtitle" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

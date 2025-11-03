@@ -1,0 +1,50 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="LocationSelectionStyles.uss" />
+    <ui:VisualElement name="location-selection-overlay" class="location-overlay">
+        <ui:VisualElement name="location-selection-card" class="location-card">
+
+            <!-- Header with Instructions -->
+            <ui:VisualElement class="location-header">
+                <ui:Label text="Select Your Current Location" class="location-header__title" />
+                <ui:Label text="⚠ You must be physically present at this location" class="location-header__warning" />
+                <ui:Label text="This ensures accurate AR tracking and safety guidance" class="location-header__subtitle" />
+            </ui:VisualElement>
+
+            <!-- Quick Instructions -->
+            <ui:VisualElement class="instruction-card">
+                <ui:Label text="Quick Guide:" class="instruction-title" />
+                <ui:VisualElement class="instruction-list">
+                    <ui:Label text="• Stand inside the room/hallway first" class="instruction-item" />
+                    <ui:Label text="• Select your location from the list below" class="instruction-item" />
+                    <ui:Label text="• Point camera at area to begin" class="instruction-item" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Filter Chips -->
+            <ui:VisualElement name="location-filters" class="location-filters">
+                <ui:Button name="filter-all" text="All Areas" class="filter-chip filter-chip--active" />
+                <ui:Button name="filter-rooms" text="Rooms" class="filter-chip" />
+                <ui:Button name="filter-hallways" text="Corridors" class="filter-chip" />
+                <ui:Button name="filter-stairs" text="Stairways" class="filter-chip" />
+                <ui:Button name="filter-canteen" text="Dining" class="filter-chip" />
+                <ui:Button name="filter-evacuation" text="Exits" class="filter-chip" />
+            </ui:VisualElement>
+
+            <!-- Simple Location List -->
+            <ui:ScrollView name="location-list-scroll" class="location-list-scroll">
+                <ui:VisualElement name="location-list" class="location-list">
+                    <!-- Location items will be dynamically generated -->
+                    <ui:Label text="Loading locations..." class="location-placeholder" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+
+            <!-- Footer Actions -->
+            <ui:VisualElement class="location-footer">
+                <ui:Button name="location-back-button" text="← Back" class="location-footer__button location-footer__button--tertiary" />
+                <ui:Button name="location-skip-button" text="Skip (Auto-Detect)" class="location-footer__button location-footer__button--secondary" />
+                <ui:Button name="location-confirm-button" text="Start AR Experience" class="location-footer__button location-footer__button--primary" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

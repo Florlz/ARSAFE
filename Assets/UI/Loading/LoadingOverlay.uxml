@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Loading/LoadingOverlay.uss?fileID=7433441132597879392&amp;guid=4a124e01273ec5e4c9ccc7c7a0782677&amp;type=3#LoadingOverlay" />
+    <Style src="project://database/Assets/UI/Loading/LoadingColors.uss?fileID=7433441132597879392&amp;guid=cd53b6e3c3e32a5468ce75f39589c250&amp;type=3#LoadingColors" />
+    <ui:VisualElement name="loading-overlay-root" class="loading-overlay">
+        <ui:VisualElement class="bg-glow bg-glow-1" />
+        <ui:VisualElement class="bg-glow bg-glow-2" />
+        <ui:VisualElement class="bg-glow bg-glow-3" />
+        <ui:VisualElement class="card-container" style="height: auto;">
+            <ui:VisualElement class="card-glass" style="padding-bottom: 40px;">
+                <ui:VisualElement class="logo-section">
+                    <ui:VisualElement name="logo-slot" class="logo-image" style="background-image: url(&quot;project://database/Assets/MainMenuAssets/ARSAFE%20LOGO.png?fileID=-742115095&amp;guid=d011ce7eb7af0b94482d7288fbb86edd&amp;type=3#ARSAFE LOGO_0&quot;); width: 100px; height: 100px;" />
+                </ui:VisualElement>
+                <ui:VisualElement class="status-section">
+                    <ui:Label name="primary-status" text="Initializing AR Experience" class="status-primary" />
+                    <ui:Label name="secondary-status" text="Preparing immersive content..." class="status-secondary" />
+                </ui:VisualElement>
+                <ui:VisualElement class="divider">
+                    <ui:VisualElement class="divider-line" />
+                    <ui:VisualElement class="divider-glow" />
+                </ui:VisualElement>
+                <ui:VisualElement class="progress-section">
+                    <ui:VisualElement class="progress-container">
+                        <ui:ProgressBar name="progress-bar" low-value="0" high-value="100" value="0" class="custom-progress" />
+                        <ui:VisualElement class="progress-shimmer" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="progress-info">
+                        <ui:Label name="progress-percent" text="0%" class="percent-text" />
+                        <ui:Label text="Ready" class="ready-text" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="activation-info" style="margin-bottom: 4px;">
+                        <ui:VisualElement class="activation-row">
+                            <ui:Label text="●" class="status-indicator" />
+                            <ui:Label name="area-activation-status" text="Activating targets..." class="activation-label" />
+                        </ui:VisualElement>
+                        <ui:Label name="area-activation-percent" text="0/0" class="activation-count" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

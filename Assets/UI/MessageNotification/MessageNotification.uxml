@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/MessageNotification/Resources/UI/MessageNotification/MessageNotification.uss?fileID=7433441132597879392&amp;guid=20b6c33608d530f45a62d5eb2d3af7b7&amp;type=3#MessageNotification" />
+    <ui:VisualElement name="message-notification-root" class="message-notification hidden" style="position: relative; top: auto;">
+        <ui:VisualElement class="message-card" style="top: auto;">
+            <ui:VisualElement class="message-icon">
+                <ui:Label name="icon-text" text="📍" class="icon-text" />
+            </ui:VisualElement>
+            <ui:VisualElement class="message-content">
+                <ui:Label name="message-text" text="Point your phone at an Area Target" class="message-label" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,192 @@
+/* ============================================
+   ARSAFE - Exit Overlay Styles
+   Mobile-First Design (AR Application)
+
+   CRITICAL: No CSS variables - use actual px values
+   for runtime compatibility!
+   ============================================ */
+
+.exit-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+    background-color: rgba(10, 4, 16, 0.94);
+}
+
+.exit-card {
+    width: 92%;
+    max-width: 800px;
+    padding: 52px 44px 44px 44px;
+    background-color: rgba(20, 24, 36, 0.98);
+    border-radius: 32px;
+    border-width: 3px;
+    border-color: rgba(76, 175, 80, 0.6);
+    border-left-width: 6px;
+    border-left-color: rgba(76, 175, 80, 0.9);
+    flex-direction: column;
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+
+.exit-card__header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 28px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(76, 175, 80, 0.3);
+}
+
+.exit-icon {
+    width: 110px;
+    height: 110px;
+    border-radius: 55px;
+    border-width: 3px;
+    border-color: rgba(76, 175, 80, 0.4);
+    background-color: rgba(76, 175, 80, 0.15);
+    flex-shrink: 0;
+}
+
+.exit-card__titles {
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-left: 28px;
+}
+
+.exit-title {
+    color: rgba(255, 255, 255, 1);
+    font-size: 42px;
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.exit-scenario {
+    color: rgba(76, 175, 80, 1);
+    font-size: 28px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+/* ============================================
+   CONTENT TEXT
+   ============================================ */
+
+.exit-text {
+    color: rgba(255, 255, 255, 0.85);
+    -unity-text-align: upper-left;
+    white-space: normal;
+}
+
+.exit-text--intro {
+    font-size: 30px;
+    margin-bottom: 28px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.exit-text--footer {
+    font-size: 28px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: rgba(240, 165, 0, 1);
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+}
+
+/* ============================================
+   STEPS / CHECKLIST
+   ============================================ */
+
+.exit-steps {
+    flex-direction: column;
+    margin-bottom: 20px;
+    background-color: rgba(76, 175, 80, 0.08);
+    border-radius: 24px;
+    padding: 24px 28px;
+}
+
+.exit-step {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 28px;
+    padding: 20px 24px;
+    border-radius: 18px;
+    background-color: rgba(30, 35, 50, 0.6);
+    border-left-width: 5px;
+    border-left-color: rgba(76, 175, 80, 0.8);
+    white-space: normal;
+}
+
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
+
+.exit-actions {
+    flex-direction: column;
+    margin-top: 32px;
+}
+
+.exit-button {
+    height: 96px;
+    border-radius: 20px;
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: rgba(255, 255, 255, 1);
+    transition-duration: 0.2s;
+    padding: 26px 36px;
+}
+
+.exit-button--primary {
+    background-color: rgba(76, 175, 80, 1);
+    color: rgba(255, 255, 255, 1);
+    border-width: 3px;
+    border-color: rgba(129, 199, 132, 0.8);
+}
+
+.exit-button--primary:hover {
+    background-color: rgba(102, 187, 106, 1);
+    border-color: rgba(165, 214, 167, 1);
+}
+
+.exit-button--secondary {
+    margin-top: 20px;
+    background-color: rgba(40, 45, 60, 0.8);
+    border-width: 3px;
+    border-color: rgba(240, 165, 0, 0.5);
+    color: rgba(240, 165, 0, 1);
+}
+
+.exit-button--secondary:hover {
+    background-color: rgba(50, 55, 70, 0.9);
+    border-color: rgba(240, 165, 0, 0.8);
+    color: rgba(255, 214, 123, 1);
+}
+
+/* ============================================
+   CONGRATULATIONS MESSAGE
+   ============================================ */
+
+.exit-congrats {
+    color: rgba(76, 175, 80, 1);
+    font-size: 38px;
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    white-space: normal;
+    margin-top: 48px;
+    margin-bottom: 48px;
+    padding: 40px;
+    background-color: rgba(76, 175, 80, 0.15);
+    border-radius: 24px;
+    border-width: 3px;
+    border-color: rgba(76, 175, 80, 0.5);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}

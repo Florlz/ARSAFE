@@ -1,0 +1,176 @@
+/* Fire Alert Overlay Styles - Red/Orange Fire Theme */
+
+/* Root container */
+.fire-alert__root {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.fire-alert__root--visible {
+    display: flex;
+}
+
+/* Smoke/heat backdrop */
+.fire-alert__smoke-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 69, 0, 0.15);
+    /* Orangered smoke tint */
+}
+
+/* Section containers */
+.fire-alert__section {
+    width: 90%;
+    max-width: 800px;
+    background-color: rgba(139, 0, 0, 0.95);
+    /* Dark red background */
+    border-width: 4px;
+    border-color: rgb(255, 140, 0);
+    /* Dark orange border */
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.fire-alert__section--hidden {
+    display: none;
+}
+
+/* Header */
+.fire-alert__header {
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.fire-alert__title {
+    font-size: 48px;
+    color: rgb(255, 69, 0);
+    /* Orangered */
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    text-shadow: 0px 0px 12px rgba(255, 140, 0, 0.8);
+}
+
+.fire-alert__title--pulsing {
+    /* Fire pulsing effect would be handled via animation in code if needed */
+}
+
+/* Content area */
+.fire-alert__content {
+    margin-bottom: 24px;
+}
+
+/* Response message */
+.fire-alert__response-block {
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border-width: 2px;
+    border-color: rgb(255, 69, 0);
+}
+
+.fire-alert__response-label {
+    font-size: 28px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    white-space: normal;
+}
+
+/* Safety instructions */
+.fire-alert__instructions {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    border-radius: 8px;
+    border-left-width: 4px;
+    border-left-color: rgb(255, 140, 0);
+}
+
+.fire-alert__instructions-header {
+    font-size: 26px;
+    color: rgb(255, 140, 0);
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+}
+
+.fire-alert__instruction-item {
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    margin-top: 8px;
+    margin-left: 8px;
+    white-space: normal;
+}
+
+/* Complete section */
+.fire-alert__complete-message {
+    font-size: 32px;
+    color: rgb(144, 238, 144);
+    /* Light green */
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    margin-bottom: 16px;
+}
+
+.fire-alert__complete-instructions {
+    font-size: 26px;
+    color: rgb(255, 255, 255);
+    -unity-text-align: upper-center;
+    margin-bottom: 12px;
+    white-space: normal;
+}
+
+.fire-alert__complete-warning {
+    font-size: 28px;
+    color: rgb(255, 140, 0);
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    margin-top: 16px;
+    white-space: normal;
+}
+
+/* Footer */
+.fire-alert__footer {
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Buttons */
+.fire-alert__button {
+    width: 90%;
+    height: 80px;
+    font-size: 30px;
+    -unity-font-style: bold;
+    border-radius: 12px;
+    border-width: 3px;
+    transition-duration: 0.2s;
+}
+
+.fire-alert__button--acknowledge {
+    background-color: rgb(178, 34, 34);
+    /* Firebrick red */
+    border-color: rgb(255, 69, 0);
+    color: rgb(255, 255, 255);
+}
+
+.fire-alert__button--acknowledge:hover {
+    background-color: rgb(220, 20, 60);
+    /* Crimson */
+    border-color: rgb(255, 140, 0);
+}
+
+.fire-alert__button--complete {
+    background-color: rgb(34, 139, 34);
+    /* Forest green */
+    border-color: rgb(144, 238, 144);
+    color: rgb(255, 255, 255);
+}
+
+.fire-alert__button--complete:hover {
+    background-color: rgb(50, 205, 50);
+    /* Lime green */
+}

@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/ExitOverlay/Resources/UI/ExitOverlay/ExitOverlayStyles.uss?fileID=7433441132597879392&amp;guid=fcf41ee1f36885846987d802bb63f7d0&amp;type=3#ExitOverlayStyles" />
+    <ui:VisualElement name="exit-overlay" focusable="true" class="exit-overlay" style="display: flex;">
+        <ui:VisualElement name="exit-card" class="exit-card">
+            <ui:VisualElement class="exit-card__header">
+                <ui:VisualElement name="exit-icon" class="exit-icon" style="background-image: url(&quot;project://database/Assets/MainMenuAssets/ARSAFE%20LOGO.png?fileID=-742115095&amp;guid=d011ce7eb7af0b94482d7288fbb86edd&amp;type=3#ARSAFE LOGO_0&quot;); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; background-color: rgba(240, 165, 0, 0);" />
+                <ui:VisualElement class="exit-card__titles">
+                    <ui:Label name="exit-title" text="Evacuation Point Reached" class="exit-title" />
+                    <ui:Label name="exit-scenario" text="Scenario Specific Guidance" class="exit-scenario" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="exit-intro" text="You&apos;ve arrived at the designated evacuation zone." class="exit-text exit-text--intro" />
+            <ui:VisualElement name="exit-steps" class="exit-steps" />
+            <ui:Label name="exit-footer" text="Await further instructions from the safety officer." class="exit-text exit-text--footer" />
+            <ui:Label name="exit-congrats" text="" class="exit-congrats" style="display: none;" />
+            <ui:VisualElement class="exit-actions">
+                <ui:Button name="exit-close-button" text="Finished Simulation" class="exit-button exit-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

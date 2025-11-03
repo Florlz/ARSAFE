@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="project://database/Assets/UI/Welcome/Resources/UI/Welcome/WelcomeScreenStyles.uss?fileID=7433441132597879392&amp;guid=884dff4fa9e29d743babd89a8d1c1c04&amp;type=3#WelcomeScreenStyles" />
+    <ui:VisualElement name="welcome-overlay" class="welcome-overlay" focusable="true" picking-mode="Position">
+        <ui:VisualElement name="welcome-card" class="welcome-card">
+            <ui:VisualElement name="welcome-banner" class="welcome-banner" picking-mode="Ignore" />
+
+            <ui:ScrollView name="welcome-scroll" class="welcome-scroll" mode="Vertical">
+                <ui:VisualElement class="welcome-card__header">
+                    <ui:VisualElement name="welcome-icon" class="welcome-icon" />
+                    <ui:VisualElement class="welcome-card__titles">
+                        <ui:Label name="scenario-label" class="welcome-scenario" text="Scenario: Example" />
+                        <ui:Label name="title-label" class="welcome-title" text="Welcome to ARSAFE Training" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:Label name="intro-label" class="welcome-text welcome-text--intro" text="Intro copy" />
+
+                <ui:VisualElement name="instructions-container" class="welcome-instructions" />
+
+                <ui:Label name="footer-label" class="welcome-text welcome-text--footer" text="Footer copy" />
+
+                <ui:Toggle name="dont-show-toggle" class="welcome-toggle" label="Don't show this again" value="false" />
+
+                <ui:VisualElement class="welcome-actions">
+                    <ui:Button name="skip-button" class="welcome-button welcome-button--secondary" text="Skip for now" />
+                    <ui:Button name="confirm-button" class="welcome-button welcome-button--primary" text="Begin Simulation" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

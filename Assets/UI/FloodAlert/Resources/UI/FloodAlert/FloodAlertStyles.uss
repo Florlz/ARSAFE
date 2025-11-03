@@ -1,0 +1,169 @@
+/* Flood Alert Overlay Styles - Blue/Cyan Water Theme */
+
+/* Root container */
+.flood-alert__root {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.flood-alert__root--visible {
+    display: flex;
+}
+
+/* Water backdrop */
+.flood-alert__water-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 119, 190, 0.15);
+    /* Blue water tint */
+}
+
+/* Section containers */
+.flood-alert__section {
+    width: 90%;
+    max-width: 800px;
+    background-color: rgba(0, 51, 102, 0.95);
+    /* Dark blue background */
+    border-width: 4px;
+    border-color: rgb(0, 191, 255);
+    /* Deep sky blue border */
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.flood-alert__section--hidden {
+    display: none;
+}
+
+/* Header */
+.flood-alert__header {
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.flood-alert__title {
+    font-size: 48px;
+    color: rgb(0, 191, 255);
+    /* Deep sky blue */
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+}
+
+/* Content area */
+.flood-alert__content {
+    margin-bottom: 24px;
+}
+
+/* Response message */
+.flood-alert__response-block {
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border-width: 2px;
+    border-color: rgb(0, 191, 255);
+}
+
+.flood-alert__response-label {
+    font-size: 28px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    white-space: normal;
+}
+
+/* Safety instructions */
+.flood-alert__instructions {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    border-radius: 8px;
+    border-left-width: 4px;
+    border-left-color: rgb(0, 191, 255);
+}
+
+.flood-alert__instructions-header {
+    font-size: 26px;
+    color: rgb(0, 191, 255);
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+}
+
+.flood-alert__instruction-item {
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    margin-top: 8px;
+    margin-left: 8px;
+    white-space: normal;
+}
+
+/* Complete section */
+.flood-alert__complete-message {
+    font-size: 32px;
+    color: rgb(144, 238, 144);
+    /* Light green */
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    margin-bottom: 16px;
+}
+
+.flood-alert__complete-instructions {
+    font-size: 26px;
+    color: rgb(255, 255, 255);
+    -unity-text-align: upper-center;
+    margin-bottom: 12px;
+    white-space: normal;
+}
+
+.flood-alert__complete-warning {
+    font-size: 28px;
+    color: rgb(0, 191, 255);
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    margin-top: 16px;
+    white-space: normal;
+}
+
+/* Footer */
+.flood-alert__footer {
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Buttons */
+.flood-alert__button {
+    width: 90%;
+    height: 80px;
+    font-size: 30px;
+    -unity-font-style: bold;
+    border-radius: 12px;
+    border-width: 3px;
+}
+
+.flood-alert__button--acknowledge {
+    background-color: rgb(25, 25, 112);
+    /* Midnight blue */
+    border-color: rgb(0, 191, 255);
+    color: rgb(255, 255, 255);
+}
+
+.flood-alert__button--acknowledge:hover {
+    background-color: rgb(0, 119, 190);
+    /* Darker blue */
+}
+
+.flood-alert__button--complete {
+    background-color: rgb(34, 139, 34);
+    /* Forest green */
+    border-color: rgb(144, 238, 144);
+    color: rgb(255, 255, 255);
+}
+
+.flood-alert__button--complete:hover {
+    background-color: rgb(50, 205, 50);
+    /* Lime green */
+}

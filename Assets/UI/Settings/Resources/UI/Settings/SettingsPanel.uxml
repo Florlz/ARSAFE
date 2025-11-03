@@ -1,0 +1,106 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="SettingsPanel.uss" />
+
+    <!-- Settings Overlay -->
+    <ui:VisualElement name="settings-overlay" class="overlay">
+        <ui:VisualElement name="settings-card" class="card">
+
+            <!-- Header -->
+            <ui:VisualElement class="header">
+                <ui:Label text="Settings" class="header-title" />
+                <ui:Label name="dev-badge" text="DEV" class="dev-badge" />
+                <ui:Button name="close-button" text="×" class="close-button" />
+            </ui:VisualElement>
+
+            <!-- Scrollable Content -->
+            <ui:ScrollView class="content-scroll" mode="Vertical">
+
+                <!-- AUDIO SECTION -->
+                <ui:VisualElement class="section">
+                    <ui:Label text="Audio" class="section-title" />
+
+                    <!-- Master Volume -->
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Master Volume" class="setting-label" />
+                        <ui:Slider name="master-volume-slider" low-value="0" high-value="1" value="0.8" class="setting-slider" />
+                        <ui:Label name="master-volume-value" text="80%" class="slider-value" />
+                    </ui:VisualElement>
+
+                    <!-- SFX Volume -->
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Sound Effects" class="setting-label" />
+                        <ui:Slider name="sfx-volume-slider" low-value="0" high-value="1" value="0.7" class="setting-slider" />
+                        <ui:Label name="sfx-volume-value" text="70%" class="slider-value" />
+                    </ui:VisualElement>
+
+                    <!-- UI Volume -->
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="UI Sounds" class="setting-label" />
+                        <ui:Slider name="ui-volume-slider" low-value="0" high-value="1" value="0.6" class="setting-slider" />
+                        <ui:Label name="ui-volume-value" text="60%" class="slider-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- GRAPHICS SECTION -->
+                <ui:VisualElement class="section">
+                    <ui:Label text="Graphics" class="section-title" />
+
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Quality Level" class="setting-label" />
+                        <ui:VisualElement class="button-group">
+                            <ui:Button name="quality-low" text="Low" class="quality-button" />
+                            <ui:Button name="quality-medium" text="Medium" class="quality-button quality-selected" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- AR SETTINGS SECTION -->
+                <ui:VisualElement class="section">
+                    <ui:Label text="AR Settings" class="section-title" />
+
+                    <!-- Drift Correction FPS -->
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Drift Correction FPS" class="setting-label" />
+                        <ui:Slider name="drift-fps-slider" low-value="5" high-value="60" value="15" class="setting-slider" />
+                        <ui:Label name="drift-fps-value" text="15 FPS" class="slider-value" />
+                    </ui:VisualElement>
+
+                    <!-- Haptic Feedback -->
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Haptic Feedback" class="setting-label" />
+                        <ui:Toggle name="haptic-toggle" value="true" class="setting-toggle" />
+                    </ui:VisualElement>
+
+                    <!-- Wrong-Way Warnings -->
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Wrong-Way Warnings" class="setting-label" />
+                        <ui:Toggle name="wrong-way-warnings-toggle" value="true" class="setting-toggle" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- DEBUG SECTION -->
+                <ui:VisualElement name="debug-section" class="section">
+                    <ui:Label text="Developer" class="section-title" />
+
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Debug Overlay" class="setting-label" />
+                        <ui:Toggle name="debug-overlay-toggle" value="false" class="setting-toggle" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="setting-item">
+                        <ui:Label text="Performance Monitoring" class="setting-label" />
+                        <ui:Toggle name="performance-monitoring-toggle" value="false" class="setting-toggle" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+            </ui:ScrollView>
+
+            <!-- Footer -->
+            <ui:VisualElement class="footer">
+                <ui:Button name="reset-button" text="Reset to Defaults" class="footer-button reset-button" />
+                <ui:Button name="apply-button" text="Apply &amp; Close" class="footer-button apply-button" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

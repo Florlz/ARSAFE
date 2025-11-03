@@ -1,0 +1,68 @@
+# ===================================
+# ARSAFE - Track ONLY Important Scripts
+# ===================================
+
+# Ignore everything by default
+*
+
+# But DO track these important folders:
+!/.gitignore
+!/Assets/
+!/Assets/ARSafe_ModularSystem/
+!/Assets/ARSafe_ModularSystem/Scripts/
+!/Assets/ARSafe_ModularSystem/Scripts/**
+!/Assets/Scripts/
+!/Assets/Scripts/**
+!/Assets/UI/
+!/Assets/UI/**
+!/Assets/Editor/
+!/Assets/Editor/ARSafeDebugManager.cs
+!/Assets/Editor/ARSafeDebugManager.cs.meta
+
+# Track documentation
+!/.github/
+!/.github/**
+!/CLAUDE.md
+!/TODO.md
+
+# Ignore meta files for folders, but keep meta files for scripts
+*.meta
+!**/*.cs.meta
+!**/*.uxml.meta
+!**/*.uss.meta
+!**/*.md.meta
+
+# ===================================
+# Unity Generated - NEVER TRACK
+# ===================================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Uu]ser[Ss]ettings/
+
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# ===================================
+# OS Files
+# ===================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===================================
+# Backups
+# ===================================
+*.backup
+*.bak
+*.cs.txt

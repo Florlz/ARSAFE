@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/RelocalizationPanel/Resources/UI/RelocalizationPanel/RelocalizationPanelStyles.uss?fileID=7433441132597879392&amp;guid=758c1e88447cfc943aea3e0aba559969&amp;type=3#RelocalizationPanelStyles" />
+    <ui:VisualElement name="relocalization-panel" class="relocalization-panel" style="display: none;">
+        <ui:VisualElement class="header">
+            <ui:Label text="Relocalization" class="title" />
+            <ui:Button name="close-button" text="×" class="close-button" />
+        </ui:VisualElement>
+
+        <!-- Instructions Section -->
+        <ui:VisualElement class="instructions-section">
+            <ui:Label text="IMPORTANT:" class="instructions-title" />
+            <ui:Label text="Select the location where you are physically standing right now" class="instructions-main" />
+            <ui:Label text="After selecting, point your camera at the floor and walls for AR tracking" class="instructions-detail" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="section">
+            <ui:Label text="Recent Locations" class="section-title" />
+            <ui:Label text="Tap a location you recently visited" class="section-subtitle" />
+            <ui:VisualElement name="recent-anchors-container" class="recent-anchors-container" />
+        </ui:VisualElement>
+        <ui:VisualElement class="divider" />
+        <ui:VisualElement class="section">
+            <ui:Label text="All Locations" class="section-title" />
+            <ui:Label name="all-targets-subtitle" text="Or manually select your current location" class="section-subtitle" />
+            <ui:ScrollView name="all-targets-scroll" class="all-targets-scroll">
+                <ui:VisualElement name="all-targets-container" class="all-targets-container" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

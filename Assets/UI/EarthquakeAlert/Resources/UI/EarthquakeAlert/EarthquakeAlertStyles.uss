@@ -1,0 +1,287 @@
+:root {
+    --earthquake-alert-bg: rgba(14, 4, 16, 0.94);
+    --earthquake-alert-card: rgba(20, 24, 36, 0.98);
+    --earthquake-alert-banner: rgba(127, 19, 21, 0.95);
+    --earthquake-alert-banner-glow: rgba(217, 118, 40, 0.6);
+    --earthquake-alert-primary: #d97628;
+    --earthquake-alert-accent: #f3b23a;
+    --earthquake-alert-danger: #7f1315;
+    --earthquake-alert-text: #fff4db;
+    --earthquake-alert-text-muted: rgba(255, 244, 219, 0.75);
+    --earthquake-alert-border: rgba(243, 178, 58, 0.3);
+    --earthquake-alert-stat-bg: rgba(243, 178, 58, 0.12);
+    --earthquake-alert-action-bg: rgba(217, 118, 40, 0.18);
+}
+
+.earthquake-alert__root {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.earthquake-alert__root--visible {
+    display: flex;
+    visibility: visible;
+    opacity: 1;
+}
+
+.earthquake-alert__scrim {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--earthquake-alert-bg);
+}
+
+.earthquake-alert__card {
+    min-width: 340px;
+    max-width: 600px;
+    width: 88%;
+    padding: 0;
+    border-radius: 28px;
+    background-color: var(--earthquake-alert-card);
+    border-width: 2px;
+    border-color: var(--earthquake-alert-danger);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.earthquake-alert__section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.earthquake-alert__section--hidden {
+    display: none;
+}
+
+.earthquake-alert__banner {
+    padding: 16px;
+    background-color: var(--earthquake-alert-banner);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.earthquake-alert__banner-text {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: var(--earthquake-alert-text);
+    letter-spacing: 4px;
+}
+
+.earthquake-alert__body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+}
+
+.earthquake-alert__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.earthquake-alert__icon-container {
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
+    background-color: var(--earthquake-alert-danger);
+    margin-right: 24px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.earthquake-alert__icon {
+    font-size: 44px;
+    color: var(--earthquake-alert-text);
+    -unity-text-align: middle-center;
+}
+
+.earthquake-alert__header-text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.earthquake-alert__title {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: var(--earthquake-alert-text);
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+.earthquake-alert__subtitle {
+    font-size: 20px;
+    color: var(--earthquake-alert-text-muted);
+    white-space: normal;
+}
+
+.earthquake-alert__stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.earthquake-alert__stat-card {
+    flex-grow: 1;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: var(--earthquake-alert-stat-bg);
+    border-width: 2px;
+    border-color: var(--earthquake-alert-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.earthquake-alert__stat-card--magnitude {
+    margin-right: 12px;
+    color: var(--earthquake-alert-text-muted);
+    letter-spacing: 2px;
+    border-color: rgba(243, 178, 58, 0.2);
+    white-space: normal;
+}
+
+.earthquake-alert__stat-value {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: var(--earthquake-alert-accent);
+    white-space: normal;
+}
+
+.earthquake-alert__stat-value--large {
+    font-size: 42px;
+}
+
+.earthquake-alert__action-box {
+    padding: 24px;
+    border-radius: 20px;
+    background-color: var(--earthquake-alert-action-bg);
+    border-width: 2px;
+    border-color: var(--earthquake-alert-primary);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.earthquake-alert__action-icon {
+    font-size: 38px;
+    color: var(--earthquake-alert-primary);
+    -unity-text-align: middle-center;
+    margin-right: 16px;
+}
+
+.earthquake-alert__action-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.earthquake-alert__action-title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: var(--earthquake-alert-accent);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.earthquake-alert__action-message {
+    font-size: 22px;
+    color: var(--earthquake-alert-text);
+    white-space: normal;
+}
+
+.earthquake-alert__button {
+    margin: 28px 32px 32px 32px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: var(--earthquake-alert-danger);
+    color: var(--earthquake-alert-text);
+    font-size: 24px;
+    -unity-font-style: bold;
+    border-color: var(--earthquake-alert-danger);
+    border-width: 0;
+    letter-spacing: 1px;
+}
+
+.earthquake-alert__button--secondary {
+    background-color: var(--earthquake-alert-primary);
+    border-color: var(--earthquake-alert-primary);
+}
+
+.earthquake-alert__complete-body {
+    padding: 40px 32px 16px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.earthquake-alert__complete-icon-wrapper {
+    width: 76px;
+    height: 76px;
+    border-radius: 38px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-width: 2px;
+    border-color: var(--earthquake-alert-primary);
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    margin-bottom: 18px;
+}
+
+.earthquake-alert__complete-icon {
+    font-size: 38px;
+    color: var(--earthquake-alert-accent);
+    -unity-text-align: middle-center;
+}
+
+.earthquake-alert__complete-title {
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: var(--earthquake-alert-text);
+    white-space: normal;
+    margin-bottom: 12px;
+}
+
+.earthquake-alert__complete-message {
+    font-size: 22px;
+    color: var(--earthquake-alert-text-muted);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 520px) {
+    .earthquake-alert__card {
+        max-width: 96%;
+    }
+
+    .earthquake-alert__stats {
+        flex-direction: column;
+    }
+
+    .earthquake-alert__stat-card--magnitude,
+    .earthquake-alert__stat-card--intensity {
+        margin: 0 0 16px 0;
+    }
+
+    .earthquake-alert__button {
+        margin: 24px 20px 28px 20px;
+    }
+}

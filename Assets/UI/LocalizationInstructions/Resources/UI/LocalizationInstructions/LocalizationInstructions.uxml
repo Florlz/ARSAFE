@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/LocalizationInstructions/Resources/UI/LocalizationInstructions/LocalizationInstructionsStyles.uss?fileID=7433441132597879392&amp;guid=fe1e032e89ef4b64e80079d2de9bb291&amp;type=3#LocalizationInstructionsStyles" />
+    <ui:VisualElement name="localization-instructions-panel" class="localization-instructions-panel" style="display: none;">
+        <!-- Compact header bar (always visible when panel is shown) -->
+        <ui:VisualElement name="compact-bar" class="loc-compact-bar">
+            <ui:VisualElement name="mini-loading-spinner" class="mini-loading-spinner">
+                <ui:VisualElement name="mini-spinner-ring" class="mini-spinner-ring" />
+            </ui:VisualElement>
+            <ui:Label name="compact-text" text="Localizing… Tap for tips" class="loc-compact-text" />
+            <ui:Label name="expand-icon" text="˅" class="loc-expand-icon" />
+        </ui:VisualElement>
+
+        <!-- Expandable body with full instructions -->
+        <ui:VisualElement name="instructions-body" class="loc-body">
+            <ui:VisualElement class="instructions-header">
+                <ui:VisualElement name="loading-spinner" class="loading-spinner">
+                    <ui:VisualElement name="spinner-ring" class="spinner-ring" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="instructions-label" text="Finding your location using AR tracking" class="instructions-label" />
+            <ui:VisualElement class="instructions-steps">
+                <ui:VisualElement class="instruction-step">
+                    <ui:Label text="1" class="step-number" />
+                    <ui:Label text="Stand in the selected location or room" class="step-text" />
+                </ui:VisualElement>
+                <ui:VisualElement class="instruction-step">
+                    <ui:Label text="2" class="step-number" />
+                    <ui:Label text="Point your camera at the floor and walls" class="step-text" />
+                </ui:VisualElement>
+                <ui:VisualElement class="instruction-step">
+                    <ui:Label text="3" class="step-number" />
+                    <ui:Label text="Move slowly - AR needs time to recognize the space" class="step-text" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="tip" class="instructions-tip">
+                <ui:Label text="TIP" class="tip-icon" />
+                <ui:Label text="Make sure the area is well-lit and keep the camera steady while scanning" class="tip-text" style="white-space: normal; margin-right: 68px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

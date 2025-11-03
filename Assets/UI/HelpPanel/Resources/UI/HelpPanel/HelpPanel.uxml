@@ -1,0 +1,69 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/HelpPanel/Resources/UI/HelpPanel/HelpPanelStyles.uss" />
+    <ui:VisualElement name="help-overlay" class="help-overlay">
+        <ui:VisualElement name="help-card" class="help-card">
+            <ui:VisualElement class="help-header">
+                <ui:Label text="Help &amp; Support" class="help-header__title" />
+                <ui:Button name="help-close-button" text="×" class="help-close-button" />
+            </ui:VisualElement>
+            <ui:ScrollView class="help-content" mode="Vertical" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden" touch-scroll-type="Clamped">
+                <ui:VisualElement class="help-section">
+                    <ui:Label text="Getting Started" class="help-section-title" />
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: How do I start using ARSAFE?" class="help-question" />
+                        <ui:Label text="Point your device camera at a registered campus building. Once recognized, select an emergency scenario from the main menu." class="help-answer" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: What buildings are supported?" class="help-question" />
+                        <ui:Label text="Check the Location Selection menu to see available campus buildings." class="help-answer" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="help-section">
+                    <ui:Label text="Emergency Scenarios" class="help-section-title" />
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: What should I do during a Fire simulation?" class="help-question" />
+                        <ui:Label text="Follow the AR arrows to the nearest safe exit. Stay low to avoid smoke. Never use elevators during fires." class="help-answer" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: What should I do during an Earthquake?" class="help-question" />
+                        <ui:Label text="Drop, Cover, and Hold On! Get under a desk. Cover your head and neck. Wait for shaking to stop before moving." class="help-answer" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: What should I do during a Flood?" class="help-question" />
+                        <ui:Label text="Move to higher ground immediately! Follow AR arrows to upper floors. Do NOT enter flooded areas." class="help-answer" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="help-section">
+                    <ui:Label text="Troubleshooting" class="help-section-title" />
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: AR tracking not working?" class="help-question" />
+                        <ui:Label text="Ensure good lighting and point camera directly at the building. Check camera permissions are enabled." class="help-answer" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: Arrows not showing?" class="help-question" />
+                        <ui:Label text="General arrows hide during active disasters. Scenario-specific arrows appear when needed." class="help-answer" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="help-qa">
+                        <ui:Label text="Q: App running slowly?" class="help-question" />
+                        <ui:Label text="Close background apps. Ensure your device has Android 8.0+ and ARCore support." class="help-answer" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="help-section">
+                    <ui:Label text="Safety Information" class="help-section-title" />
+                    <ui:VisualElement class="help-warning-box">
+                        <ui:Label text="IMPORTANT" class="help-warning-badge" />
+                        <ui:Label text="ARSAFE is a TRAINING TOOL. In real emergencies, always follow official emergency protocols. Call emergency services immediately." class="help-warning-text" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="help-section">
+                    <ui:Label text="Contact Support" class="help-section-title" />
+                    <ui:Label text="Email: usantarsafe@gmail.com" class="help-contact-email" />
+                    <ui:Label text="Response time: 24-48 hours" class="help-contact-note" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+            <ui:VisualElement class="help-footer">
+                <ui:Label text="ARSAFE Help Center" class="help-footer-text" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

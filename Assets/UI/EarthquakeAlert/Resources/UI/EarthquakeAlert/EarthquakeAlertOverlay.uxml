@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="project://database/Assets/UI/EarthquakeAlert/Resources/UI/EarthquakeAlert/EarthquakeAlertStyles.uss?fileID=7433441132597879392&amp;guid=6f076f1bf81dd94499d7bb84163f6987&amp;type=3#EarthquakeAlertStyles" />
+    <ui:VisualElement name="earthquake-alert-overlay" class="earthquake-alert__root">
+        <ui:VisualElement name="earthquake-alert-scrim" class="earthquake-alert__scrim"/>
+        <ui:VisualElement name="earthquake-alert-card" class="earthquake-alert__card">
+            <ui:VisualElement name="earthquake-alert-start" class="earthquake-alert__section earthquake-alert__section--start">
+                <ui:VisualElement class="earthquake-alert__banner">
+                    <ui:Label class="earthquake-alert__banner-text" text="EMERGENCY"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="earthquake-alert__body">
+                    <ui:VisualElement class="earthquake-alert__header">
+                        <ui:VisualElement class="earthquake-alert__icon-container">
+                            <ui:Label class="earthquake-alert__icon" text="&#9888;"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="earthquake-alert__header-text">
+                            <ui:Label name="earthquake-alert-title" class="earthquake-alert__title" text="Earthquake Detected"/>
+                            <ui:Label class="earthquake-alert__subtitle" text="Take Immediate Action"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="earthquake-alert__stats">
+                        <ui:VisualElement class="earthquake-alert__stat-card earthquake-alert__stat-card--magnitude">
+                            <ui:Label class="earthquake-alert__stat-label" text="MAGNITUDE"/>
+                            <ui:Label name="magnitude-label" class="earthquake-alert__stat-value earthquake-alert__stat-value--large" text="6.2"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="earthquake-alert__stat-card earthquake-alert__stat-card--intensity">
+                            <ui:Label class="earthquake-alert__stat-label" text="INTENSITY"/>
+                            <ui:Label name="intensity-label" class="earthquake-alert__stat-value" text="Strong"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="earthquake-alert__action-box">
+                        <ui:Label class="earthquake-alert__action-icon" text="&#9881;"/>
+                        <ui:VisualElement class="earthquake-alert__action-content">
+                            <ui:Label class="earthquake-alert__action-title" text="SAFETY PROTOCOL"/>
+                            <ui:Label name="response-label" class="earthquake-alert__action-message" text="Drop, Cover, and Hold On immediately."/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="acknowledge-button" class="earthquake-alert__button" text="ACKNOWLEDGED"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="earthquake-alert-complete" class="earthquake-alert__section earthquake-alert__section--complete earthquake-alert__section--hidden">
+                <ui:VisualElement class="earthquake-alert__complete-body">
+                    <ui:VisualElement class="earthquake-alert__complete-icon-wrapper">
+                        <ui:Label class="earthquake-alert__complete-icon" text="&#10004;"/>
+                    </ui:VisualElement>
+                    <ui:Label class="earthquake-alert__complete-title" text="Shaking Has Stopped"/>
+                    <ui:Label class="earthquake-alert__complete-message" text="Follow the safety arrows on the floor to reach the evacuation exit."/>
+                </ui:VisualElement>
+                <ui:Button name="complete-button" class="earthquake-alert__button earthquake-alert__button--secondary" text="FOLLOW SAFETY ROUTE"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

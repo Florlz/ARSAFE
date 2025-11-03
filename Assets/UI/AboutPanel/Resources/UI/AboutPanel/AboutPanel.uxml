@@ -1,0 +1,122 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="AboutPanelStyles.uss" />
+    <ui:VisualElement name="about-overlay" class="about-overlay">
+        <ui:VisualElement name="about-card" class="about-card">
+
+            <!-- Mobile Header -->
+            <ui:VisualElement class="about-header">
+                <ui:Label text="About ARSAFE" class="about-header__title" />
+                <ui:Button name="about-close-button" text="×" class="about-close-button" />
+            </ui:VisualElement>
+
+            <!-- Scrollable Content -->
+            <ui:ScrollView class="about-scroll">
+                <ui:VisualElement class="about-content">
+
+                    <!-- Logo & Title -->
+                    <ui:VisualElement class="about-logo-section">
+                        <ui:VisualElement class="about-logo" style="background-image: url('project://database/Assets/MainMenuAssets/ARSAFE%20LOGO.png?fileID=-742115095&amp;guid=d011ce7eb7af0b94482d7288fbb86edd&amp;type=3#ARSAFE LOGO_0');" />
+                        <ui:Label name="about-title" text="USANT ARSAFE" class="about-title" />
+                        <ui:Label name="about-subtitle" text="AR Safety Training Platform" class="about-subtitle" />
+                    </ui:VisualElement>
+
+                    <!-- Mission -->
+                    <ui:VisualElement class="about-section">
+                        <ui:Label text="Our Mission" class="about-section__title" />
+                        <ui:Label name="about-description" text="Transforming emergency preparedness through immersive augmented reality training experiences." class="about-section__text" />
+                    </ui:VisualElement>
+
+                    <!-- Emergency Scenarios -->
+                    <ui:VisualElement class="about-section">
+                        <ui:Label text="Emergency Scenarios" class="about-section__title" />
+                        <ui:VisualElement class="about-list">
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="🔥" class="about-list-item__icon" />
+                                <ui:VisualElement class="about-list-item__content">
+                                    <ui:Label text="Fire Emergency" class="about-list-item__title" />
+                                    <ui:Label text="Safe evacuation procedures during building fires" class="about-list-item__desc" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="⚡" class="about-list-item__icon" />
+                                <ui:VisualElement class="about-list-item__content">
+                                    <ui:Label text="Earthquake Response" class="about-list-item__title" />
+                                    <ui:Label text="Drop, cover, hold protocols and aftershock safety" class="about-list-item__desc" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="🌊" class="about-list-item__icon" />
+                                <ui:VisualElement class="about-list-item__content">
+                                    <ui:Label text="Flood Preparedness" class="about-list-item__title" />
+                                    <ui:Label text="Navigate to high ground and designated safe zones" class="about-list-item__desc" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- How It Works -->
+                    <ui:VisualElement class="about-section">
+                        <ui:Label text="How It Works" class="about-section__title" />
+                        <ui:VisualElement class="about-list">
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="1" class="about-list-item__number" />
+                                <ui:VisualElement class="about-list-item__content">
+                                    <ui:Label text="Scan Environment" class="about-list-item__title" />
+                                    <ui:Label text="Point your device at campus buildings" class="about-list-item__desc" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="2" class="about-list-item__number" />
+                                <ui:VisualElement class="about-list-item__content">
+                                    <ui:Label text="Select Scenario" class="about-list-item__title" />
+                                    <ui:Label text="Choose fire, earthquake, or flood training" class="about-list-item__desc" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="3" class="about-list-item__number" />
+                                <ui:VisualElement class="about-list-item__content">
+                                    <ui:Label text="Follow AR Guidance" class="about-list-item__title" />
+                                    <ui:Label text="Real-time arrows and alerts guide you" class="about-list-item__desc" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- Technology Stack -->
+                    <ui:VisualElement class="about-section">
+                        <ui:Label text="Powered By" class="about-section__title" />
+                        <ui:VisualElement class="about-list">
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="Unity 6" class="about-list-item__title" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="Vuforia Engine" class="about-list-item__title" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="about-list-item">
+                                <ui:Label text="Universal RP" class="about-list-item__title" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- Development Team -->
+                    <ui:VisualElement class="about-section">
+                        <ui:Label text="Development Team" class="about-section__title" />
+                        <ui:VisualElement name="about-team-list" class="about-team">
+                            <!-- Team members populated by code -->
+                        </ui:VisualElement>
+                        <ui:Label text="Team Nougat • USANT" class="about-org-label" />
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+            </ui:ScrollView>
+
+            <!-- Footer -->
+            <ui:VisualElement class="about-footer">
+                <ui:Label name="about-version" text="Version 1.0" class="about-footer__version" />
+                <ui:Label name="about-contact" text="usantarsafe@gmail.com" class="about-footer__email" />
+                <ui:Label text="© 2025 USANT" class="about-footer__copyright" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

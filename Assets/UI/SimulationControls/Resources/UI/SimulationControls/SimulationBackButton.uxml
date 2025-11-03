@@ -1,0 +1,61 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/SimulationControls/Resources/UI/SimulationControls/SimulationBackButtonStyles.uss?fileID=7433441132597879392&amp;guid=5857ff75a0736ab4691506802ff749ab&amp;type=3#SimulationBackButtonStyles" />
+    <ui:VisualElement name="simulation-controls-root" class="simulation-controls">
+        <ui:Button name="menu-toggle-button" tooltip="Open simulation menu" class="menu-toggle-button" style="background-image: url(&quot;project://database/Assets/Modern%20UI%20Pack/Textures/Icon/UI%20Elements/Context%20Menu.png?fileID=21300000&amp;guid=527ad173083b3bf44b32cf1369f6a8aa&amp;type=3#Context Menu&quot;); -unity-background-scale-mode: scale-to-fit; background-size: 54px 74%; width: 83px; height: 79px; top: 112px; left: 48px;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="menu-scrim" class="menu-scrim" />
+    <ui:VisualElement name="menu-drawer" class="menu-drawer">
+        <ui:VisualElement class="menu-drawer__header">
+            <ui:Label text="Simulation Menu" class="menu-drawer__title" />
+        </ui:VisualElement>
+        <ui:VisualElement name="menu-action-list" class="menu-action-list">
+            <ui:Label text="Menu items will appear here." class="menu-placeholder" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="exit-overlay" class="exit-overlay">
+        <ui:VisualElement name="exit-overlay-card" class="exit-overlay__card">
+            <ui:Label name="exit-overlay-title" text="Exiting Simulation" class="exit-overlay__title" />
+            <ui:Label name="exit-overlay-subtitle" text="Returning to Main Menu..." class="exit-overlay__subtitle" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="help-overlay" class="help-overlay">
+        <ui:VisualElement name="help-overlay-card" class="help-overlay__card">
+            <ui:VisualElement class="help-overlay__header">
+                <ui:Label name="help-overlay-title" text="Need a Hand?" class="help-overlay__title" />
+                <ui:Label name="help-overlay-subtitle" text="Quick AR controls and troubleshooting tips" class="help-overlay__subtitle" />
+            </ui:VisualElement>
+            <ui:VisualElement class="help-overlay__content">
+                <ui:VisualElement class="help-overlay__section">
+                    <ui:Label text="Controls" class="help-overlay__section-title" />
+                    <ui:Label text="• Move the device slowly to keep targets tracked." class="help-overlay__entry" />
+                    <ui:Label text="• Tap the menu to swap anchors or exit the simulation." class="help-overlay__entry" />
+                </ui:VisualElement>
+                <ui:VisualElement class="help-overlay__section">
+                    <ui:Label text="Troubleshooting" class="help-overlay__section-title" />
+                    <ui:Label text="• If content disappears, look back toward the last anchor." class="help-overlay__entry" />
+                    <ui:Label text="• Ensure lighting is even and avoid reflective surfaces." class="help-overlay__entry" />
+                    <ui:Label text="• Use the Back to Menu option if tracking stalls." class="help-overlay__entry" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="help-overlay__footer">
+                <ui:Button name="help-overlay-close-button" text="Got it" class="help-overlay__close-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="learn-overlay" class="learn-overlay">
+        <ui:VisualElement name="learn-overlay-card" class="learn-overlay__card">
+            <ui:VisualElement class="learn-overlay__header">
+                <ui:Label name="learn-overlay-title" text="Learn the Scenario" class="learn-overlay__title" />
+                <ui:Label name="learn-overlay-subtitle" text="Review what to do for each emergency and how the AR simulation guides you." class="learn-overlay__subtitle" />
+            </ui:VisualElement>
+            <ui:ScrollView name="learn-overlay-scroll" class="learn-overlay__scroll">
+                <ui:VisualElement name="learn-overlay-content" class="learn-overlay__content">
+                    <ui:Label text="Loading scenario guidance..." class="learn-entry__summary" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+            <ui:VisualElement class="learn-overlay__footer">
+                <ui:Button name="learn-overlay-close-button" text="Close" class="learn-overlay__close-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

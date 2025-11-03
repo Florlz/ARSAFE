@@ -1,0 +1,52 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="FireAlertStyles.uss" />
+
+    <ui:VisualElement name="fire-alert-overlay" class="fire-alert__root">
+        <!-- Animated smoke/heat backdrop -->
+        <ui:VisualElement name="fire-smoke-backdrop" class="fire-alert__smoke-backdrop" />
+
+        <!-- Fire alert start section -->
+        <ui:VisualElement name="fire-alert-start" class="fire-alert__section fire-alert__start-section">
+            <ui:VisualElement class="fire-alert__header">
+                <ui:Label text="🔥 FIRE EMERGENCY 🔥" class="fire-alert__title fire-alert__title--pulsing" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="fire-alert__content">
+                <!-- Main alert message -->
+                <ui:VisualElement class="fire-alert__response-block">
+                    <ui:Label name="response-label" text="Stay low to avoid smoke. Cover your mouth. Find the nearest exit immediately!" class="fire-alert__response-label" />
+                </ui:VisualElement>
+
+                <!-- Safety instructions -->
+                <ui:VisualElement class="fire-alert__instructions">
+                    <ui:Label text="SAFETY ACTIONS:" class="fire-alert__instructions-header" />
+                    <ui:Label text="• Stay low - crawl if necessary" class="fire-alert__instruction-item" />
+                    <ui:Label text="• Cover mouth/nose with cloth" class="fire-alert__instruction-item" />
+                    <ui:Label text="• Feel doors before opening" class="fire-alert__instruction-item" />
+                    <ui:Label text="• Use stairs, NOT elevators" class="fire-alert__instruction-item" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="fire-alert__footer">
+                <ui:Button name="acknowledge-button" text="ACKNOWLEDGED - EVACUATING" class="fire-alert__button fire-alert__button--acknowledge" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Fire alert complete section -->
+        <ui:VisualElement name="fire-alert-complete" class="fire-alert__section fire-alert__complete-section fire-alert__section--hidden">
+            <ui:VisualElement class="fire-alert__header">
+                <ui:Label text="✓ FIRE CONTAINMENT" class="fire-alert__title" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="fire-alert__content">
+                <ui:Label text="Fire has been contained." class="fire-alert__complete-message" />
+                <ui:Label text="Continue to evacuate and assemble at designated safe area." class="fire-alert__complete-instructions" />
+                <ui:Label text="Do NOT re-enter building until authorized." class="fire-alert__complete-warning" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="fire-alert__footer">
+                <ui:Button name="complete-button" text="UNDERSTOOD" class="fire-alert__button fire-alert__button--complete" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

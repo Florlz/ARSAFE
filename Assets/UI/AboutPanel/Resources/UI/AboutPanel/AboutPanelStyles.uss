@@ -1,0 +1,318 @@
+/* ============================================
+   ARSAFE - About Panel Styles
+   MOBILE-OPTIMIZED, SIMPLE, CLEAN
+   ============================================ */
+
+/* === ROOT & OVERLAY === */
+.about-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    display: none;
+    opacity: 0;
+}
+
+.about-overlay--visible {
+    display: flex;
+    opacity: 1;
+}
+
+.about-card {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(26, 31, 46);
+    flex-direction: column;
+    padding: 0;
+    min-height: 0;
+}
+
+/* === COMPACT HEADER === */
+.about-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    background-color: rgb(31, 38, 56);
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(255, 130, 0);
+    flex-shrink: 0;
+    min-height: 0;
+}
+
+.about-header__title {
+    font-size: 42px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+/* === CLOSE BUTTON === */
+.about-close-button {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    min-height: 70px;
+    padding: 0;
+    margin: 0;
+    border-radius: 35px;
+    background-color: rgba(255, 130, 0, 0.2);
+    border-width: 3px;
+    border-color: rgb(255, 130, 0);
+    color: rgb(255, 255, 255);
+    font-size: 50px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    flex-shrink: 0;
+}
+
+/* === SCROLLABLE CONTENT === */
+.about-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* CRITICAL: Hide scrollbars */
+.about-scroll .unity-scroller--vertical {
+    width: 0;
+    opacity: 0;
+    display: none;
+}
+
+.about-scroll .unity-scroller--horizontal {
+    height: 0;
+    opacity: 0;
+    display: none;
+}
+
+.about-content {
+    padding: 30px;
+    padding-bottom: 50px;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* === LOGO SECTION === */
+.about-logo-section {
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 30px 0;
+    margin-bottom: 25px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(255, 130, 0, 0.3);
+}
+
+.about-logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 60px;
+    background-color: transparent;
+    border-width: 0;
+    border-color: transparent;
+    margin-bottom: 20px;
+    padding: 20px;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.about-title {
+    font-size: 48px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+    white-space: normal;
+}
+
+.about-subtitle {
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.7);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* === SECTIONS === */
+.about-section {
+    flex-direction: column;
+    margin-bottom: 35px;
+}
+
+.about-section__title {
+    font-size: 38px;
+    color: rgb(255, 130, 0);
+    -unity-font-style: bold;
+    margin-bottom: 18px;
+    white-space: normal;
+}
+
+.about-section__text {
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: normal;
+}
+
+/* === SIMPLE LIST ITEMS === */
+.about-list {
+    flex-direction: column;
+}
+
+.about-list-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 20px 25px;
+    margin-bottom: 15px;
+    background-color: rgba(45, 55, 72, 0.6);
+    border-radius: 16px;
+    border-left-width: 4px;
+    border-left-color: rgb(255, 130, 0);
+    min-height: 0;
+}
+
+.about-list-item__icon {
+    font-size: 50px;
+    width: 70px;
+    min-width: 70px;
+    margin-right: 20px;
+    -unity-text-align: middle-center;
+}
+
+.about-list-item__number {
+    font-size: 36px;
+    color: rgb(255, 130, 0);
+    -unity-font-style: bold;
+    width: 60px;
+    min-width: 60px;
+    margin-right: 20px;
+    -unity-text-align: middle-center;
+}
+
+.about-list-item__content {
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.about-list-item__title {
+    font-size: 32px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    white-space: normal;
+}
+
+.about-list-item__desc {
+    font-size: 26px;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: normal;
+}
+
+/* === TEAM SECTION === */
+.about-team {
+    flex-direction: column;
+}
+
+.about-team-item {
+    flex-direction: column;
+    padding: 20px 25px;
+    margin-bottom: 15px;
+    background-color: rgba(45, 55, 72, 0.6);
+    border-radius: 16px;
+    border-left-width: 4px;
+    border-left-color: rgb(255, 130, 0);
+}
+
+.about-team-item__content-wrapper {
+    flex-direction: row;
+    align-items: center;
+}
+
+.about-team-item__avatar {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    min-height: 90px;
+    border-radius: 45px;
+    background-color: rgba(255, 130, 0, 0.15);
+    border-width: 3px;
+    border-color: rgba(255, 130, 0, 0.5);
+    margin-right: 20px;
+    -unity-background-scale-mode: scale-and-crop;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.about-team-item__avatar--has-image {
+    background-color: transparent;
+}
+
+.about-team-item__avatar-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.about-team-item__info {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.about-team-item__name {
+    font-size: 32px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+.about-team-item__role {
+    font-size: 26px;
+    color: rgba(255, 130, 0, 0.9);
+    white-space: normal;
+}
+
+.about-org-label {
+    font-size: 26px;
+    color: rgba(255, 255, 255, 0.5);
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+    margin-top: 15px;
+    white-space: normal;
+}
+
+/* === FOOTER === */
+.about-footer {
+    flex-direction: column;
+    padding: 25px 30px;
+    background-color: rgb(31, 38, 56);
+    border-top-width: 3px;
+    border-top-color: rgb(255, 130, 0);
+    flex-shrink: 0;
+    min-height: 0;
+}
+
+.about-footer__version {
+    font-size: 26px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 8px;
+    white-space: normal;
+}
+
+.about-footer__email {
+    font-size: 28px;
+    color: rgb(255, 130, 0);
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+    white-space: normal;
+}
+
+.about-footer__copyright {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: normal;
+}

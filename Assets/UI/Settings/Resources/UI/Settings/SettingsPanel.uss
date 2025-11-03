@@ -1,0 +1,275 @@
+/* ===================================
+   ARSAFE Settings Panel - MOBILE-FIRST REDESIGN
+   Fixed footer visibility, larger text, hidden scrollbar
+   =================================== */
+
+/* === ROOT & OVERLAY === */
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
+.overlay--visible {
+    display: flex;
+}
+
+/* === CARD === */
+.card {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(26, 31, 46);
+    flex-direction: column;
+    padding: 0;
+}
+
+/* === HEADER === */
+.header {
+    height: 140px;
+    min-height: 140px;
+    max-height: 140px;
+    background-color: rgb(31, 38, 56);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 50px;
+    padding-right: 50px;
+    border-bottom-width: 4px;
+    border-bottom-color: rgb(255, 130, 0);
+    flex-shrink: 0;
+}
+
+.header-title {
+    font-size: 70px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+}
+
+.dev-badge {
+    font-size: 28px;
+    color: rgb(255, 130, 0);
+    background-color: rgba(255, 130, 0, 0.2);
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: rgba(255, 130, 0, 0.5);
+    padding: 8px 16px;
+    -unity-font-style: bold;
+}
+
+.close-button {
+    width: 90px;
+    height: 90px;
+    font-size: 70px;
+    color: rgb(255, 255, 255);
+    background-color: rgba(239, 68, 68, 0.2);
+    border-radius: 45px;
+    border-width: 3px;
+    border-color: rgba(239, 68, 68, 0.4);
+    padding: 0;
+}
+
+/* === SCROLLABLE CONTENT (HIDE SCROLLBAR) === */
+.content-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding: 40px 50px;
+    padding-bottom: 60px;
+    min-height: 0;
+}
+
+/* CRITICAL: Hide scrollbars - multiple approaches for Unity UI Toolkit */
+.content-scroll .unity-scroller--vertical {
+    width: 0;
+    opacity: 0;
+    display: none;
+}
+
+.content-scroll .unity-scroller--horizontal {
+    height: 0;
+    opacity: 0;
+    display: none;
+}
+
+.content-scroll .unity-scroll-view__content-viewport {
+    overflow: hidden;
+}
+
+.content-scroll .unity-scroll-view__content-container {
+    overflow: hidden;
+}
+
+/* === SECTIONS === */
+.section {
+    margin-bottom: 50px;
+    padding: 35px;
+    background-color: rgba(55, 65, 81, 0.4);
+    border-radius: 20px;
+    border-width: 2px;
+    border-color: rgba(156, 163, 175, 0.15);
+}
+
+.section-title {
+    font-size: 54px;
+    color: rgb(255, 130, 0);
+    -unity-font-style: bold;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom-width: 3px;
+    border-bottom-color: rgba(255, 130, 0, 0.4);
+}
+
+/* === SETTING ITEMS (VERTICAL STACK) === */
+.setting-item {
+    flex-direction: column;
+    margin-bottom: 35px;
+    padding: 35px;
+    background-color: rgba(45, 55, 72, 0.6);
+    border-radius: 18px;
+}
+
+.setting-label {
+    font-size: 44px;
+    color: rgb(255, 255, 255);
+    margin-bottom: 20px;
+    -unity-font-style: bold;
+}
+
+/* === SLIDERS === */
+.setting-slider {
+    height: 70px;
+    margin-bottom: 18px;
+}
+
+.setting-slider .unity-base-slider__dragger {
+    width: 75px;
+    height: 75px;
+    border-radius: 38px;
+    background-color: rgb(255, 130, 0);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.setting-slider .unity-base-slider__tracker {
+    height: 24px;
+    border-radius: 12px;
+    background-color: rgba(55, 65, 81, 0.8);
+    border-width: 2px;
+    border-color: rgba(156, 163, 175, 0.2);
+}
+
+.setting-slider .unity-base-slider__drag-container {
+    height: 24px;
+}
+
+.slider-value {
+    font-size: 48px;
+    color: rgb(255, 130, 0);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* === TOGGLES === */
+.setting-toggle {
+    flex-direction: row-reverse;
+    justify-content: center;
+}
+
+.setting-toggle .unity-toggle__input {
+    width: 150px;
+    height: 80px;
+    background-color: rgba(55, 65, 81, 0.8);
+    border-radius: 40px;
+    border-width: 3px;
+    border-color: rgba(156, 163, 175, 0.4);
+}
+
+.setting-toggle:checked .unity-toggle__input {
+    background-color: rgba(16, 185, 129, 0.4);
+    border-color: rgb(16, 185, 129);
+}
+
+.setting-toggle .unity-toggle__checkmark {
+    width: 70px;
+    height: 70px;
+    background-color: rgb(156, 163, 175);
+    border-radius: 35px;
+    margin: 4px;
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.setting-toggle:checked .unity-toggle__checkmark {
+    background-color: rgb(16, 185, 129);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* === BUTTON GROUPS === */
+.button-group {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.quality-button {
+    min-width: 240px;
+    height: 90px;
+    font-size: 42px;
+    color: rgb(156, 163, 175);
+    background-color: rgba(55, 65, 81, 0.5);
+    border-radius: 20px;
+    border-width: 3px;
+    border-color: rgba(156, 163, 175, 0.3);
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.quality-selected {
+    background-color: rgba(255, 130, 0, 0.3);
+    border-color: rgb(255, 130, 0);
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    border-width: 4px;
+}
+
+/* === FOOTER (FIXED HEIGHT) === */
+.footer {
+    height: 140px;
+    min-height: 140px;
+    max-height: 140px;
+    background-color: rgb(31, 38, 56);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 50px;
+    padding-right: 50px;
+    border-top-width: 4px;
+    border-top-color: rgb(255, 130, 0);
+    flex-shrink: 0;
+}
+
+.footer-button {
+    height: 100px;
+    font-size: 44px;
+    border-radius: 20px;
+    border-width: 0;
+    padding-left: 50px;
+    padding-right: 50px;
+    -unity-font-style: bold;
+}
+
+.reset-button {
+    background-color: rgba(239, 68, 68, 0.25);
+    color: rgb(252, 165, 165);
+    border-width: 3px;
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.apply-button {
+    background-color: rgb(255, 130, 0);
+    color: rgb(26, 31, 46);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.2);
+}

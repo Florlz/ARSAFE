@@ -1,0 +1,188 @@
+/* Relocalization Panel - Mobile-First Design */
+
+.relocalization-panel {
+    position: absolute;
+    left: 5%;
+    top: 10%;
+    width: 90%;
+    max-height: 80%;
+    background-color: rgba(20, 20, 35, 0.95);
+    border-radius: 24px;
+    border-width: 2px;
+    border-color: rgba(100, 200, 255, 0.3);
+    padding: 32px;
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    transition-property: opacity;
+    transition-duration: 0.3s;
+}
+
+/* Header */
+.header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 38px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin: 0;
+}
+
+.close-button {
+    width: 48px;
+    height: 48px;
+    font-size: 32px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border-width: 0;
+    color: rgb(255, 255, 255);
+    padding: 0;
+    margin: 0;
+}
+
+.close-button:hover {
+    background-color: rgba(255, 100, 100, 0.3);
+}
+
+/* Instructions Section */
+.instructions-section {
+    background-color: rgba(255, 170, 0, 0.15);
+    border-left-width: 5px;
+    border-left-color: rgb(255, 170, 0);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    flex-shrink: 0;
+}
+
+.instructions-title {
+    font-size: 32px;
+    color: rgb(255, 200, 87);
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+}
+
+.instructions-main {
+    font-size: 28px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+    white-space: normal;
+}
+
+.instructions-detail {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: normal;
+}
+
+/* Sections */
+.section {
+    margin-bottom: 28px;
+    flex-shrink: 0;
+}
+
+.section-title {
+    font-size: 26px;
+    color: rgb(100, 200, 255);
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+}
+
+.section-subtitle {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 16px;
+}
+
+/* Divider */
+.divider {
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin-top: 12px;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+}
+
+/* Recent Anchors Container */
+.recent-anchors-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 12px;
+}
+
+/* All Targets Scroll View */
+.all-targets-scroll {
+    max-height: 400px;
+    flex-grow: 1;
+    margin-top: 12px;
+}
+
+.all-targets-container {
+    flex-direction: column;
+}
+
+/* Target Buttons */
+.target-button {
+    min-height: 64px;
+    font-size: 24px;
+    background-color: rgba(100, 150, 255, 0.2);
+    border-radius: 16px;
+    border-width: 2px;
+    border-color: rgba(100, 200, 255, 0.4);
+    color: rgb(255, 255, 255);
+    margin: 6px;
+    padding: 16px 24px;
+    -unity-text-align: middle-left;
+    transition-property: background-color, border-color;
+    transition-duration: 0.2s;
+}
+
+.target-button:hover {
+    background-color: rgba(100, 200, 255, 0.35);
+    border-color: rgba(100, 200, 255, 0.7);
+}
+
+/* Recent button variant - highlight */
+.recent-button {
+    background-color: rgba(100, 200, 255, 0.3);
+    border-color: rgba(100, 255, 200, 0.5);
+    flex-grow: 1;
+    min-width: 140px;
+}
+
+.recent-button:hover {
+    background-color: rgba(100, 255, 200, 0.4);
+    border-color: rgba(100, 255, 200, 0.8);
+}
+
+/* Floor Headers */
+.floor-header {
+    font-size: 24px;
+    color: rgb(100, 200, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    padding: 12px 8px 8px 8px;
+    margin-top: 0;
+    margin-bottom: 4px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(100, 200, 255, 0.3);
+}
+.floor-header--spaced {
+    margin-top: 16px;
+}
+
+/* Empty state labels */
+.no-history-label,
+.no-targets-label {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.5);
+    -unity-text-align: middle-center;
+    padding: 32px;
+    -unity-font-style: italic;
+}

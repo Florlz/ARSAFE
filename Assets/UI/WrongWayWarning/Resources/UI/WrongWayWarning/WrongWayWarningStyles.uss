@@ -1,0 +1,103 @@
+/* ============================================
+   ARSAFE - Wrong Way Warning Overlay
+   RED PULSING BORDER - EMERGENCY ALERT
+   ============================================ */
+
+/* === OVERLAY CONTAINER === */
+.warning-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: none;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.3s;
+}
+
+/* === BORDER BASE STYLES === */
+.warning-border {
+    position: absolute;
+    background-color: rgb(255, 50, 50);
+    opacity: 0.7;
+    /* CSS transitions removed - animation handled by C# coroutine to prevent flickering */
+}
+
+/* === TOP BORDER === */
+.warning-border--top {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 12px;
+}
+
+/* === RIGHT BORDER === */
+.warning-border--right {
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 100%;
+}
+
+/* === BOTTOM BORDER === */
+.warning-border--bottom {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 12px;
+}
+
+/* === LEFT BORDER === */
+.warning-border--left {
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 100%;
+}
+
+/* === CENTER WARNING MESSAGE === */
+.wrong-way-message {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
+.wrong-way-card {
+    background-color: rgba(255, 50, 50, 0.95);
+    border-radius: 25px;
+    border-width: 5px;
+    border-color: rgb(255, 255, 255);
+    padding: 40px 50px;
+    flex-direction: column;
+    align-items: center;
+    max-width: 85%;
+}
+
+.wrong-way-icon {
+    font-size: 100px;
+    color: rgb(255, 255, 255);
+    margin-bottom: 20px;
+    -unity-text-align: middle-center;
+}
+
+.wrong-way-title {
+    font-size: 60px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin-bottom: 15px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.wrong-way-subtitle {
+    font-size: 32px;
+    color: rgba(255, 255, 255, 0.9);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

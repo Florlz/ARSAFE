@@ -1,0 +1,66 @@
+/* ==================== GLASSMORPHISM COLOR SCHEME ==================== */
+:root {
+    /* Overlay tint – deep navy/maroon blend */
+    --overlay-bg: rgba(14, 4, 16, 0.94);
+
+    /* Card glass palette - dark navy */
+    --glass-bg: rgba(20, 24, 36, 0.98);
+    --glass-border: rgba(243, 178, 58, 0.38);
+    --glass-highlight: rgba(255, 244, 219, 0.08);
+
+    /* Ambient glow layers */
+    --glow-primary: rgba(217, 118, 40, 0.32);
+    --glow-secondary: rgba(243, 178, 58, 0.24);
+    --glow-accent: rgba(217, 118, 40, 0.28);
+
+    /* Logo halo */
+    --logo-glow-center: rgba(243, 178, 58, 0.36);
+
+    /* Typography */
+    --text-primary: rgba(255, 244, 219, 0.98);
+    --text-secondary: rgba(255, 214, 123, 0.86);
+    --text-shadow: rgba(0, 0, 0, 0.42);
+
+    /* Divider accents */
+    --divider-color: rgba(243, 178, 58, 0.38);
+    --divider-glow: rgba(255, 214, 123, 0.3);
+
+    /* Progress bar hues */
+    --progress-track: rgba(10, 12, 18, 0.6);
+    --progress-gradient-start: rgba(243, 178, 58, 1);
+    --progress-gradient-mid: rgba(255, 214, 123, 1);
+    --progress-gradient-end: rgba(255, 244, 219, 1);
+    --progress-glow: rgba(255, 214, 123, 0.55);
+    --progress-shadow: rgba(0, 0, 0, 0.35);
+
+    /* Progress text */
+    --progress-text-primary: rgba(255, 244, 219, 1);
+    --progress-text-secondary: rgba(255, 214, 123, 0.76);
+
+    /* Shimmer accent */
+    --shimmer-color: rgba(255, 244, 219, 0.42);
+
+    /* Activation card */
+    --activation-bg: rgba(25, 30, 42, 0.68);
+    --activation-border: rgba(243, 178, 58, 0.28);
+
+    /* Status indicator */
+    --indicator-active: rgba(255, 214, 123, 1);
+    --indicator-pulse: rgba(255, 214, 123, 0.45);
+
+    /* Accent badges */
+    --accent-color: rgba(243, 178, 58, 1);
+    --count-bg: rgba(243, 178, 58, 0.22);
+
+    /* Shadow effects */
+    --shadow-dark: rgba(0, 0, 0, 0.45);
+
+    /* Legacy compatibility */
+    --card-surface-bg: rgba(18, 22, 32, 0.98);
+    --card-border: rgba(243, 178, 58, 0.32);
+    --icon-bg: rgba(243, 178, 58, 0.2);
+    --progress-fill: #f3b23a;
+    --accent-gradient-start: #f3b23a;
+    --accent-gradient-end: #ffd67b;
+    --reduce-motion: 0;
+}
