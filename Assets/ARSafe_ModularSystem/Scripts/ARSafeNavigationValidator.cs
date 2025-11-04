@@ -786,7 +786,12 @@ namespace ARSafe.Modular
                 }
                 else if (applicableCount == 0)
                 {
-                    Debug.LogWarning($"<color=orange>[NavigationValidator]</color> No virtual exits applicable for {currentDisaster}");
+                    // For Flood: 2nd floor Area Targets are exits (handled by ARSafeActivationController), not virtual exits
+                    // For Fire/Earthquake: Virtual exits or ground exits expected
+                    if (currentDisaster != DisasterType.Flood)
+                    {
+                        Debug.LogWarning($"<color=orange>[NavigationValidator]</color> No virtual exits applicable for {currentDisaster}");
+                    }
                 }
             }
 

@@ -73,8 +73,11 @@ namespace ARSafe.UI
                 Debug.Log("[FloodAlertOverlayController] No manually-placed instance found, creating new GameObject.");
                 var managerObject = new GameObject(nameof(FloodAlertOverlayController));
                 managerObject.transform.SetParent(null); // Ensure root-level for DontDestroyOnLoad
-                existing = managerObject.AddComponent<FloodAlertOverlayController>();
+
+                // CRITICAL: Add UIDocument BEFORE FloodAlertOverlayController
+                // Otherwise Awake() runs before UIDocument exists, causing GetComponent<UIDocument>() to return null
                 managerObject.AddComponent<UIDocument>();
+                existing = managerObject.AddComponent<FloodAlertOverlayController>();
             }
             else
             {
@@ -93,6 +96,14 @@ namespace ARSafe.UI
             }
 
             Instance = this;
+
+            // Ensure this GameObject is a root GameObject for DontDestroyOnLoad
+            if (transform.parent != null)
+            {
+                Debug.LogWarning($"[FloodAlertOverlayController] Moving {gameObject.name} to scene root for DontDestroyOnLoad");
+                transform.SetParent(null);
+            }
+
             uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null)
             {
@@ -367,7 +378,7 @@ namespace ARSafe.UI
                 return;
             }
 
-            // NOTE: Completion overlay disabled - ExitOverlayController handles 2nd floor exit display
+            // NOTE: Completion overlay disabled for Flood - ExitOverlayController handles 2nd floor exit display
             // When user reaches 2nd floor, ARSafeActivationController shows ExitOverlayController instead
             if (progress.IsComplete)
             {
@@ -425,6 +436,7 @@ namespace ARSafe.UI
         {
             if (!uiBuilt || overlayRoot == null)
             {
+                Debug.LogWarning("[FloodAlertOverlayController] ShowStartOverlay called but UI not built or overlayRoot is null");
                 return;
             }
 

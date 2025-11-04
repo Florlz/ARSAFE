@@ -73,8 +73,11 @@ namespace ARSafe.UI
                 Debug.Log("[FireAlertOverlayController] No manually-placed instance found, creating new GameObject.");
                 var managerObject = new GameObject(nameof(FireAlertOverlayController));
                 managerObject.transform.SetParent(null); // Ensure root-level for DontDestroyOnLoad
-                existing = managerObject.AddComponent<FireAlertOverlayController>();
+
+                // CRITICAL: Add UIDocument BEFORE FireAlertOverlayController
+                // Otherwise Awake() runs before UIDocument exists, causing GetComponent<UIDocument>() to return null
                 managerObject.AddComponent<UIDocument>();
+                existing = managerObject.AddComponent<FireAlertOverlayController>();
             }
             else
             {
@@ -93,6 +96,14 @@ namespace ARSafe.UI
             }
 
             Instance = this;
+
+            // Ensure this GameObject is a root GameObject for DontDestroyOnLoad
+            if (transform.parent != null)
+            {
+                Debug.LogWarning($"[FireAlertOverlayController] Moving {gameObject.name} to scene root for DontDestroyOnLoad");
+                transform.SetParent(null);
+            }
+
             uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null)
             {

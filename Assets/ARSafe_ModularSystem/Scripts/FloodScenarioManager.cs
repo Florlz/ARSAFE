@@ -190,13 +190,7 @@ namespace ARSafe.Modular
             BroadcastProgress(InactiveProgress);
             FloodAlertOverlayController.EnsureInstance();
 
-            if (notifyOnScenarioStart)
-            {
-                MessageNotificationController.Instance?.ShowMessage(
-                    "Flood simulation ready. Prepare to move to higher ground when water rises.",
-                    MessageType.Info,
-                    5f);
-            }
+            // NOTE: Notification moved to GenerateScenarioParameters() to show AFTER user clicks "Start Simulation"
         }
 
         public static bool BeginScenarioIfReady()
@@ -259,6 +253,15 @@ namespace ARSafe.Modular
 
             BroadcastParameters(parameters);
 
+            // Show initial scenario start notification (after user clicks "Start Simulation")
+            if (notifyOnScenarioStart && MessageNotificationController.Instance != null)
+            {
+                MessageNotificationController.Instance.ShowMessage(
+                    "FLOOD ALERT: Water will begin rising soon! Move to higher ground!",
+                    MessageType.Warning,
+                    6f);
+            }
+
             // CRITICAL: Enable wrong-way navigation warnings during flood scenario
             if (ARSafe.UI.ARSafeWrongWayWarning.Instance != null)
             {
@@ -302,7 +305,7 @@ namespace ARSafe.Modular
             bool risingMidMessageShown = false;
             bool sustainedMessageShown = false;
 
-            BroadcastProgress(new FloodScenarioProgress(elapsed, 0f, FloodScenarioPhase.Rising, 0f, true));
+            BroadcastProgress(new FloodScenarioProgress(elapsed, 0f, FloodScenarioPhase.Rising, 0f, false));
 
             // Infinite loop - flood scenario runs forever until disaster type changes
             while (DisasterTypeManager.SelectedDisasterType == DisasterType.Flood)
