@@ -9,6 +9,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using ARSafe.UI;
 using MessageType = ARSafe.UI.MessageNotificationController.MessageType;
 
@@ -106,11 +107,25 @@ namespace ARSafe.Modular
                 return;
             }
 
+            // Only initialize when MainScene loads (where manual instances should exist)
+            // Skip if in MainMenu or other scenes - wait for MainScene to load
+            var activeScene = SceneManager.GetActiveScene();
+            if (activeScene.name != "MainScene")
+            {
+                Debug.Log($"[FireScenarioManager] Not in MainScene (currently in '{activeScene.name}'), skipping initialization until MainScene loads.");
+                return;
+            }
+
             var existing = UnityEngine.Object.FindFirstObjectByType<FireScenarioManager>(FindObjectsInactive.Include);
             if (existing == null)
             {
+                Debug.LogWarning("[FireScenarioManager] No manually-placed FireScenarioManager found in MainScene. Creating new instance. NOTE: Inspector references (AudioSource, etc.) will not be available. For alarm sound, please add FireScenarioManager GameObject to MainScene manually with AudioSource component.");
                 var managerObject = new GameObject(nameof(FireScenarioManager));
                 existing = managerObject.AddComponent<FireScenarioManager>();
+            }
+            else
+            {
+                Debug.Log($"[FireScenarioManager] Using manually-placed instance: {existing.gameObject.name}");
             }
 
             Instance = existing;
@@ -143,6 +158,18 @@ namespace ARSafe.Modular
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Defensive audio initialization - force correct settings regardless of Inspector configuration
+            if (alarmAudioSource != null)
+            {
+                alarmAudioSource.playOnAwake = false;  // Prevent auto-play on scene load
+                alarmAudioSource.Stop();               // Ensure stopped initially
+
+                if (logSelectedParameters)
+                {
+                    Debug.Log($"[FireScenarioManager] Fire alarm AudioSource initialized: playOnAwake=false, stopped, loop={alarmAudioSource.loop}");
+                }
+            }
         }
 
         private void OnEnable()

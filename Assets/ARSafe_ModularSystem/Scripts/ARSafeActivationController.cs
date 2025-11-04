@@ -2242,15 +2242,16 @@ namespace ARSafe.Modular
                     Debug.Log($"<color=cyan>★★★ [FLOOD SAFE ZONE]</color> User reached floor {anchorInfo.floorLevel} - SAFE FROM FLOOD!");
                 }
 
-                // Show flood safe zone UI
-                var floodSafeZone = FindFirstObjectByType<ARSAFE.UI.FloodSafeZoneController>();
-                if (floodSafeZone != null)
+                // Show exit overlay (same as reaching ground exit for fire/earthquake)
+                if (ExitOverlayController.Instance != null)
                 {
-                    floodSafeZone.Show(anchorInfo.floorLevel);
+                    ExitOverlayController.Instance.ShowForDisaster(DisasterType.Flood);
                 }
-                else
+
+                // Show evacuation reached message
+                if (MessageNotificationController.Instance != null)
                 {
-                    Debug.LogWarning("[ARSafeActivationController] FloodSafeZoneController not found in scene!");
+                    MessageNotificationController.Instance.ShowEvacuationReached();
                 }
 
                 // Disable wrong-way warnings

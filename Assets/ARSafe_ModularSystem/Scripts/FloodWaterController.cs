@@ -9,7 +9,7 @@ namespace ARSafe.Modular
      *   - Animate flood water rising from floor (0m) to knee level (~0.6m) based on FloodScenarioManager events
      *   - Simple quad/plane mesh with custom muddy water shader
      *   - Integrates with ARSafeDisasterFilter for visibility control
-     *   - Supports child arrow GameObjects for user guidance
+     *   - References sibling arrow GameObject for user guidance (arrows stay at fixed height)
      *   - SCALE-AWARE: Works with scaled plane meshes (respects Transform scale)
      *
      * DEPENDENCIES:
@@ -20,11 +20,11 @@ namespace ARSafe.Modular
      * DATA FLOW:
      *   - Input: FloodScenarioParameters (duration, colors, wave params), FloodScenarioProgress (phase, normalized)
      *   - Processing: Calculate Y position based on rise curve (0m → knee level), update shader properties per-instance
-     *   - Output: Update Transform.position.y, MaterialPropertyBlock shader params, arrow visibility
+     *   - Output: Update Transform.position.y (water mesh only), MaterialPropertyBlock shader params, arrow visibility
      *
      * INTEGRATION POINTS:
      *   - ARSafeDisasterFilter controls overall GameObject visibility based on disaster type
-     *   - Child arrows shown/hidden based on water level reaching knee height
+     *   - Sibling arrows (separate GameObject) shown/hidden based on water level reaching knee height
      *   - FloodScenarioManager broadcasts progress every frame for smooth animation
      *   - MaterialPropertyBlock ensures per-instance shader control (multiple water planes supported)
      *
@@ -86,7 +86,6 @@ namespace ARSafe.Modular
         private Vector3 initialPosition; // Cached starting position
         private bool arrowsShown;
         private float kneeReachedTime = -1f;
-        private Vector3 arrowsInitialLocalPosition; // Arrows stay at fixed height (don't rise with water)
 
         // Shader control (per-instance)
         private MeshRenderer waterRenderer;
@@ -113,17 +112,15 @@ namespace ARSafe.Modular
             // Ensure ARSafeDisasterContent exists for modular system integration
             EnsureDisasterContentTag();
 
-            // Cache arrows initial position and hide them
+            // Hide arrows initially (they're siblings of FloodWater, not children)
             if (arrowsParent != null)
             {
-                // Store initial local position so arrows stay at fixed height when water rises
-                arrowsInitialLocalPosition = arrowsParent.transform.localPosition;
                 arrowsParent.SetActive(false);
                 arrowsShown = false;
 
                 if (enableDebugLogs)
                 {
-                    Debug.Log($"<color=green>[FloodWater] Arrows cached at local position: {arrowsInitialLocalPosition}</color>");
+                    Debug.Log($"<color=green>[FloodWater] Arrows linked (will be shown at knee level). NOTE: Arrows should be sibling of FloodWater to stay at fixed height.</color>");
                 }
             }
 
@@ -166,13 +163,7 @@ namespace ARSafe.Modular
             currentHeight = Mathf.Lerp(currentHeight, targetHeight, lerpFactor);
             UpdateWaterPosition(currentHeight);
 
-            // CRITICAL: Keep arrows at fixed height (counter the water's Y movement)
-            if (arrowsParent != null && arrowsShown)
-            {
-                arrowsParent.transform.localPosition = arrowsInitialLocalPosition;
-            }
-
-            // Check if we should show arrows
+            // Check if we should show arrows (arrows are siblings, so they stay at fixed height automatically)
             if (!arrowsShown && currentHeight >= kneeHeight - 0.05f)
             {
                 if (kneeReachedTime < 0f)

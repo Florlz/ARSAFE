@@ -94,13 +94,19 @@ namespace ARSafe.Modular.Welcome
         {
             if (_instance == null && !applicationIsQuitting)
             {
-                _instance = FindFirstObjectByType<WelcomeScreenManager>(FindObjectsInactive.Include);
-                if (_instance == null && !applicationIsQuitting)
+                // Only look for instance in MainScene (where it should be manually placed)
+                var activeScene = SceneManager.GetActiveScene();
+                if (activeScene.name == "MainScene")
                 {
-                    GameObject go = new GameObject(nameof(WelcomeScreenManager));
-                    _instance = go.AddComponent<WelcomeScreenManager>();
-                    _runtimeInstanceCreated = true;
+                    _instance = FindFirstObjectByType<WelcomeScreenManager>(FindObjectsInactive.Include);
+                    // Do NOT auto-create - user must place WelcomeScreenManager in scene manually
+                    // This ensures Panel Settings and other Inspector fields are properly configured
+                    if (_instance == null)
+                    {
+                        Debug.LogWarning("[WelcomeScreenManager] No WelcomeScreenManager found in MainScene. Please add one manually to MainScene.");
                     }
+                }
+                // If not in MainScene (e.g., MainMenu), return null silently - will be available once MainScene loads
             }
 
             return _instance;
@@ -189,33 +195,49 @@ namespace ARSafe.Modular.Welcome
 
     private void OnDestroy()
     {
-        // CRITICAL: Unsubscribe from scene changes to prevent memory leaks
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-
-        // CRITICAL: Clean up UI element references and event callbacks
-        // This prevents null reference errors when accessing UI elements after destruction
-        DetachUIEvents();
-
-        // Clear the visual tree to prevent lingering references
-        if (welcomeDocument != null && welcomeDocument.rootVisualElement != null)
+        // Wrap entire cleanup in try-catch to prevent Unity Editor crashes during shutdown
+        try
         {
-            welcomeDocument.rootVisualElement.Clear();
+            // CRITICAL: Unsubscribe from scene changes to prevent memory leaks
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+
+            // CRITICAL: Clean up UI element references and event callbacks
+            // This prevents null reference errors when accessing UI elements after destruction
+            try
+            {
+                DetachUIEvents();
+            }
+            catch { /* Ignore errors during shutdown */ }
+
+            // Clear the visual tree to prevent lingering references
+            try
+            {
+                if (welcomeDocument != null && welcomeDocument.rootVisualElement != null)
+                {
+                    welcomeDocument.rootVisualElement.Clear();
+                }
+            }
+            catch { /* Ignore errors during shutdown */ }
+
+            // Clear template reference
+            activeTemplate = null;
+
+            // Clear singleton reference
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+
+            // Clear UIDocument reference
+            welcomeDocument = null;
+
+            // Mark as not showing
+            IsShowing = false;
         }
-
-        // Clear template reference
-        activeTemplate = null;
-
-        // Clear singleton reference
-        if (_instance == this)
+        catch
         {
-            _instance = null;
+            // Silent catch - don't log during shutdown to avoid crashes
         }
-
-        // Clear UIDocument reference
-        welcomeDocument = null;
-
-        // Mark as not showing
-        IsShowing = false;
     }
 
     /// <summary>
@@ -350,31 +372,26 @@ namespace ARSafe.Modular.Welcome
         currentSimulation = selectedSimulation;
         currentOverride = ResolveContentOverride(selectedSimulation);
 
-        // Use scheduled delay to ensure rootVisualElement is ready
-        // Prevents race condition where BuildVisualTree runs before root is available
-        welcomeDocument.rootVisualElement?.schedule.Execute(() =>
+        // Build the visual tree from template
+        BuildVisualTree(template, stylesheet);
+
+        // Configure content
+        ConfigureContent(selectedSimulation, currentOverride);
+
+        IsShowing = true;
+
+        if (overlayElement != null)
         {
-            // Build the visual tree from template
-            BuildVisualTree(template, stylesheet);
-
-            // Configure content
-            ConfigureContent(selectedSimulation, currentOverride);
-
-            IsShowing = true;
-
-            if (overlayElement != null)
-            {
-                Debug.Log("<color=green>[WelcomeScreen] Setting overlay to VISIBLE (DisplayStyle.Flex)</color>");
-                overlayElement.style.display = DisplayStyle.Flex;
-                overlayElement.style.opacity = 1f;
-                overlayElement.Focus();
-                Debug.Log($"<color=green>[WelcomeScreen] ✓ Overlay display set. Current display: {overlayElement.style.display.value}</color>");
-            }
-            else
-            {
-                Debug.LogError("<color=red>[WelcomeScreen] ✗ CRITICAL: overlayElement is NULL! Cannot show UI!</color>");
-            }
-        }).StartingIn(1); // 1ms delay - wait one frame for root to be ready
+            Debug.Log("<color=green>[WelcomeScreen] Setting overlay to VISIBLE (DisplayStyle.Flex)</color>");
+            overlayElement.style.display = DisplayStyle.Flex;
+            overlayElement.style.opacity = 1f;
+            overlayElement.Focus();
+            Debug.Log($"<color=green>[WelcomeScreen] ✓ Overlay display set. Current display: {overlayElement.style.display.value}</color>");
+        }
+        else
+        {
+            Debug.LogError("<color=red>[WelcomeScreen] ✗ CRITICAL: overlayElement is NULL! Cannot show UI!</color>");
+        }
     }
 
     public void ShowWelcomeModal(DisasterType selectedSimulation)

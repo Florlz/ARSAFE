@@ -87,6 +87,19 @@ namespace ARSafe.UI
             uiDocument = GetComponent<UIDocument>();
             navigationValidator = FindFirstObjectByType<ARSafeNavigationValidator>();
 
+            // Defensive audio initialization - force correct settings regardless of Inspector configuration
+            if (wrongWayAudioSource != null)
+            {
+                wrongWayAudioSource.playOnAwake = false;  // Prevent auto-play on scene load
+                wrongWayAudioSource.loop = false;         // One-shot alert sound
+                wrongWayAudioSource.Stop();               // Ensure stopped initially
+
+                if (enableDebugLogs)
+                {
+                    Debug.Log("[ARSafeWrongWayWarning] AudioSource initialized: playOnAwake=false, loop=false, stopped");
+                }
+            }
+
             if (navigationValidator == null)
             {
                 Debug.LogError("[ARSafeWrongWayWarning] No ARSafeNavigationValidator found in scene!");

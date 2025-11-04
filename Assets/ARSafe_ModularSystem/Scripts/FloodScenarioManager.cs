@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using ARSafe.UI;
 using MessageType = ARSafe.UI.MessageNotificationController.MessageType;
 
@@ -121,11 +122,25 @@ namespace ARSafe.Modular
                 return;
             }
 
+            // Only initialize when MainScene loads (where manual instances should exist)
+            // Skip if in MainMenu or other scenes - wait for MainScene to load
+            var activeScene = SceneManager.GetActiveScene();
+            if (activeScene.name != "MainScene")
+            {
+                Debug.Log($"[FloodScenarioManager] Not in MainScene (currently in '{activeScene.name}'), skipping initialization until MainScene loads.");
+                return;
+            }
+
             var existing = UnityEngine.Object.FindFirstObjectByType<FloodScenarioManager>(FindObjectsInactive.Include);
             if (existing == null)
             {
+                Debug.LogWarning("[FloodScenarioManager] No manually-placed FloodScenarioManager found in MainScene. Creating new instance. For best results, add FloodScenarioManager GameObject to MainScene manually.");
                 var managerObject = new GameObject(nameof(FloodScenarioManager));
                 existing = managerObject.AddComponent<FloodScenarioManager>();
+            }
+            else
+            {
+                Debug.Log($"[FloodScenarioManager] Using manually-placed instance: {existing.gameObject.name}");
             }
 
             Instance = existing;

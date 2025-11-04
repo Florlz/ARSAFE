@@ -72,6 +72,7 @@ namespace ARSafe.UI
             {
                 Debug.Log("[FireAlertOverlayController] No manually-placed instance found, creating new GameObject.");
                 var managerObject = new GameObject(nameof(FireAlertOverlayController));
+                managerObject.transform.SetParent(null); // Ensure root-level for DontDestroyOnLoad
                 existing = managerObject.AddComponent<FireAlertOverlayController>();
                 managerObject.AddComponent<UIDocument>();
             }
@@ -122,15 +123,24 @@ namespace ARSafe.UI
             DisasterTypeManager.OnDisasterTypeChanged += HandleDisasterChanged;
 
             // Subscribe to welcome screen completion
+            // Only wait for welcome screen if it exists AND is currently showing
             var welcomeManager = WelcomeScreenManager.Instance;
             if (welcomeManager != null)
             {
                 welcomeManager.OnWelcomeCompleted += HandleWelcomeCompleted;
                 welcomeScreenActive = welcomeManager.IsShowing;
+
+                // Safety: If welcome screen exists but isn't showing, don't wait for it
+                if (!welcomeScreenActive)
+                {
+                    Debug.Log("[FireAlertOverlayController] Welcome screen exists but not showing - proceeding immediately");
+                }
             }
             else
             {
+                // No welcome screen in scene - proceed immediately
                 welcomeScreenActive = false;
+                Debug.Log("[FireAlertOverlayController] No welcome screen found - proceeding immediately");
             }
 
             HandleScenarioParameters(FireScenarioManager.CurrentParameters);
@@ -139,38 +149,46 @@ namespace ARSafe.UI
 
         private void OnDisable()
         {
-            FireScenarioManager.OnParametersUpdated -= HandleScenarioParameters;
-            FireScenarioManager.OnProgressUpdated -= HandleScenarioProgress;
-            DisasterTypeManager.OnDisasterTypeChanged -= HandleDisasterChanged;
-
-            if (WelcomeScreenManager.TryGetInstance(out var welcomeManager))
+            // Wrap in try-catch to prevent crashes during Unity shutdown
+            try
             {
-                welcomeManager.OnWelcomeCompleted -= HandleWelcomeCompleted;
-            }
+                FireScenarioManager.OnParametersUpdated -= HandleScenarioParameters;
+                FireScenarioManager.OnProgressUpdated -= HandleScenarioProgress;
+                DisasterTypeManager.OnDisasterTypeChanged -= HandleDisasterChanged;
 
-            if (acknowledgeButton != null)
-            {
-                acknowledgeButton.clicked -= HideOverlay;
-            }
-            if (completeButton != null)
-            {
-                completeButton.clicked -= HideOverlay;
-            }
+                if (WelcomeScreenManager.TryGetInstance(out var welcomeManager))
+                {
+                    welcomeManager.OnWelcomeCompleted -= HandleWelcomeCompleted;
+                }
 
-            cacheRetryItem?.Pause();
-            cacheRetryItem = null;
-            overlayRoot = null;
-            responseLabel = null;
-            acknowledgeButton = null;
-            startSection = null;
-            completeSection = null;
-            completeButton = null;
-            uiBuilt = false;
-            showingCompletion = false;
-            welcomeScreenActive = false;
-            pendingParameters = default;
-            hasPendingParameters = false;
-            scenarioActive = false;
+                if (acknowledgeButton != null)
+                {
+                    acknowledgeButton.clicked -= HideOverlay;
+                }
+                if (completeButton != null)
+                {
+                    completeButton.clicked -= HideOverlay;
+                }
+
+                cacheRetryItem?.Pause();
+                cacheRetryItem = null;
+                overlayRoot = null;
+                responseLabel = null;
+                acknowledgeButton = null;
+                startSection = null;
+                completeSection = null;
+                completeButton = null;
+                uiBuilt = false;
+                showingCompletion = false;
+                welcomeScreenActive = false;
+                pendingParameters = default;
+                hasPendingParameters = false;
+                scenarioActive = false;
+            }
+            catch
+            {
+                // Silent catch during shutdown
+            }
         }
 
         private void OnDestroy()
@@ -279,26 +297,45 @@ namespace ARSafe.UI
 
         private void HandleScenarioParameters(FireScenarioParameters parameters)
         {
-            Debug.Log($"[FireAlertOverlayController] Received parameters: IsActive={parameters.IsActive}, Intensity={parameters.IntensityLabel}, uiBuilt={uiBuilt}");
+            Debug.Log($"[FireAlertOverlayController] Received parameters: IsActive={parameters.IsActive}, Intensity={parameters.IntensityLabel}, uiBuilt={uiBuilt}, welcomeScreenActive={welcomeScreenActive}");
 
             if (!uiBuilt)
             {
                 CacheElements();
 
+                // If still not built, schedule retry
                 if (!uiBuilt)
                 {
                     if (parameters.IsActive)
                     {
                         pendingParameters = parameters;
                         hasPendingParameters = true;
+                        Debug.LogWarning("[FireAlertOverlayController] UI not ready, scheduling retry in 100ms");
+
+                        // Schedule retry after a short delay to give UI time to build
+                        if (uiDocument != null && uiDocument.rootVisualElement != null)
+                        {
+                            uiDocument.rootVisualElement.schedule.Execute(() =>
+                            {
+                                if (hasPendingParameters && !uiBuilt)
+                                {
+                                    Debug.Log("[FireAlertOverlayController] Retrying UI build after scheduled delay");
+                                    HandleScenarioParameters(pendingParameters);
+                                }
+                            }).StartingIn(100);
+                        }
                     }
                     return;
                 }
             }
 
-            // Wait for welcome screen if active
-            if (welcomeScreenActive && parameters.IsActive)
+            // If welcome screen is active, wait until it's dismissed
+            // Check welcome screen state in real-time instead of using cached flag
+            // This prevents race conditions on 2nd+ scenario cycles
+            var welcomeManager = WelcomeScreenManager.TryGetInstance(out var mgr) ? mgr : null;
+            if (welcomeManager != null && welcomeManager.IsShowing && parameters.IsActive)
             {
+                Debug.Log("[FireAlertOverlayController] Welcome screen showing - deferring overlay until welcome completes");
                 pendingParameters = parameters;
                 hasPendingParameters = true;
                 return;
@@ -338,10 +375,13 @@ namespace ARSafe.UI
 
         private void HandleWelcomeCompleted()
         {
+            Debug.Log("[FireAlertOverlayController] Welcome screen completed");
             welcomeScreenActive = false;
 
+            // Show pending parameters if we have them
             if (hasPendingParameters && pendingParameters.IsActive)
             {
+                Debug.Log("[FireAlertOverlayController] Showing deferred fire overlay");
                 HandleScenarioParameters(pendingParameters);
                 if (!hasPendingParameters)
                 {

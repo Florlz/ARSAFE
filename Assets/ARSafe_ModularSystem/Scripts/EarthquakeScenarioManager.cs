@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using ARSafe.UI;
 using MessageType = ARSafe.UI.MessageNotificationController.MessageType;
 
@@ -81,11 +82,25 @@ namespace ARSafe.Modular
                 return;
             }
 
+            // Only initialize when MainScene loads (where manual instances should exist)
+            // Skip if in MainMenu or other scenes - wait for MainScene to load
+            var activeScene = SceneManager.GetActiveScene();
+            if (activeScene.name != "MainScene")
+            {
+                Debug.Log($"[EarthquakeScenarioManager] Not in MainScene (currently in '{activeScene.name}'), skipping initialization until MainScene loads.");
+                return;
+            }
+
             var existing = UnityEngine.Object.FindFirstObjectByType<EarthquakeScenarioManager>(FindObjectsInactive.Include);
             if (existing == null)
             {
+                Debug.LogWarning("[EarthquakeScenarioManager] No manually-placed EarthquakeScenarioManager found in MainScene. Creating new instance. For best results, add EarthquakeScenarioManager GameObject to MainScene manually.");
                 var managerObject = new GameObject(nameof(EarthquakeScenarioManager));
                 existing = managerObject.AddComponent<EarthquakeScenarioManager>();
+            }
+            else
+            {
+                Debug.Log($"[EarthquakeScenarioManager] Using manually-placed instance: {existing.gameObject.name}");
             }
 
             Instance = existing;

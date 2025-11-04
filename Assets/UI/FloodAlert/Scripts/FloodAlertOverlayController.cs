@@ -72,6 +72,7 @@ namespace ARSafe.UI
             {
                 Debug.Log("[FloodAlertOverlayController] No manually-placed instance found, creating new GameObject.");
                 var managerObject = new GameObject(nameof(FloodAlertOverlayController));
+                managerObject.transform.SetParent(null); // Ensure root-level for DontDestroyOnLoad
                 existing = managerObject.AddComponent<FloodAlertOverlayController>();
                 managerObject.AddComponent<UIDocument>();
             }
@@ -122,15 +123,24 @@ namespace ARSafe.UI
             DisasterTypeManager.OnDisasterTypeChanged += HandleDisasterChanged;
 
             // Subscribe to welcome screen completion
+            // Only wait for welcome screen if it exists AND is currently showing
             var welcomeManager = WelcomeScreenManager.Instance;
             if (welcomeManager != null)
             {
                 welcomeManager.OnWelcomeCompleted += HandleWelcomeCompleted;
                 welcomeScreenActive = welcomeManager.IsShowing;
+
+                // Safety: If welcome screen exists but isn't showing, don't wait for it
+                if (!welcomeScreenActive)
+                {
+                    Debug.Log("[FloodAlertOverlayController] Welcome screen exists but not showing - proceeding immediately");
+                }
             }
             else
             {
+                // No welcome screen in scene - proceed immediately
                 welcomeScreenActive = false;
+                Debug.Log("[FloodAlertOverlayController] No welcome screen found - proceeding immediately");
             }
 
             HandleScenarioParameters(FloodScenarioManager.CurrentParameters);
@@ -139,38 +149,46 @@ namespace ARSafe.UI
 
         private void OnDisable()
         {
-            FloodScenarioManager.OnParametersUpdated -= HandleScenarioParameters;
-            FloodScenarioManager.OnProgressUpdated -= HandleScenarioProgress;
-            DisasterTypeManager.OnDisasterTypeChanged -= HandleDisasterChanged;
-
-            if (WelcomeScreenManager.TryGetInstance(out var welcomeManager))
+            // Wrap in try-catch to prevent crashes during Unity shutdown
+            try
             {
-                welcomeManager.OnWelcomeCompleted -= HandleWelcomeCompleted;
-            }
+                FloodScenarioManager.OnParametersUpdated -= HandleScenarioParameters;
+                FloodScenarioManager.OnProgressUpdated -= HandleScenarioProgress;
+                DisasterTypeManager.OnDisasterTypeChanged -= HandleDisasterChanged;
 
-            if (acknowledgeButton != null)
-            {
-                acknowledgeButton.clicked -= HideOverlay;
-            }
-            if (completeButton != null)
-            {
-                completeButton.clicked -= HideOverlay;
-            }
+                if (WelcomeScreenManager.TryGetInstance(out var welcomeManager))
+                {
+                    welcomeManager.OnWelcomeCompleted -= HandleWelcomeCompleted;
+                }
 
-            cacheRetryItem?.Pause();
-            cacheRetryItem = null;
-            overlayRoot = null;
-            responseLabel = null;
-            acknowledgeButton = null;
-            startSection = null;
-            completeSection = null;
-            completeButton = null;
-            uiBuilt = false;
-            showingCompletion = false;
-            welcomeScreenActive = false;
-            pendingParameters = default;
-            hasPendingParameters = false;
-            scenarioActive = false;
+                if (acknowledgeButton != null)
+                {
+                    acknowledgeButton.clicked -= HideOverlay;
+                }
+                if (completeButton != null)
+                {
+                    completeButton.clicked -= HideOverlay;
+                }
+
+                cacheRetryItem?.Pause();
+                cacheRetryItem = null;
+                overlayRoot = null;
+                responseLabel = null;
+                acknowledgeButton = null;
+                startSection = null;
+                completeSection = null;
+                completeButton = null;
+                uiBuilt = false;
+                showingCompletion = false;
+                welcomeScreenActive = false;
+                pendingParameters = default;
+                hasPendingParameters = false;
+                scenarioActive = false;
+            }
+            catch
+            {
+                // Silent catch during shutdown
+            }
         }
 
         private void OnDestroy()
@@ -279,26 +297,45 @@ namespace ARSafe.UI
 
         private void HandleScenarioParameters(FloodScenarioParameters parameters)
         {
-            Debug.Log($"[FloodAlertOverlayController] Received parameters: IsActive={parameters.IsActive}, TargetDepth={parameters.TargetDepthMeters}m, uiBuilt={uiBuilt}");
+            Debug.Log($"[FloodAlertOverlayController] Received parameters: IsActive={parameters.IsActive}, TargetDepth={parameters.TargetDepthMeters}m, uiBuilt={uiBuilt}, welcomeScreenActive={welcomeScreenActive}");
 
             if (!uiBuilt)
             {
                 CacheElements();
 
+                // If still not built, schedule retry
                 if (!uiBuilt)
                 {
                     if (parameters.IsActive)
                     {
                         pendingParameters = parameters;
                         hasPendingParameters = true;
+                        Debug.LogWarning("[FloodAlertOverlayController] UI not ready, scheduling retry in 100ms");
+
+                        // Schedule retry after a short delay to give UI time to build
+                        if (uiDocument != null && uiDocument.rootVisualElement != null)
+                        {
+                            uiDocument.rootVisualElement.schedule.Execute(() =>
+                            {
+                                if (hasPendingParameters && !uiBuilt)
+                                {
+                                    Debug.Log("[FloodAlertOverlayController] Retrying UI build after scheduled delay");
+                                    HandleScenarioParameters(pendingParameters);
+                                }
+                            }).StartingIn(100);
+                        }
                     }
                     return;
                 }
             }
 
-            // Wait for welcome screen if active
-            if (welcomeScreenActive && parameters.IsActive)
+            // If welcome screen is active, wait until it's dismissed
+            // Check welcome screen state in real-time instead of using cached flag
+            // This prevents race conditions on 2nd+ scenario cycles
+            var welcomeManager = WelcomeScreenManager.TryGetInstance(out var mgr) ? mgr : null;
+            if (welcomeManager != null && welcomeManager.IsShowing && parameters.IsActive)
             {
+                Debug.Log("[FloodAlertOverlayController] Welcome screen showing - deferring overlay until welcome completes");
                 pendingParameters = parameters;
                 hasPendingParameters = true;
                 return;
@@ -330,18 +367,24 @@ namespace ARSafe.UI
                 return;
             }
 
+            // NOTE: Completion overlay disabled - ExitOverlayController handles 2nd floor exit display
+            // When user reaches 2nd floor, ARSafeActivationController shows ExitOverlayController instead
             if (progress.IsComplete)
             {
-                ShowCompleteOverlay();
+                // Hide flood warning overlay when scenario completes (user reached 2nd floor)
+                HideOverlay();
             }
         }
 
         private void HandleWelcomeCompleted()
         {
+            Debug.Log("[FloodAlertOverlayController] Welcome screen completed");
             welcomeScreenActive = false;
 
+            // Show pending parameters if we have them
             if (hasPendingParameters && pendingParameters.IsActive)
             {
+                Debug.Log("[FloodAlertOverlayController] Showing deferred flood overlay");
                 HandleScenarioParameters(pendingParameters);
                 if (!hasPendingParameters)
                 {

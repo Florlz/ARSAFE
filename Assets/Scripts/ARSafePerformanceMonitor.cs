@@ -1207,7 +1207,7 @@ namespace ARSafe.Performance
                     // Always log summary generation (important event)
                     Debug.Log($"<color=green>[ARSafePerformanceMonitor]</color> ✓ Usability testing summary generated: {summaryFilePath}");
                 }
-                catch (Exception writeEx)
+                catch
                 {
                     // If file write fails during shutdown, log to console instead
                     Debug.LogWarning($"[ARSafePerformanceMonitor] Could not write summary file during shutdown, logging to console instead:\n{sb.ToString()}");

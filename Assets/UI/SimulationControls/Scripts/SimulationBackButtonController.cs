@@ -1486,6 +1486,7 @@ namespace ARSafe.UI
         /// <summary>
         /// Clean up navigation and wrong-way warning systems when exiting simulation.
         /// CRITICAL: Call this BEFORE scene unload to properly reset all systems.
+        /// Uses try-catch protection to prevent crashes during Unity shutdown.
         /// </summary>
         private void CleanupNavigationAndWarningSystems()
         {
@@ -1494,51 +1495,89 @@ namespace ARSafe.UI
                 Debug.Log("<color=cyan>[SimulationBackButton]</color> Cleaning up navigation and warning systems...");
             }
 
-            // 1. Clean up wrong-way warning system
-            var wrongWayWarning = FindFirstObjectByType<ARSafe.UI.ARSafeWrongWayWarning>();
-            if (wrongWayWarning != null)
+            // Wrap entire cleanup in try-catch to prevent crashes during scene unload
+            try
             {
-                wrongWayWarning.DisableWarnings();
-
-                if (enableDebugLogs)
+                // 1. Clean up wrong-way warning system
+                try
                 {
-                    Debug.Log("  ✓ ARSafeWrongWayWarning disabled");
-                }
-            }
-
-            // 2. Clean up navigation validator (FULL reset including virtual exits)
-            var navigationValidator = FindFirstObjectByType<ARSafe.Modular.ARSafeNavigationValidator>();
-            if (navigationValidator != null)
-            {
-                navigationValidator.ResetForNewSimulation();
-
-                if (enableDebugLogs)
-                {
-                    Debug.Log("  ✓ ARSafeNavigationValidator fully reset");
-                }
-            }
-
-            // 3. Reset all virtual exit markers
-            var virtualExits = FindObjectsByType<ARSafe.Content.VirtualExitMarker>(FindObjectsSortMode.None);
-            if (virtualExits != null && virtualExits.Length > 0)
-            {
-                foreach (var virtualExit in virtualExits)
-                {
-                    if (virtualExit != null)
+                    var wrongWayWarning = FindFirstObjectByType<ARSafe.UI.ARSafeWrongWayWarning>();
+                    if (wrongWayWarning != null && wrongWayWarning.gameObject != null)
                     {
-                        virtualExit.ResetExit();
+                        wrongWayWarning.DisableWarnings();
+
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log("  ✓ ARSafeWrongWayWarning disabled");
+                        }
                     }
                 }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[SimulationBackButton] Could not clean up wrong-way warning: {ex.Message}");
+                }
+
+                // 2. Clean up navigation validator (FULL reset including virtual exits)
+                try
+                {
+                    var navigationValidator = FindFirstObjectByType<ARSafe.Modular.ARSafeNavigationValidator>();
+                    if (navigationValidator != null && navigationValidator.gameObject != null)
+                    {
+                        navigationValidator.ResetForNewSimulation();
+
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log("  ✓ ARSafeNavigationValidator fully reset");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[SimulationBackButton] Could not reset navigation validator: {ex.Message}");
+                }
+
+                // 3. Reset all virtual exit markers
+                try
+                {
+                    var virtualExits = FindObjectsByType<ARSafe.Content.VirtualExitMarker>(FindObjectsSortMode.None);
+                    if (virtualExits != null && virtualExits.Length > 0)
+                    {
+                        int resetCount = 0;
+                        foreach (var virtualExit in virtualExits)
+                        {
+                            if (virtualExit != null && virtualExit.gameObject != null)
+                            {
+                                try
+                                {
+                                    virtualExit.ResetExit();
+                                    resetCount++;
+                                }
+                                catch
+                                {
+                                    // Skip this virtual exit if it's already being destroyed
+                                }
+                            }
+                        }
+
+                        if (enableDebugLogs && resetCount > 0)
+                        {
+                            Debug.Log($"  ✓ {resetCount} virtual exit marker(s) reset");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[SimulationBackButton] Could not reset virtual exits: {ex.Message}");
+                }
 
                 if (enableDebugLogs)
                 {
-                    Debug.Log($"  ✓ {virtualExits.Length} virtual exit marker(s) reset");
+                    Debug.Log("<color=green>[SimulationBackButton]</color> Navigation and warning cleanup complete!");
                 }
             }
-
-            if (enableDebugLogs)
+            catch (System.Exception ex)
             {
-                Debug.Log("<color=green>[SimulationBackButton]</color> Navigation and warning cleanup complete!");
+                Debug.LogError($"[SimulationBackButton] Critical error during cleanup (non-fatal): {ex.Message}");
             }
         }
         private void AttachMenuEvents()
