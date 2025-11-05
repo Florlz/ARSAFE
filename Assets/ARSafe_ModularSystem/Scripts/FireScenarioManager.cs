@@ -31,10 +31,17 @@ namespace ARSafe.Modular
             1f,
             1f,
             1f,
-            false);
+            false,
+            1,
+            string.Empty,
+            string.Empty);
+
+        [Header("Fire Alarm Level (Philippine BFP System)")]
+        [Tooltip("Random alarm level range (1-5: 1st Alarm to 5th Alarm based on Philippine Bureau of Fire Protection system).")]
+        [SerializeField] private Vector2Int alarmLevelRange = new Vector2Int(1, 5);
 
         [Header("Fire Intensity Generation")]
-        [Tooltip("Random intensity range (0-10 scale) sampled when the fire scenario begins.")]
+        [Tooltip("Random intensity range (0-10 scale) sampled when the fire scenario begins. Used for internal calculations.")]
         [SerializeField] private Vector2 intensityRange = new Vector2(4f, 8f);
 
         [Header("Scenario Duration")]
@@ -241,6 +248,11 @@ namespace ARSafe.Modular
 
         private void GenerateScenarioParameters()
         {
+            // Generate alarm level (1-5) for Philippine BFP system
+            int alarmLevel = UnityEngine.Random.Range(alarmLevelRange.x, alarmLevelRange.y + 1); // +1 because Range is exclusive for int
+            GetAlarmLevelInfo(alarmLevel, out string alarmLevelLabel, out string responseType, out string alarmResponseMessage);
+
+            // Generate internal intensity for particle scaling (kept for backward compatibility)
             float intensity = Mathf.Max(0.1f, UnityEngine.Random.Range(intensityRange.x, intensityRange.y));
             float normalized = Mathf.InverseLerp(intensityRange.x, intensityRange.y, intensity);
             float durationSeconds = Mathf.Max(10f, UnityEngine.Random.Range(durationRange.x, durationRange.y));
@@ -255,16 +267,19 @@ namespace ARSafe.Modular
                 intensity,
                 normalized,
                 intensityLabel,
-                responseMessage,
+                alarmResponseMessage, // Use alarm level response message instead
                 durationSeconds,
                 fireEmissionMultiplier,
                 smokeEmissionMultiplier,
                 lifetimeMultiplier,
-                true);
+                true,
+                alarmLevel,
+                alarmLevelLabel,
+                responseType);
 
             if (logSelectedParameters)
             {
-                Debug.Log($"[FireScenarioManager] Intensity {intensity:F1} ({intensityLabel}), duration {durationSeconds:F1}s, fire emission x{fireEmissionMultiplier:F2}, smoke x{smokeEmissionMultiplier:F2}");
+                Debug.Log($"<color=orange>[FireScenarioManager]</color> {alarmLevelLabel} ({responseType}) | Intensity {intensity:F1}, duration {durationSeconds:F1}s");
             }
 
             BroadcastParameters(parameters);
@@ -335,6 +350,52 @@ namespace ARSafe.Modular
             {
                 responseMessage = "EXTREME DANGER! Emergency evacuation! Follow exit signs!";
                 return "Extreme Fire";
+            }
+        }
+
+        /// <summary>
+        /// Get fire alarm level information based on Philippine BFP system adapted for SGO Building, USANT Iriga City.
+        /// Realistic single-building scenario with BFP Iriga City + mutual aid escalation.
+        /// </summary>
+        private void GetAlarmLevelInfo(int alarmLevel, out string alarmLevelLabel, out string responseType, out string responseMessage)
+        {
+            switch (alarmLevel)
+            {
+                case 1:
+                    alarmLevelLabel = "1st Alarm";
+                    responseType = "Initial Response";
+                    responseMessage = "Small fire in SGO building. Initial BFP Iriga unit responding. Stay calm and prepare to evacuate if instructed.";
+                    break;
+
+                case 2:
+                    alarmLevelLabel = "2nd Alarm";
+                    responseType = "Full Local Response";
+                    responseMessage = "Fire spreading within SGO building. All BFP Iriga units responding. Evacuate calmly using nearest exit.";
+                    break;
+
+                case 3:
+                    alarmLevelLabel = "3rd Alarm";
+                    responseType = "Neighboring Municipality Support";
+                    responseMessage = "Major fire - multiple floors involved. Mutual aid from Naga City requested. Immediate evacuation required!";
+                    break;
+
+                case 4:
+                    alarmLevelLabel = "4th Alarm";
+                    responseType = "Multi-Municipality Response";
+                    responseMessage = "Critical fire threatening entire building. Regional coordination activated. EVACUATE IMMEDIATELY!";
+                    break;
+
+                case 5:
+                    alarmLevelLabel = "5th Alarm";
+                    responseType = "Provincial Emergency";
+                    responseMessage = "CATASTROPHIC FIRE at USANT campus! Maximum provincial response from BFP Camarines Sur. EXTREME DANGER - EVACUATE NOW!";
+                    break;
+
+                default:
+                    alarmLevelLabel = "1st Alarm";
+                    responseType = "Initial Response";
+                    responseMessage = "Fire reported. Evacuate if instructed.";
+                    break;
             }
         }
 
@@ -557,7 +618,10 @@ namespace ARSafe.Modular
             float fireEmissionMultiplier,
             float smokeEmissionMultiplier,
             float lifetimeMultiplier,
-            bool isActive)
+            bool isActive,
+            int alarmLevel,
+            string alarmLevelLabel,
+            string responseType)
         {
             Intensity = Mathf.Max(0f, intensity);
             NormalizedIntensity = Mathf.Clamp01(normalizedIntensity);
@@ -568,6 +632,9 @@ namespace ARSafe.Modular
             SmokeEmissionMultiplier = smokeEmissionMultiplier;
             LifetimeMultiplier = lifetimeMultiplier;
             IsActive = isActive && Intensity > 0f;
+            AlarmLevel = Mathf.Clamp(alarmLevel, 1, 5);
+            AlarmLevelLabel = alarmLevelLabel ?? string.Empty;
+            ResponseType = responseType ?? string.Empty;
         }
 
         public float Intensity { get; }
@@ -579,6 +646,9 @@ namespace ARSafe.Modular
         public float SmokeEmissionMultiplier { get; }
         public float LifetimeMultiplier { get; }
         public bool IsActive { get; }
+        public int AlarmLevel { get; }
+        public string AlarmLevelLabel { get; }
+        public string ResponseType { get; }
     }
 
     /// <summary>

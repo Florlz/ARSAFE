@@ -1,176 +1,266 @@
-/* Fire Alert Overlay Styles - Red/Orange Fire Theme */
+:root {
+    --fire-alert-bg: rgba(10, 6, 4, 0.94);
+    --fire-alert-card: rgba(28, 18, 16, 0.98);
+    --fire-alert-banner: rgba(204, 0, 0, 0.95);
+    --fire-alert-banner-glow: rgba(255, 69, 0, 0.6);
+    --fire-alert-primary: #ff5722;
+    --fire-alert-accent: #ffa726;
+    --fire-alert-danger: #8b1a00;
+    --fire-alert-text: #fff8e1;
+    --fire-alert-text-muted: rgba(255, 248, 225, 0.75);
+    --fire-alert-border: rgba(255, 167, 38, 0.3);
+    --fire-alert-stat-bg: rgba(255, 167, 38, 0.12);
+    --fire-alert-action-bg: rgba(255, 87, 34, 0.18);
+}
 
-/* Root container */
 .fire-alert__root {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: none;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .fire-alert__root--visible {
     display: flex;
+    visibility: visible;
+    opacity: 1;
 }
 
-/* Smoke/heat backdrop */
-.fire-alert__smoke-backdrop {
+.fire-alert__scrim {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 69, 0, 0.15);
-    /* Orangered smoke tint */
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--fire-alert-bg);
 }
 
-/* Section containers */
+.fire-alert__card {
+    min-width: 340px;
+    max-width: 600px;
+    width: 88%;
+    padding: 0;
+    border-radius: 28px;
+    background-color: var(--fire-alert-card);
+    border-width: 2px;
+    border-color: var(--fire-alert-danger);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .fire-alert__section {
-    width: 90%;
-    max-width: 800px;
-    background-color: rgba(139, 0, 0, 0.95);
-    /* Dark red background */
-    border-width: 4px;
-    border-color: rgb(255, 140, 0);
-    /* Dark orange border */
-    border-radius: 16px;
-    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .fire-alert__section--hidden {
     display: none;
 }
 
-/* Header */
-.fire-alert__header {
+.fire-alert__banner {
+    padding: 16px;
+    background-color: var(--fire-alert-banner);
+    display: flex;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 24px;
+}
+
+.fire-alert__banner-text {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: var(--fire-alert-text);
+    letter-spacing: 4px;
+}
+
+.fire-alert__body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+}
+
+.fire-alert__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.fire-alert__icon-container {
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
+    background-color: var(--fire-alert-danger);
+    margin-right: 24px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.fire-alert__icon {
+    font-size: 44px;
+    color: var(--fire-alert-text);
+    -unity-text-align: middle-center;
+}
+
+.fire-alert__header-text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .fire-alert__title {
-    font-size: 48px;
-    color: rgb(255, 69, 0);
-    /* Orangered */
+    font-size: 30px;
     -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    text-shadow: 0px 0px 12px rgba(255, 140, 0, 0.8);
+    color: var(--fire-alert-text);
+    margin-bottom: 6px;
+    white-space: normal;
 }
 
-.fire-alert__title--pulsing {
-    /* Fire pulsing effect would be handled via animation in code if needed */
+.fire-alert__subtitle {
+    font-size: 20px;
+    color: var(--fire-alert-text-muted);
+    white-space: normal;
 }
 
-/* Content area */
-.fire-alert__content {
+.fire-alert__stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     margin-bottom: 24px;
 }
 
-/* Response message */
-.fire-alert__response-block {
-    background-color: rgba(0, 0, 0, 0.4);
+.fire-alert__stat-card {
+    flex-grow: 1;
     padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    border-radius: 20px;
+    background-color: var(--fire-alert-stat-bg);
     border-width: 2px;
-    border-color: rgb(255, 69, 0);
-}
-
-.fire-alert__response-label {
-    font-size: 28px;
-    color: rgb(255, 255, 255);
-    -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    white-space: normal;
-}
-
-/* Safety instructions */
-.fire-alert__instructions {
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 16px;
-    border-radius: 8px;
-    border-left-width: 4px;
-    border-left-color: rgb(255, 140, 0);
-}
-
-.fire-alert__instructions-header {
-    font-size: 26px;
-    color: rgb(255, 140, 0);
-    -unity-font-style: bold;
-    margin-bottom: 12px;
-}
-
-.fire-alert__instruction-item {
-    font-size: 24px;
-    color: rgb(255, 255, 255);
-    margin-top: 8px;
-    margin-left: 8px;
-    white-space: normal;
-}
-
-/* Complete section */
-.fire-alert__complete-message {
-    font-size: 32px;
-    color: rgb(144, 238, 144);
-    /* Light green */
-    -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    margin-bottom: 16px;
-}
-
-.fire-alert__complete-instructions {
-    font-size: 26px;
-    color: rgb(255, 255, 255);
-    -unity-text-align: upper-center;
-    margin-bottom: 12px;
-    white-space: normal;
-}
-
-.fire-alert__complete-warning {
-    font-size: 28px;
-    color: rgb(255, 140, 0);
-    -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    margin-top: 16px;
-    white-space: normal;
-}
-
-/* Footer */
-.fire-alert__footer {
+    border-color: var(--fire-alert-border);
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    margin-top: 20px;
 }
 
-/* Buttons */
-.fire-alert__button {
-    width: 90%;
-    height: 80px;
-    font-size: 30px;
+.fire-alert__stat-card--alarm {
+    border-color: rgba(255, 167, 38, 0.2);
+}
+
+.fire-alert__stat-label {
+    font-size: 18px;
     -unity-font-style: bold;
-    border-radius: 12px;
-    border-width: 3px;
-    transition-duration: 0.2s;
+    color: var(--fire-alert-text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    white-space: normal;
 }
 
-.fire-alert__button--acknowledge {
-    background-color: rgb(178, 34, 34);
-    /* Firebrick red */
-    border-color: rgb(255, 69, 0);
-    color: rgb(255, 255, 255);
+.fire-alert__stat-value {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: var(--fire-alert-accent);
+    white-space: normal;
 }
 
-.fire-alert__button--acknowledge:hover {
-    background-color: rgb(220, 20, 60);
-    /* Crimson */
-    border-color: rgb(255, 140, 0);
+.fire-alert__stat-value--large {
+    font-size: 42px;
 }
 
-.fire-alert__button--complete {
-    background-color: rgb(34, 139, 34);
-    /* Forest green */
-    border-color: rgb(144, 238, 144);
-    color: rgb(255, 255, 255);
+.fire-alert__stat-sublabel {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: var(--fire-alert-accent);
+    margin-top: 6px;
+    -unity-text-align: upper-center;
+    white-space: normal;
 }
 
-.fire-alert__button--complete:hover {
-    background-color: rgb(50, 205, 50);
-    /* Lime green */
+.fire-alert__stat-sublabel-small {
+    font-size: 18px;
+    color: var(--fire-alert-text-muted);
+    margin-top: 4px;
+    -unity-text-align: upper-center;
+    white-space: normal;
+}
+
+.fire-alert__action-box {
+    padding: 24px;
+    border-radius: 20px;
+    background-color: var(--fire-alert-action-bg);
+    border-width: 2px;
+    border-color: var(--fire-alert-primary);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.fire-alert__action-icon {
+    font-size: 38px;
+    color: var(--fire-alert-primary);
+    -unity-text-align: middle-center;
+    margin-right: 16px;
+}
+
+.fire-alert__action-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.fire-alert__action-title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: var(--fire-alert-accent);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.fire-alert__action-message {
+    font-size: 22px;
+    color: var(--fire-alert-text);
+    white-space: normal;
+}
+
+.fire-alert__button {
+    margin: 28px 32px 32px 32px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: var(--fire-alert-danger);
+    color: var(--fire-alert-text);
+    font-size: 24px;
+    -unity-font-style: bold;
+    border-color: var(--fire-alert-danger);
+    border-width: 0;
+    letter-spacing: 1px;
+}
+
+.fire-alert__button--secondary {
+    background-color: var(--fire-alert-primary);
+    border-color: var(--fire-alert-primary);
+}
+
+@media (max-width: 520px) {
+    .fire-alert__card {
+        max-width: 96%;
+    }
+
+    .fire-alert__stats {
+        flex-direction: column;
+    }
+
+    .fire-alert__stat-card--alarm {
+        margin: 0 0 16px 0;
+    }
+
+    .fire-alert__button {
+        margin: 24px 20px 28px 20px;
+    }
 }

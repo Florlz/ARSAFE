@@ -1,169 +1,266 @@
-/* Flood Alert Overlay Styles - Blue/Cyan Water Theme */
+:root {
+    --flood-alert-bg: rgba(4, 10, 16, 0.94);
+    --flood-alert-card: rgba(16, 24, 36, 0.98);
+    --flood-alert-banner: rgba(0, 100, 180, 0.95);
+    --flood-alert-banner-glow: rgba(0, 191, 255, 0.6);
+    --flood-alert-primary: #00bfff;
+    --flood-alert-accent: #4dd0e1;
+    --flood-alert-danger: #0064b4;
+    --flood-alert-text: #e1f5fe;
+    --flood-alert-text-muted: rgba(225, 245, 254, 0.75);
+    --flood-alert-border: rgba(77, 208, 225, 0.3);
+    --flood-alert-stat-bg: rgba(77, 208, 225, 0.12);
+    --flood-alert-action-bg: rgba(0, 191, 255, 0.18);
+}
 
-/* Root container */
 .flood-alert__root {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: none;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .flood-alert__root--visible {
     display: flex;
+    visibility: visible;
+    opacity: 1;
 }
 
-/* Water backdrop */
-.flood-alert__water-backdrop {
+.flood-alert__scrim {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 119, 190, 0.15);
-    /* Blue water tint */
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--flood-alert-bg);
 }
 
-/* Section containers */
+.flood-alert__card {
+    min-width: 340px;
+    max-width: 600px;
+    width: 88%;
+    padding: 0;
+    border-radius: 28px;
+    background-color: var(--flood-alert-card);
+    border-width: 2px;
+    border-color: var(--flood-alert-danger);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .flood-alert__section {
-    width: 90%;
-    max-width: 800px;
-    background-color: rgba(0, 51, 102, 0.95);
-    /* Dark blue background */
-    border-width: 4px;
-    border-color: rgb(0, 191, 255);
-    /* Deep sky blue border */
-    border-radius: 16px;
-    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .flood-alert__section--hidden {
     display: none;
 }
 
-/* Header */
-.flood-alert__header {
+.flood-alert__banner {
+    padding: 16px;
+    background-color: var(--flood-alert-banner);
+    display: flex;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 24px;
+}
+
+.flood-alert__banner-text {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: var(--flood-alert-text);
+    letter-spacing: 4px;
+}
+
+.flood-alert__body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+}
+
+.flood-alert__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.flood-alert__icon-container {
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
+    background-color: var(--flood-alert-danger);
+    margin-right: 24px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.flood-alert__icon {
+    font-size: 44px;
+    color: var(--flood-alert-text);
+    -unity-text-align: middle-center;
+}
+
+.flood-alert__header-text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .flood-alert__title {
-    font-size: 48px;
-    color: rgb(0, 191, 255);
-    /* Deep sky blue */
+    font-size: 30px;
     -unity-font-style: bold;
-    -unity-text-align: upper-center;
+    color: var(--flood-alert-text);
+    margin-bottom: 6px;
+    white-space: normal;
 }
 
-/* Content area */
-.flood-alert__content {
+.flood-alert__subtitle {
+    font-size: 20px;
+    color: var(--flood-alert-text-muted);
+    white-space: normal;
+}
+
+.flood-alert__stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     margin-bottom: 24px;
 }
 
-/* Response message */
-.flood-alert__response-block {
-    background-color: rgba(0, 0, 0, 0.4);
+.flood-alert__stat-card {
+    flex-grow: 1;
     padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    border-radius: 20px;
+    background-color: var(--flood-alert-stat-bg);
     border-width: 2px;
-    border-color: rgb(0, 191, 255);
-}
-
-.flood-alert__response-label {
-    font-size: 28px;
-    color: rgb(255, 255, 255);
-    -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    white-space: normal;
-}
-
-/* Safety instructions */
-.flood-alert__instructions {
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 16px;
-    border-radius: 8px;
-    border-left-width: 4px;
-    border-left-color: rgb(0, 191, 255);
-}
-
-.flood-alert__instructions-header {
-    font-size: 26px;
-    color: rgb(0, 191, 255);
-    -unity-font-style: bold;
-    margin-bottom: 12px;
-}
-
-.flood-alert__instruction-item {
-    font-size: 24px;
-    color: rgb(255, 255, 255);
-    margin-top: 8px;
-    margin-left: 8px;
-    white-space: normal;
-}
-
-/* Complete section */
-.flood-alert__complete-message {
-    font-size: 32px;
-    color: rgb(144, 238, 144);
-    /* Light green */
-    -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    margin-bottom: 16px;
-}
-
-.flood-alert__complete-instructions {
-    font-size: 26px;
-    color: rgb(255, 255, 255);
-    -unity-text-align: upper-center;
-    margin-bottom: 12px;
-    white-space: normal;
-}
-
-.flood-alert__complete-warning {
-    font-size: 28px;
-    color: rgb(0, 191, 255);
-    -unity-font-style: bold;
-    -unity-text-align: upper-center;
-    margin-top: 16px;
-    white-space: normal;
-}
-
-/* Footer */
-.flood-alert__footer {
+    border-color: var(--flood-alert-border);
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    margin-top: 20px;
 }
 
-/* Buttons */
-.flood-alert__button {
-    width: 90%;
-    height: 80px;
-    font-size: 30px;
+.flood-alert__stat-card--warning {
+    border-color: rgba(77, 208, 225, 0.2);
+}
+
+.flood-alert__stat-label {
+    font-size: 18px;
     -unity-font-style: bold;
-    border-radius: 12px;
-    border-width: 3px;
+    color: var(--flood-alert-text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    white-space: normal;
 }
 
-.flood-alert__button--acknowledge {
-    background-color: rgb(25, 25, 112);
-    /* Midnight blue */
-    border-color: rgb(0, 191, 255);
-    color: rgb(255, 255, 255);
+.flood-alert__stat-value {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: var(--flood-alert-accent);
+    white-space: normal;
 }
 
-.flood-alert__button--acknowledge:hover {
-    background-color: rgb(0, 119, 190);
-    /* Darker blue */
+.flood-alert__stat-value--large {
+    font-size: 42px;
 }
 
-.flood-alert__button--complete {
-    background-color: rgb(34, 139, 34);
-    /* Forest green */
-    border-color: rgb(144, 238, 144);
-    color: rgb(255, 255, 255);
+.flood-alert__stat-sublabel {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: var(--flood-alert-accent);
+    margin-top: 6px;
+    -unity-text-align: upper-center;
+    white-space: normal;
 }
 
-.flood-alert__button--complete:hover {
-    background-color: rgb(50, 205, 50);
-    /* Lime green */
+.flood-alert__stat-sublabel-small {
+    font-size: 18px;
+    color: var(--flood-alert-text-muted);
+    margin-top: 4px;
+    -unity-text-align: upper-center;
+    white-space: normal;
+}
+
+.flood-alert__action-box {
+    padding: 24px;
+    border-radius: 20px;
+    background-color: var(--flood-alert-action-bg);
+    border-width: 2px;
+    border-color: var(--flood-alert-primary);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.flood-alert__action-icon {
+    font-size: 38px;
+    color: var(--flood-alert-primary);
+    -unity-text-align: middle-center;
+    margin-right: 16px;
+}
+
+.flood-alert__action-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.flood-alert__action-title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: var(--flood-alert-accent);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.flood-alert__action-message {
+    font-size: 22px;
+    color: var(--flood-alert-text);
+    white-space: normal;
+}
+
+.flood-alert__button {
+    margin: 28px 32px 32px 32px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: var(--flood-alert-danger);
+    color: var(--flood-alert-text);
+    font-size: 24px;
+    -unity-font-style: bold;
+    border-color: var(--flood-alert-danger);
+    border-width: 0;
+    letter-spacing: 1px;
+}
+
+.flood-alert__button--secondary {
+    background-color: var(--flood-alert-primary);
+    border-color: var(--flood-alert-primary);
+}
+
+@media (max-width: 520px) {
+    .flood-alert__card {
+        max-width: 96%;
+    }
+
+    .flood-alert__stats {
+        flex-direction: column;
+    }
+
+    .flood-alert__stat-card--warning {
+        margin: 0 0 16px 0;
+    }
+
+    .flood-alert__button {
+        margin: 24px 20px 28px 20px;
+    }
 }

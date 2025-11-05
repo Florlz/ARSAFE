@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <Style src="project://database/Assets/UI/EarthquakeAlert/Resources/UI/EarthquakeAlert/EarthquakeAlertStyles.uss?fileID=7433441132597879392&amp;guid=6f076f1bf81dd94499d7bb84163f6987&amp;type=3#EarthquakeAlertStyles" />
+    <Style src="EarthquakeAlertStyles.uss" />
     <ui:VisualElement name="earthquake-alert-overlay" class="earthquake-alert__root">
         <ui:VisualElement name="earthquake-alert-scrim" class="earthquake-alert__scrim"/>
         <ui:VisualElement name="earthquake-alert-card" class="earthquake-alert__card">

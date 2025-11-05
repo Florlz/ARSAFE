@@ -1,8 +1,8 @@
 :root {
     --earthquake-alert-bg: rgba(14, 4, 16, 0.94);
     --earthquake-alert-card: rgba(20, 24, 36, 0.98);
-    --earthquake-alert-banner: rgba(127, 19, 21, 0.95);
-    --earthquake-alert-banner-glow: rgba(217, 118, 40, 0.6);
+    --earthquake-alert-banner: rgba(139, 69, 19, 0.95);
+    --earthquake-alert-banner-glow: rgba(218, 165, 32, 0.6);
     --earthquake-alert-primary: #d97628;
     --earthquake-alert-accent: #f3b23a;
     --earthquake-alert-danger: #7f1315;
@@ -152,9 +152,20 @@
 
 .earthquake-alert__stat-card--magnitude {
     margin-right: 12px;
+    border-color: rgba(243, 178, 58, 0.2);
+}
+
+.earthquake-alert__stat-card--intensity {
+    margin-left: 12px;
+    border-color: rgba(243, 178, 58, 0.2);
+}
+
+.earthquake-alert__stat-label {
+    font-size: 18px;
+    -unity-font-style: bold;
     color: var(--earthquake-alert-text-muted);
     letter-spacing: 2px;
-    border-color: rgba(243, 178, 58, 0.2);
+    margin-bottom: 8px;
     white-space: normal;
 }
 

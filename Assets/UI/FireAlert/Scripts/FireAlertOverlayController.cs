@@ -14,6 +14,9 @@ namespace ARSafe.UI
     {
         private const string VisibleClass = "fire-alert__root--visible";
         private const string OverlayRootName = "fire-alert-overlay";
+        private const string AlarmLevelValueName = "alarm-level-value";
+        private const string AlarmLevelLabelName = "alarm-level-label";
+        private const string ResponseTypeLabelName = "response-type-label";
         private const string ResponseLabelName = "response-label";
         private const string AcknowledgeButtonName = "acknowledge-button";
         private const string StartSectionName = "fire-alert-start";
@@ -33,6 +36,9 @@ namespace ARSafe.UI
 
         private UIDocument uiDocument;
         private VisualElement overlayRoot;
+        private Label alarmLevelValue;
+        private Label alarmLevelLabel;
+        private Label responseTypeLabel;
         private Label responseLabel;
         private Button acknowledgeButton;
         private VisualElement startSection;
@@ -267,6 +273,9 @@ namespace ARSafe.UI
             }
 
             overlayRoot = root.Q<VisualElement>(OverlayRootName);
+            alarmLevelValue = root.Q<Label>(AlarmLevelValueName);
+            alarmLevelLabel = root.Q<Label>(AlarmLevelLabelName);
+            responseTypeLabel = root.Q<Label>(ResponseTypeLabelName);
             responseLabel = root.Q<Label>(ResponseLabelName);
             acknowledgeButton = root.Q<Button>(AcknowledgeButtonName);
             startSection = root.Q<VisualElement>(StartSectionName);
@@ -412,6 +421,23 @@ namespace ARSafe.UI
 
         private void UpdateContent(FireScenarioParameters parameters)
         {
+            // Update alarm level stat card
+            if (alarmLevelValue != null)
+            {
+                alarmLevelValue.text = parameters.AlarmLevel.ToString();
+            }
+
+            if (alarmLevelLabel != null)
+            {
+                alarmLevelLabel.text = parameters.AlarmLevelLabel;
+            }
+
+            if (responseTypeLabel != null)
+            {
+                responseTypeLabel.text = parameters.ResponseType;
+            }
+
+            // Update response message
             if (responseLabel != null)
             {
                 responseLabel.text = parameters.ResponseMessage;

@@ -38,6 +38,9 @@ namespace ARSafe.UI
         private VisualElement startSection;
         private VisualElement completeSection;
         private Button completeButton;
+        private Label rainfallWarningValue;
+        private Label rainfallWarningLabel;
+        private Label warningMessageLabel;
 
         private bool isVisible;
         private float hideTimer;
@@ -189,6 +192,9 @@ namespace ARSafe.UI
                 startSection = null;
                 completeSection = null;
                 completeButton = null;
+                rainfallWarningValue = null;
+                rainfallWarningLabel = null;
+                warningMessageLabel = null;
                 uiBuilt = false;
                 showingCompletion = false;
                 welcomeScreenActive = false;
@@ -272,6 +278,9 @@ namespace ARSafe.UI
             startSection = root.Q<VisualElement>(StartSectionName);
             completeSection = root.Q<VisualElement>(CompleteSectionName);
             completeButton = root.Q<Button>(CompleteButtonName);
+            rainfallWarningValue = root.Q<Label>("rainfall-warning-value");
+            rainfallWarningLabel = root.Q<Label>("rainfall-warning-label");
+            warningMessageLabel = root.Q<Label>("warning-message-label");
 
             if (overlayRoot == null)
             {
@@ -415,9 +424,26 @@ namespace ARSafe.UI
 
         private void UpdateContent(FloodScenarioParameters parameters)
         {
+            // Update PAGASA rainfall warning stat card
+            if (rainfallWarningValue != null)
+            {
+                rainfallWarningValue.text = parameters.WarningLevel.ToString().ToUpper();
+                rainfallWarningValue.style.color = new StyleColor(parameters.WarningColor);
+            }
+
+            if (rainfallWarningLabel != null)
+            {
+                rainfallWarningLabel.text = parameters.WarningLevelLabel;
+            }
+
+            if (warningMessageLabel != null)
+            {
+                warningMessageLabel.text = parameters.WarningMessage;
+            }
+
+            // Update main response message based on water depth
             if (responseLabel != null)
             {
-                // Generate response message based on water depth
                 string message = "Water rising rapidly! Move to higher floors immediately!";
                 if (parameters.TargetDepthMeters >= 2f)
                 {

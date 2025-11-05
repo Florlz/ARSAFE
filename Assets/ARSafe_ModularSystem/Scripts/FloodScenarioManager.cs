@@ -36,6 +36,19 @@ namespace ARSafe.Modular
      * DEBUG LOGGING:
      *   - Prefix logs with [FloodScenario] and color per severity for ARDebugLogger filtering.
      */
+
+    /// <summary>
+    /// PAGASA (Philippine Atmospheric, Geophysical and Astronomical Services Administration) rainfall warning levels.
+    /// Official 3-tier color-coded system used for flood warnings in the Philippines.
+    /// </summary>
+    public enum RainfallWarningLevel
+    {
+        None = 0,
+        Yellow = 1,  // 7.5-15 mm/hour - Slight flooding in low-lying areas
+        Orange = 2,  // 15-30 mm/hour - Flooding in low-lying areas & near rivers
+        Red = 3      // 30+ mm/hour - Serious flooding, coastal towns at risk
+    }
+
     [DefaultExecutionOrder(-240)]
     public class FloodScenarioManager : MonoBehaviour
     {
@@ -49,6 +62,10 @@ namespace ARSafe.Modular
             0f,
             Color.black,
             Color.black,
+            Color.white,
+            RainfallWarningLevel.None,
+            string.Empty,
+            string.Empty,
             Color.white,
             false);
 
@@ -233,6 +250,12 @@ namespace ARSafe.Modular
             float flowMultiplier = Mathf.Lerp(flowSpeedMultiplierRange.x, flowSpeedMultiplierRange.y, UnityEngine.Random.value);
             float turbidity = Mathf.Lerp(turbidityRange.x, turbidityRange.y, UnityEngine.Random.value);
 
+            // Generate PAGASA rainfall warning level
+            RainfallWarningLevel warningLevel = GenerateRandomWarningLevel();
+            string warningLevelLabel = GetWarningLevelLabel(warningLevel);
+            string warningMessage = GetWarningMessage(warningLevel);
+            Color warningColor = GetWarningColor(warningLevel);
+
             var parameters = new FloodScenarioParameters(
                 depth,
                 riseDuration,
@@ -244,11 +267,15 @@ namespace ARSafe.Modular
                 deepWaterColor,
                 shallowWaterColor,
                 foamColor,
+                warningLevel,
+                warningLevelLabel,
+                warningMessage,
+                warningColor,
                 true);
 
             if (logSelectedParameters)
             {
-                Debug.Log($"<color=cyan>[FloodScenario] ★★★ Flood params → depth {depth:F2} m, rise {riseDuration:F1}s, hold {holdDuration:F1}s, recede {recedeDuration:F1}s, waves x{waveMultiplier:F2}, flow x{flowMultiplier:F2}</color>");
+                Debug.Log($"<color=cyan>[FloodScenario] ★★★ Flood params → depth {depth:F2}m, PAGASA {warningLevel} warning, rise {riseDuration:F1}s, hold {holdDuration:F1}s, recede {recedeDuration:F1}s</color>");
             }
 
             BroadcastParameters(parameters);
@@ -416,6 +443,12 @@ namespace ARSafe.Modular
 
             Instance.StopScenarioRoutine();
 
+            // Generate warning level for test scenarios
+            RainfallWarningLevel warningLevel = Instance.GenerateRandomWarningLevel();
+            string warningLevelLabel = Instance.GetWarningLevelLabel(warningLevel);
+            string warningMessage = Instance.GetWarningMessage(warningLevel);
+            Color warningColor = Instance.GetWarningColor(warningLevel);
+
             var parameters = new FloodScenarioParameters(
                 depthMeters,
                 riseDuration,
@@ -427,9 +460,13 @@ namespace ARSafe.Modular
                 Instance.deepWaterColor,
                 Instance.shallowWaterColor,
                 Instance.foamColor,
+                warningLevel,
+                warningLevelLabel,
+                warningMessage,
+                warningColor,
                 true);
 
-            Debug.Log($"<color=cyan>[FloodScenario] ★★★ TEST FLOOD STARTED → depth {depthMeters:F2}m, rise {riseDuration:F1}s, hold {holdDuration:F1}s, recede {recedeDuration:F1}s</color>");
+            Debug.Log($"<color=cyan>[FloodScenario] ★★★ TEST FLOOD STARTED → depth {depthMeters:F2}m, PAGASA {warningLevel} warning, rise {riseDuration:F1}s, hold {holdDuration:F1}s, recede {recedeDuration:F1}s</color>");
 
             Instance.BroadcastParameters(parameters);
             Instance.StartScenarioRoutine(parameters);
@@ -473,6 +510,79 @@ namespace ARSafe.Modular
         {
             StartFloodWithParams(1f, 20f, 10f, 15f);
         }
+
+        /// <summary>
+        /// Generate random PAGASA rainfall warning level with realistic distribution.
+        /// Weighted: 20% Yellow, 40% Orange, 40% Red (for emergency scenarios in Bicol Region).
+        /// </summary>
+        private RainfallWarningLevel GenerateRandomWarningLevel()
+        {
+            float roll = UnityEngine.Random.value;
+            if (roll < 0.20f) return RainfallWarningLevel.Yellow;
+            if (roll < 0.60f) return RainfallWarningLevel.Orange;
+            return RainfallWarningLevel.Red;
+        }
+
+        /// <summary>
+        /// Get PAGASA warning level label
+        /// </summary>
+        private string GetWarningLevelLabel(RainfallWarningLevel level)
+        {
+            switch (level)
+            {
+                case RainfallWarningLevel.Yellow:
+                    return "YELLOW RAINFALL WARNING";
+                case RainfallWarningLevel.Orange:
+                    return "ORANGE RAINFALL WARNING";
+                case RainfallWarningLevel.Red:
+                    return "RED RAINFALL WARNING";
+                default:
+                    return "NO WARNING";
+            }
+        }
+
+        /// <summary>
+        /// Get contextual warning message for Iriga City / Bicol Region context (typhoon-prone area).
+        /// Messages reference PAGASA official rainfall thresholds and USANT SGO Building context.
+        /// </summary>
+        private string GetWarningMessage(RainfallWarningLevel level)
+        {
+            switch (level)
+            {
+                case RainfallWarningLevel.Yellow:
+                    return "PAGASA: 7.5-15mm/hr rainfall. Slight flooding possible in low-lying areas. Stay alert and monitor conditions!";
+
+                case RainfallWarningLevel.Orange:
+                    return "PAGASA: 15-30mm/hr rainfall. Flooding expected near rivers. Prepare to evacuate to upper floors!";
+
+                case RainfallWarningLevel.Red:
+                    return "PAGASA: 30+mm/hr TORRENTIAL RAIN! Serious flooding imminent in SGO Building area. EVACUATE TO 2ND FLOOR NOW!";
+
+                default:
+                    return "Monitor weather conditions.";
+            }
+        }
+
+        /// <summary>
+        /// Get official PAGASA warning color (Yellow, Orange, Red)
+        /// </summary>
+        private Color GetWarningColor(RainfallWarningLevel level)
+        {
+            switch (level)
+            {
+                case RainfallWarningLevel.Yellow:
+                    return new Color(1f, 0.92f, 0.016f, 1f); // Bright yellow #FFEB04
+
+                case RainfallWarningLevel.Orange:
+                    return new Color(1f, 0.6f, 0f, 1f); // Orange #FF9900
+
+                case RainfallWarningLevel.Red:
+                    return new Color(0.9f, 0.1f, 0.1f, 1f); // Bright red #E61A1A
+
+                default:
+                    return Color.white;
+            }
+        }
     }
 
     public enum FloodScenarioPhase
@@ -497,6 +607,10 @@ namespace ARSafe.Modular
             Color deepWaterColor,
             Color shallowWaterColor,
             Color foamColor,
+            RainfallWarningLevel warningLevel,
+            string warningLevelLabel,
+            string warningMessage,
+            Color warningColor,
             bool isActive)
         {
             TargetDepthMeters = Mathf.Max(0f, targetDepthMeters);
@@ -509,6 +623,10 @@ namespace ARSafe.Modular
             DeepWaterColor = deepWaterColor;
             ShallowWaterColor = shallowWaterColor;
             FoamColor = foamColor;
+            WarningLevel = warningLevel;
+            WarningLevelLabel = warningLevelLabel ?? string.Empty;
+            WarningMessage = warningMessage ?? string.Empty;
+            WarningColor = warningColor;
             IsActive = isActive && TargetDepthMeters > 0f;
         }
 
@@ -523,6 +641,10 @@ namespace ARSafe.Modular
         public Color DeepWaterColor { get; }
         public Color ShallowWaterColor { get; }
         public Color FoamColor { get; }
+        public RainfallWarningLevel WarningLevel { get; }
+        public string WarningLevelLabel { get; }
+        public string WarningMessage { get; }
+        public Color WarningColor { get; }
         public bool IsActive { get; }
     }
 

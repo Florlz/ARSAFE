@@ -1,51 +1,40 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <Style src="FloodAlertStyles.uss" />
-
     <ui:VisualElement name="flood-alert-overlay" class="flood-alert__root">
-        <!-- Animated water backdrop -->
-        <ui:VisualElement name="flood-water-backdrop" class="flood-alert__water-backdrop" />
-
-        <!-- Flood alert start section -->
-        <ui:VisualElement name="flood-alert-start" class="flood-alert__section flood-alert__start-section">
-            <ui:VisualElement class="flood-alert__header">
-                <ui:Label text="💧 FLOOD WARNING 💧" class="flood-alert__title" />
-            </ui:VisualElement>
-
-            <ui:VisualElement class="flood-alert__content">
-                <!-- Main alert message -->
-                <ui:VisualElement class="flood-alert__response-block">
-                    <ui:Label name="response-label" text="Water rising rapidly! Move to higher floors immediately!" class="flood-alert__response-label" />
+        <ui:VisualElement name="flood-alert-scrim" class="flood-alert__scrim"/>
+        <ui:VisualElement name="flood-alert-card" class="flood-alert__card">
+            <ui:VisualElement name="flood-alert-start" class="flood-alert__section flood-alert__section--start">
+                <ui:VisualElement class="flood-alert__banner">
+                    <ui:Label class="flood-alert__banner-text" text="EMERGENCY"/>
                 </ui:VisualElement>
-
-                <!-- Safety instructions -->
-                <ui:VisualElement class="flood-alert__instructions">
-                    <ui:Label text="SAFETY ACTIONS:" class="flood-alert__instructions-header" />
-                    <ui:Label text="• Move to 2nd floor or higher" class="flood-alert__instruction-item" />
-                    <ui:Label text="• Use stairs - NEVER elevators" class="flood-alert__instruction-item" />
-                    <ui:Label text="• Stay away from rising water" class="flood-alert__instruction-item" />
-                    <ui:Label text="• Wait for emergency assistance" class="flood-alert__instruction-item" />
+                <ui:VisualElement class="flood-alert__body">
+                    <ui:VisualElement class="flood-alert__header">
+                        <ui:VisualElement class="flood-alert__icon-container">
+                            <ui:Label class="flood-alert__icon" text="&#9888;"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="flood-alert__header-text">
+                            <ui:Label name="flood-alert-title" class="flood-alert__title" text="Flood Detected"/>
+                            <ui:Label class="flood-alert__subtitle" text="Evacuate to Higher Ground"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="flood-alert__stats">
+                        <ui:VisualElement class="flood-alert__stat-card flood-alert__stat-card--warning">
+                            <ui:Label class="flood-alert__stat-label" text="PAGASA RAINFALL WARNING"/>
+                            <ui:Label name="rainfall-warning-value" class="flood-alert__stat-value flood-alert__stat-value--large" text="ORANGE"/>
+                            <ui:Label name="rainfall-warning-label" class="flood-alert__stat-sublabel" text="15-30mm/hr - Flooding Expected"/>
+                            <ui:Label name="warning-message-label" class="flood-alert__stat-sublabel-small" text="Prepare for evacuation to higher ground"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="flood-alert__action-box">
+                        <ui:Label class="flood-alert__action-icon" text="&#9650;"/>
+                        <ui:VisualElement class="flood-alert__action-content">
+                            <ui:Label class="flood-alert__action-title" text="EVACUATION GUIDANCE"/>
+                            <ui:Label name="response-label" class="flood-alert__action-message" text="Move to 2nd floor immediately. Use stairs only."/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                 </ui:VisualElement>
-            </ui:VisualElement>
-
-            <ui:VisualElement class="flood-alert__footer">
-                <ui:Button name="acknowledge-button" text="ACKNOWLEDGED - MOVING UPWARD" class="flood-alert__button flood-alert__button--acknowledge" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <!-- Flood alert complete section -->
-        <ui:VisualElement name="flood-alert-complete" class="flood-alert__section flood-alert__complete-section flood-alert__section--hidden">
-            <ui:VisualElement class="flood-alert__header">
-                <ui:Label text="✓ SAFE ZONE REACHED" class="flood-alert__title" />
-            </ui:VisualElement>
-
-            <ui:VisualElement class="flood-alert__content">
-                <ui:Label text="You have reached high ground." class="flood-alert__complete-message" />
-                <ui:Label text="Stay on this floor and await emergency services." class="flood-alert__complete-instructions" />
-                <ui:Label text="Do NOT return to lower floors until authorized." class="flood-alert__complete-warning" />
-            </ui:VisualElement>
-
-            <ui:VisualElement class="flood-alert__footer">
-                <ui:Button name="complete-button" text="UNDERSTOOD" class="flood-alert__button flood-alert__button--complete" />
+                <ui:Button name="acknowledge-button" class="flood-alert__button" text="ACKNOWLEDGED"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
