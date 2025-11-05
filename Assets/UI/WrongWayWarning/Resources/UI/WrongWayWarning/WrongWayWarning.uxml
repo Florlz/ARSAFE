@@ -21,7 +21,15 @@
             <ui:VisualElement class="wrong-way-card">
                 <ui:Label text="⚠" class="wrong-way-icon" />
                 <ui:Label text="WRONG WAY!" class="wrong-way-title" />
-                <ui:Label text="Turn around and follow the arrows" class="wrong-way-subtitle" />
+                <ui:Label text="Follow the arrows to the nearest exit" class="wrong-way-subtitle" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Exit Switch Notification (top center) -->
+        <ui:VisualElement name="exit-switch-notification" class="exit-switch-notification" style="display: none;">
+            <ui:VisualElement class="exit-switch-card">
+                <ui:Label text="↻" class="exit-switch-icon" />
+                <ui:Label name="exit-switch-label" text="Closer exit found!" class="exit-switch-label" />
             </ui:VisualElement>
         </ui:VisualElement>
 

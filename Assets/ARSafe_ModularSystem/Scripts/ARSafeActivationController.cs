@@ -2187,6 +2187,9 @@ namespace ARSafe.Modular
                 }
             }
 
+            // NOTE: Cache invalidation removed - NavigationValidator manages its own cache
+            // Invalidating on every anchor switch caused UI issues from rapid recalculations during anchor jitter
+
             // FLOOD-SPECIFIC LOGIC: Check for safe zones and stairway checkpoints
             if (anchorInfo != null && DisasterTypeManager.SelectedDisasterType == DisasterType.Flood)
             {
@@ -2438,7 +2441,8 @@ namespace ARSafe.Modular
                     FindObjectsInactive.Include,
                     FindObjectsSortMode.None
                 )
-                .Where(obs => obs.GetComponent<ModelTargetBehaviour>() == null) // Exclude model targets
+                .Where(obs => obs.GetComponent<ModelTargetBehaviour>() == null // Exclude model targets
+                          && obs.GetComponent<ImageTargetBehaviour>() == null) // Exclude image targets (managed by standard Vuforia)
                 .ToList();
 
             Debug.Log(

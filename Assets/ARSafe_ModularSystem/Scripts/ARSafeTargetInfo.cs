@@ -357,7 +357,28 @@ namespace ARSafe.Modular
         {
             return other != null && Mathf.Abs(floorLevel - other.floorLevel) == 1;
         }
-        
+
+        /// <summary>
+        /// Check if this area target qualifies as a flood evacuation exit.
+        /// Stairways = intermediate exits (go UP), Floor 2+ = final safe zones
+        /// </summary>
+        public bool IsFloodExit()
+        {
+            // Stairways are always exits for flood (users must go UP)
+            if (targetType == TargetType.Stairway)
+            {
+                return true;
+            }
+
+            // Floor 2 or higher = safe from flood
+            if (floorLevel >= 2)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Indicates whether this target is allowed to update the MultiArea pose.
         /// </summary>

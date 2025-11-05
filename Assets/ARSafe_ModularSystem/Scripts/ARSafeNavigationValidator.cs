@@ -512,8 +512,12 @@ namespace ARSafe.Modular
                 PathNode currentNode = bfsQueue.Dequeue();
                 ARSafeTargetInfo current = currentNode.target;
 
-                // Check if this is an exit
-                if (current.targetType == TargetType.Exit)
+                // Check if this is an exit (flood uses different logic)
+                bool isExit = DisasterTypeManager.SelectedDisasterType == DisasterType.Flood
+                    ? current.IsFloodExit() // Flood: stairways + floor 2+
+                    : current.targetType == TargetType.Exit; // Fire/Earthquake: ground exits
+
+                if (isExit)
                 {
                     // Found an exit - check if it's closer than previous
                     if (currentNode.distance < shortestDistance)
@@ -533,7 +537,10 @@ namespace ARSafe.Modular
 
                         if (enableDebugLogs)
                         {
-                            Debug.Log($"<color=green>[BFS] Found exit: {nearestExit.name} at distance {shortestDistance} hops</color>");
+                            string exitType = DisasterTypeManager.SelectedDisasterType == DisasterType.Flood
+                                ? $"flood exit (type: {current.targetType}, floor: {current.floorLevel})"
+                                : "exit";
+                            Debug.Log($"<color=green>[BFS] Found {exitType}: {nearestExit.name} at distance {shortestDistance} hops</color>");
                         }
                     }
 

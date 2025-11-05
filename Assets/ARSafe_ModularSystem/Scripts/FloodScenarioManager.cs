@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ARSafe.UI;
@@ -101,6 +102,14 @@ namespace ARSafe.Modular
         [SerializeField] private Color shallowWaterColor = new Color(0.45f, 0.36f, 0.28f, 0.7f);
         [SerializeField] private Color foamColor = new Color(0.81f, 0.75f, 0.64f, 1f);
 
+        [Header("Rain Audio")]
+        [Tooltip("AudioSource component for rain ambient sound. Assign AudioSource with rain clip already set. Should be 2D (not spatialized).")]
+        [SerializeField] private AudioSource rainAudioSource;
+        [Tooltip("Rain audio volume (0-1).")]
+        [SerializeField, Range(0f, 1f)] private float rainVolume = 0.7f;
+        [Tooltip("Rain fade-out duration when scenario ends (seconds).")]
+        [SerializeField] private float rainFadeOutDuration = 2f;
+
         [Header("Notifications")]
         [SerializeField] private bool logSelectedParameters = true;
         [SerializeField] private bool notifyOnScenarioStart = true;
@@ -114,6 +123,8 @@ namespace ARSafe.Modular
 
         public static event Action<FloodScenarioParameters> OnParametersUpdated;
         public static event Action<FloodScenarioProgress> OnProgressUpdated;
+        public static event Action<RainfallWarningLevel, RainfallWarningLevel> OnWarningLevelChanged; // (previousLevel, newLevel)
+        public static event Action<FloodWarningProgression> OnProgressionGenerated; // Fired once at scenario start
 
         public static FloodScenarioParameters CurrentParameters { get; private set; } = InactiveParameters;
         public static FloodScenarioProgress CurrentProgress { get; private set; } = InactiveProgress;
@@ -173,6 +184,31 @@ namespace ARSafe.Modular
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Setup rain audio source (if not manually configured in Inspector)
+            SetupRainAudioSource();
+        }
+
+        /// <summary>
+        /// Configure rain AudioSource for looping ambient rain sound.
+        /// NOTE: AudioSource and AudioClip must be assigned manually in Inspector.
+        /// </summary>
+        private void SetupRainAudioSource()
+        {
+            if (rainAudioSource == null)
+            {
+                if (logSelectedParameters)
+                {
+                    Debug.LogWarning("[FloodScenarioManager] Rain AudioSource not assigned in Inspector. Rain audio will be disabled.");
+                }
+                return;
+            }
+
+            // Configure for looping ambient rain sound (2D audio, not spatialized)
+            rainAudioSource.loop = true;
+            rainAudioSource.playOnAwake = false;
+            rainAudioSource.spatialBlend = 0f; // 2D audio
+            rainAudioSource.volume = 0f; // Start muted (will fade in when scenario starts)
         }
 
         private void OnEnable()
@@ -196,6 +232,7 @@ namespace ARSafe.Modular
             {
                 pendingScenarioStart = false;
                 StopScenarioRoutine();
+                StopRain(); // Stop rain audio when switching away from flood
                 BroadcastParameters(InactiveParameters);
                 BroadcastProgress(InactiveProgress);
                 return;
@@ -241,44 +278,26 @@ namespace ARSafe.Modular
 
         private void GenerateScenarioParameters()
         {
-            float depth = Mathf.Max(0.1f, UnityEngine.Random.Range(depthRange.x, depthRange.y));
-            float riseDuration = Mathf.Max(4f, UnityEngine.Random.Range(riseDurationRange.x, riseDurationRange.y));
-            float holdDuration = Mathf.Max(4f, UnityEngine.Random.Range(holdDurationRange.x, holdDurationRange.y));
-            float recedeDuration = Mathf.Max(4f, UnityEngine.Random.Range(recedeDurationRange.x, recedeDurationRange.y));
+            // Generate randomized peak level (20% Yellow, 40% Orange, 40% Red)
+            RainfallWarningLevel peakLevel = GenerateRandomWarningLevel();
 
-            float waveMultiplier = Mathf.Lerp(waveAmplitudeMultiplierRange.x, waveAmplitudeMultiplierRange.y, UnityEngine.Random.value);
-            float flowMultiplier = Mathf.Lerp(flowSpeedMultiplierRange.x, flowSpeedMultiplierRange.y, UnityEngine.Random.value);
-            float turbidity = Mathf.Lerp(turbidityRange.x, turbidityRange.y, UnityEngine.Random.value);
+            // Build linear progression timeline (Yellow → Orange → Red)
+            FloodWarningProgression progression = BuildProgression(peakLevel);
 
-            // Generate PAGASA rainfall warning level
-            RainfallWarningLevel warningLevel = GenerateRandomWarningLevel();
-            string warningLevelLabel = GetWarningLevelLabel(warningLevel);
-            string warningMessage = GetWarningMessage(warningLevel);
-            Color warningColor = GetWarningColor(warningLevel);
+            // Broadcast progression timeline to UI systems
+            OnProgressionGenerated?.Invoke(progression);
 
-            var parameters = new FloodScenarioParameters(
-                depth,
-                riseDuration,
-                holdDuration,
-                recedeDuration,
-                waveMultiplier,
-                flowMultiplier,
-                turbidity,
-                deepWaterColor,
-                shallowWaterColor,
-                foamColor,
-                warningLevel,
-                warningLevelLabel,
-                warningMessage,
-                warningColor,
-                true);
+            // Start with Yellow warning level parameters
+            var firstPhase = progression.Phases[0];
+            UpdateParametersForLevel(firstPhase, progression);
 
             if (logSelectedParameters)
             {
-                Debug.Log($"<color=cyan>[FloodScenario] ★★★ Flood params → depth {depth:F2}m, PAGASA {warningLevel} warning, rise {riseDuration:F1}s, hold {holdDuration:F1}s, recede {recedeDuration:F1}s</color>");
+                Debug.Log($"<color=cyan>[FloodScenario] ★★★ Flood progression → Peak: {peakLevel}, Phases: {progression.Phases.Count}, Total Duration: {GetTotalDuration(progression):F1}s</color>");
             }
 
-            BroadcastParameters(parameters);
+            // Start rain ambient sound with fade-in
+            PlayRain();
 
             // Show initial scenario start notification (after user clicks "Start Simulation")
             if (notifyOnScenarioStart && MessageNotificationController.Instance != null)
@@ -300,7 +319,51 @@ namespace ARSafe.Modular
                 }
             }
 
-            StartScenarioRoutine(parameters);
+            // Start progression coroutine
+            StartProgressionRoutine(progression);
+        }
+
+        /// <summary>
+        /// Updates flood parameters for a specific warning level phase
+        /// </summary>
+        private void UpdateParametersForLevel(WarningLevelPhase phase, FloodWarningProgression progression)
+        {
+            string warningLevelLabel = GetWarningLevelLabel(phase.Level);
+            string warningMessage = GetWarningMessage(phase.Level);
+            Color warningColor = GetWarningColor(phase.Level);
+
+            // Visual parameters correlate with warning level intensity
+            float intensityFactor = phase.Level == RainfallWarningLevel.Red ? 1.0f :
+                                   phase.Level == RainfallWarningLevel.Orange ? 0.7f : 0.4f;
+
+            float waveMultiplier = Mathf.Lerp(waveAmplitudeMultiplierRange.x, waveAmplitudeMultiplierRange.y, intensityFactor + UnityEngine.Random.value * 0.2f);
+            float flowMultiplier = Mathf.Lerp(flowSpeedMultiplierRange.x, flowSpeedMultiplierRange.y, intensityFactor + UnityEngine.Random.value * 0.2f);
+            float turbidity = Mathf.Lerp(turbidityRange.x, turbidityRange.y, intensityFactor + UnityEngine.Random.value * 0.2f);
+
+            // Hold duration is infinite (water stays at peak level forever)
+            float holdDuration = Mathf.Max(4f, UnityEngine.Random.Range(holdDurationRange.x, holdDurationRange.y));
+
+            var parameters = new FloodScenarioParameters(
+                phase.TargetDepth,
+                phase.Duration,
+                holdDuration,
+                0f, // No recede
+                waveMultiplier,
+                flowMultiplier,
+                turbidity,
+                deepWaterColor,
+                shallowWaterColor,
+                foamColor,
+                phase.Level,
+                warningLevelLabel,
+                warningMessage,
+                warningColor,
+                true);
+
+            BroadcastParameters(parameters);
+
+            // NOTE: Notifications and wrong-way warnings moved to GenerateScenarioParameters()
+            // to only show once at scenario start, not on every level transition
         }
 
         private void StartScenarioRoutine(FloodScenarioParameters parameters)
@@ -321,6 +384,15 @@ namespace ARSafe.Modular
             // They stay active until the user reaches a safe zone (handled by FloodSafeZoneController)
             // or reaches an exit (handled by ARSafeWrongWayWarning.OnExitReached)
             // This ensures navigation guidance continues even after water stops rising
+        }
+
+        /// <summary>
+        /// Start progression-based scenario with linear warning level escalation.
+        /// </summary>
+        private void StartProgressionRoutine(FloodWarningProgression progression)
+        {
+            StopScenarioRoutine();
+            scenarioRoutine = StartCoroutine(RunProgressionScenario(progression));
         }
 
         private IEnumerator RunScenario(FloodScenarioParameters parameters)
@@ -391,6 +463,128 @@ namespace ARSafe.Modular
             scenarioRoutine = null;
         }
 
+        /// <summary>
+        /// Runs the progression-based flood scenario with linear warning level escalation.
+        /// CRITICAL: This replaces RunScenario() for progression system.
+        /// Handles time-based level transitions (Yellow → Orange → Red) with notifications.
+        /// </summary>
+        private IEnumerator RunProgressionScenario(FloodWarningProgression progression)
+        {
+            float scenarioStartTime = Time.time;
+            int currentPhaseIndex = 0;
+            RainfallWarningLevel previousLevel = RainfallWarningLevel.None;
+
+            // Track notification messages to avoid duplicates
+            bool initialWarningShown = false;
+
+            if (logSelectedParameters)
+            {
+                Debug.Log($"<color=cyan>[FloodScenario] ★★★ Progression started → {progression.Phases.Count} phases, peak: {progression.PeakLevel}</color>");
+            }
+
+            // Infinite loop - progression runs until disaster type changes
+            while (DisasterTypeManager.SelectedDisasterType == DisasterType.Flood && currentPhaseIndex < progression.Phases.Count)
+            {
+                yield return null;
+
+                float elapsed = Time.time - scenarioStartTime;
+                var currentPhase = progression.Phases[currentPhaseIndex];
+
+                // Show initial warning once when scenario starts
+                if (!initialWarningShown && elapsed >= 0.5f)
+                {
+                    initialWarningShown = true;
+                    MessageNotificationController.Instance?.ShowMessage(
+                        $"FLASH FLOOD WARNING: {GetWarningLevelLabel(currentPhase.Level)} - Water will rise gradually!",
+                        MessageType.Warning,
+                        7f
+                    );
+                }
+
+                // Check if we need to transition to next phase
+                float phaseEndTime = currentPhase.StartTime + currentPhase.Duration;
+                if (elapsed >= phaseEndTime && currentPhaseIndex < progression.Phases.Count - 1)
+                {
+                    // Transition to next level
+                    previousLevel = currentPhase.Level;
+                    currentPhaseIndex++;
+                    var nextPhase = progression.Phases[currentPhaseIndex];
+
+                    if (logSelectedParameters)
+                    {
+                        Debug.Log($"<color=yellow>[FloodScenario] ⚠ Level transition → {previousLevel} to {nextPhase.Level} at {elapsed:F1}s</color>");
+                    }
+
+                    // Fire level change event
+                    OnWarningLevelChanged?.Invoke(previousLevel, nextPhase.Level);
+
+                    // Update parameters for new level (triggers water depth/speed changes)
+                    UpdateParametersForLevel(nextPhase, progression);
+
+                    // Show escalation notification
+                    MessageNotificationController.Instance?.ShowMessage(
+                        $"WARNING ESCALATED: {GetWarningLevelLabel(nextPhase.Level)} - Water rising faster!",
+                        MessageType.Warning,
+                        8f
+                    );
+
+                    // Wait a frame before continuing
+                    yield return null;
+                    continue;
+                }
+
+                // Broadcast progress (for potential UI widgets showing countdown)
+                float phaseProgress = (elapsed - currentPhase.StartTime) / Mathf.Max(0.001f, currentPhase.Duration);
+                phaseProgress = Mathf.Clamp01(phaseProgress);
+
+                // Use existing progress system for compatibility
+                var progress = new FloodScenarioProgress(
+                    elapsed,
+                    GetTotalDuration(progression),
+                    FloodScenarioPhase.Rising,
+                    phaseProgress,
+                    false
+                );
+                BroadcastProgress(progress);
+            }
+
+            // Reached peak level - continue infinite sustain phase
+            if (logSelectedParameters)
+            {
+                Debug.Log($"<color=cyan>[FloodScenario] Peak level reached: {progression.PeakLevel} - Sustaining indefinitely</color>");
+            }
+
+            // Show peak level notification
+            MessageNotificationController.Instance?.ShowMessage(
+                $"PEAK FLOOD LEVEL: {GetWarningLevelLabel(progression.PeakLevel)} - Water will remain at this level!",
+                MessageType.Warning,
+                10f
+            );
+
+            // Infinite sustain loop - water stays at peak level forever
+            float peakStartTime = Time.time;
+            while (DisasterTypeManager.SelectedDisasterType == DisasterType.Flood)
+            {
+                yield return null;
+
+                // Broadcast sustained phase progress
+                float sustainedElapsed = Time.time - peakStartTime;
+                var sustainedProgress = new FloodScenarioProgress(
+                    sustainedElapsed,
+                    0f,
+                    FloodScenarioPhase.Sustained,
+                    1f, // 100% - at peak
+                    false
+                );
+                BroadcastProgress(sustainedProgress);
+            }
+
+            // Only reaches here if user switches disaster type
+            BroadcastProgress(new FloodScenarioProgress(0f, 0f, FloodScenarioPhase.Complete, 1f, true));
+            BroadcastParameters(InactiveParameters);
+            scenarioRoutine = null;
+        }
+
         private FloodScenarioPhase ResolvePhase(FloodScenarioParameters parameters, float elapsed, out float phaseNormalized)
         {
             float riseEnd = parameters.RiseDurationSeconds;
@@ -430,6 +624,108 @@ namespace ARSafe.Modular
         {
             CurrentProgress = progress;
             OnProgressUpdated?.Invoke(progress);
+        }
+
+        // ========== RAIN AUDIO CONTROL ==========
+
+        /// <summary>
+        /// Start playing rain ambient sound with fade-in.
+        /// Called when flood scenario starts.
+        /// </summary>
+        private void PlayRain()
+        {
+            if (rainAudioSource == null)
+            {
+                return; // Silently skip if no AudioSource assigned
+            }
+
+            if (rainAudioSource.clip == null)
+            {
+                if (logSelectedParameters)
+                {
+                    Debug.LogWarning("[FloodScenarioManager] Rain AudioSource has no AudioClip assigned. Assign clip in Inspector.");
+                }
+                return;
+            }
+
+            if (!rainAudioSource.isPlaying)
+            {
+                rainAudioSource.volume = 0f;
+                rainAudioSource.Play();
+
+                if (logSelectedParameters)
+                {
+                    Debug.Log("<color=cyan>[FloodScenarioManager] Rain audio started</color>");
+                }
+            }
+
+            // Fade in rain volume over 2 seconds
+            StopAllCoroutines();
+            StartCoroutine(FadeRainVolume(rainVolume, 2f));
+        }
+
+        /// <summary>
+        /// Stop playing rain ambient sound with fade-out.
+        /// Called when flood scenario ends or disaster type changes.
+        /// </summary>
+        private void StopRain()
+        {
+            if (rainAudioSource == null || !rainAudioSource.isPlaying)
+            {
+                return;
+            }
+
+            if (logSelectedParameters)
+            {
+                Debug.Log("<color=yellow>[FloodScenarioManager] Rain audio stopping (fade-out)</color>");
+            }
+
+            // Fade out rain volume, then stop
+            StopAllCoroutines();
+            StartCoroutine(FadeRainVolumeAndStop(rainFadeOutDuration));
+        }
+
+        /// <summary>
+        /// Fade rain volume to target value over duration.
+        /// </summary>
+        private IEnumerator FadeRainVolume(float targetVolume, float duration)
+        {
+            if (rainAudioSource == null) yield break;
+
+            float startVolume = rainAudioSource.volume;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                rainAudioSource.volume = Mathf.Lerp(startVolume, targetVolume, t);
+                yield return null;
+            }
+
+            rainAudioSource.volume = targetVolume;
+        }
+
+        /// <summary>
+        /// Fade out rain volume to zero, then stop audio.
+        /// </summary>
+        private IEnumerator FadeRainVolumeAndStop(float duration)
+        {
+            if (rainAudioSource == null) yield break;
+
+            float startVolume = rainAudioSource.volume;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                rainAudioSource.volume = Mathf.Lerp(startVolume, 0f, t);
+                yield return null;
+            }
+
+            rainAudioSource.volume = 0f;
+            rainAudioSource.Stop();
         }
 
         // ========== TESTING UTILITIES ==========
@@ -544,19 +840,20 @@ namespace ARSafe.Modular
         /// <summary>
         /// Get contextual warning message for Iriga City / Bicol Region context (typhoon-prone area).
         /// Messages reference PAGASA official rainfall thresholds and USANT SGO Building context.
+        /// Correlated with actual flood depths: Yellow (0.05-0.1m), Orange (0.1-0.2m), Red (0.2-0.3m)
         /// </summary>
         private string GetWarningMessage(RainfallWarningLevel level)
         {
             switch (level)
             {
                 case RainfallWarningLevel.Yellow:
-                    return "PAGASA: 7.5-15mm/hr rainfall. Slight flooding possible in low-lying areas. Stay alert and monitor conditions!";
+                    return "PAGASA: 7.5-15mm/hr rainfall. Minor flooding in low-lying areas. Stay alert!";
 
                 case RainfallWarningLevel.Orange:
-                    return "PAGASA: 15-30mm/hr rainfall. Flooding expected near rivers. Prepare to evacuate to upper floors!";
+                    return "PAGASA: 15-30mm/hr rainfall. Ankle-deep flooding expected. Move to 2nd floor NOW!";
 
                 case RainfallWarningLevel.Red:
-                    return "PAGASA: 30+mm/hr TORRENTIAL RAIN! Serious flooding imminent in SGO Building area. EVACUATE TO 2ND FLOOR NOW!";
+                    return "PAGASA: 30+mm/hr TORRENTIAL RAIN! Low shin-deep flooding! EVACUATE TO 2ND FLOOR IMMEDIATELY!";
 
                 default:
                     return "Monitor weather conditions.";
@@ -583,6 +880,95 @@ namespace ARSafe.Modular
                     return Color.white;
             }
         }
+
+        /// <summary>
+        /// Calculate total duration of all phases in a progression.
+        /// </summary>
+        private float GetTotalDuration(FloodWarningProgression progression)
+        {
+            float total = 0f;
+            foreach (var phase in progression.Phases)
+            {
+                total += phase.Duration;
+            }
+            return total;
+        }
+
+        /// <summary>
+        /// Builds a linear progression timeline from Yellow to the specified peak level.
+        /// Each phase has randomized duration and correlates water depth/rise speed with warning level.
+        /// </summary>
+        private FloodWarningProgression BuildProgression(RainfallWarningLevel peakLevel)
+        {
+            var progression = new FloodWarningProgression { PeakLevel = peakLevel };
+
+            // Phase 1: Yellow (always starts here)
+            // 7.5-15mm/hr rainfall, barely ankle-deep flooding, very slow rise
+            progression.Phases.Add(new WarningLevelPhase
+            {
+                Level = RainfallWarningLevel.Yellow,
+                StartTime = 0f,
+                Duration = UnityEngine.Random.Range(30f, 45f), // Yellow lasts 30-45s
+                TargetDepth = UnityEngine.Random.Range(0.05f, 0.1f), // Barely ankle (0.05-0.1m / 5-10cm)
+                RiseSpeed = 0.002f // Very slow rise (2mm/s)
+            });
+
+            // Phase 2: Orange (if peak is Orange or Red)
+            // 15-30mm/hr rainfall, ankle-deep flooding, slow rise
+            if (peakLevel >= RainfallWarningLevel.Orange)
+            {
+                var prevPhase = progression.Phases[progression.Phases.Count - 1];
+                progression.Phases.Add(new WarningLevelPhase
+                {
+                    Level = RainfallWarningLevel.Orange,
+                    StartTime = prevPhase.StartTime + prevPhase.Duration,
+                    Duration = UnityEngine.Random.Range(30f, 45f), // Orange lasts 30-45s
+                    TargetDepth = UnityEngine.Random.Range(0.1f, 0.2f), // Ankle-deep (0.1-0.2m / 10-20cm)
+                    RiseSpeed = 0.003f // Slow rise (3mm/s)
+                });
+            }
+
+            // Phase 3: Red (if peak is Red)
+            // 30+mm/hr torrential rainfall, low shin-deep flooding, medium rise
+            if (peakLevel == RainfallWarningLevel.Red)
+            {
+                var prevPhase = progression.Phases[progression.Phases.Count - 1];
+                progression.Phases.Add(new WarningLevelPhase
+                {
+                    Level = RainfallWarningLevel.Red,
+                    StartTime = prevPhase.StartTime + prevPhase.Duration,
+                    Duration = UnityEngine.Random.Range(40f, 60f), // Red lasts 40-60s
+                    TargetDepth = UnityEngine.Random.Range(0.2f, 0.3f), // Low shin (0.2-0.3m / 20-30cm)
+                    RiseSpeed = 0.005f // Medium rise (5mm/s)
+                });
+            }
+
+            return progression;
+        }
+    }
+
+    /// <summary>
+    /// Defines the progression path for a flood scenario with linear warning level escalation.
+    /// Always starts at Yellow and escalates to a randomized peak level (Yellow, Orange, or Red).
+    /// </summary>
+    public class FloodWarningProgression
+    {
+        public RainfallWarningLevel StartLevel = RainfallWarningLevel.Yellow; // Always Yellow
+        public RainfallWarningLevel PeakLevel; // Randomized: Yellow, Orange, or Red
+        public List<WarningLevelPhase> Phases = new List<WarningLevelPhase>(); // Timeline of level transitions
+    }
+
+    /// <summary>
+    /// Represents a single phase in the flood warning progression timeline.
+    /// Each phase corresponds to one warning level (Yellow, Orange, or Red).
+    /// </summary>
+    public struct WarningLevelPhase
+    {
+        public RainfallWarningLevel Level;
+        public float StartTime; // Seconds since scenario start
+        public float Duration; // How long this level lasts (seconds)
+        public float TargetDepth; // Water depth at end of this phase (meters)
+        public float RiseSpeed; // Meters per second
     }
 
     public enum FloodScenarioPhase

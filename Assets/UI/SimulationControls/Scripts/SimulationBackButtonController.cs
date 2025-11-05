@@ -1498,6 +1498,35 @@ namespace ARSafe.UI
             // Wrap entire cleanup in try-catch to prevent crashes during scene unload
             try
             {
+                // 0. CRITICAL: Hide welcome screen immediately to prevent it showing in main menu
+                try
+                {
+                    if (ARSafe.Modular.Welcome.WelcomeScreenManager.TryGetInstance(out var welcomeManager))
+                    {
+                        // Force immediate hide - don't wait for animations
+                        if (welcomeManager != null && welcomeManager.gameObject != null)
+                        {
+                            // Use reflection to access private HideWelcomeUI method
+                            var method = typeof(ARSafe.Modular.Welcome.WelcomeScreenManager)
+                                .GetMethod("HideWelcomeUI", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                            if (method != null)
+                            {
+                                method.Invoke(welcomeManager, null);
+                            }
+
+                            if (enableDebugLogs)
+                            {
+                                Debug.Log("  ✓ WelcomeScreenManager hidden");
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[SimulationBackButton] Could not hide welcome screen: {ex.Message}");
+                }
+
                 // 1. Clean up wrong-way warning system
                 try
                 {
@@ -1568,6 +1597,26 @@ namespace ARSafe.UI
                 catch (System.Exception ex)
                 {
                     Debug.LogWarning($"[SimulationBackButton] Could not reset virtual exits: {ex.Message}");
+                }
+
+                // 4. CRITICAL: Stop ARSafeLoadingIntegration coroutine to prevent stale state
+                try
+                {
+                    var loadingIntegration = FindFirstObjectByType<ARSafe.Modular.Integration.ARSafeLoadingIntegration>();
+                    if (loadingIntegration != null && loadingIntegration.gameObject != null)
+                    {
+                        // Component will destroy itself with scene, but stop coroutines immediately
+                        loadingIntegration.StopAllCoroutines();
+
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log("  ✓ ARSafeLoadingIntegration coroutines stopped");
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[SimulationBackButton] Could not stop loading integration: {ex.Message}");
                 }
 
                 if (enableDebugLogs)

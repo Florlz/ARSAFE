@@ -1,0 +1,173 @@
+/* ========================================
+   FLOOD WARNING PROGRESS DISPLAY (MINIMAL)
+   Mobile-First Design | UI Toolkit
+   ======================================== */
+
+/* CSS Variables (Theme Colors) */
+:root {
+    --progress-widget-card: rgba(16, 24, 36, 0.95);
+    --progress-widget-border: rgba(0, 191, 255, 0.5);
+    --progress-widget-text: rgba(255, 255, 255, 0.95);
+    --progress-widget-text-dim: rgba(255, 255, 255, 0.65);
+    --progress-widget-accent: #00bfff;
+
+    /* Warning Level Colors (PAGASA Official) */
+    --level-yellow: rgba(255, 235, 4, 1);
+    --level-orange: rgba(255, 153, 0, 1);
+    --level-red: rgba(230, 26, 26, 1);
+
+    /* Progress Bar */
+    --progress-bar-bg: rgba(255, 255, 255, 0.12);
+    --progress-bar-fill: rgba(0, 191, 255, 0.9);
+}
+
+/* ========================================
+   COMPACT WIDGET (Bottom-Left Corner)
+   ======================================== */
+
+.progress-widget {
+    position: absolute;
+    left: 20px;
+    bottom: 120px;
+    width: 260px; /* Slightly wider to prevent text overflow */
+    background-color: var(--progress-widget-card);
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: var(--progress-widget-border);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================
+   TOP ROW (Badges + Level Info)
+   ======================================== */
+
+.progress-widget__top-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+/* Level Indicators (Compact Dots) */
+.progress-widget__indicators {
+    display: flex;
+    flex-direction: row;
+    margin-right: 10px;
+}
+
+.progress-widget__indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    margin-right: 6px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.3);
+    opacity: 0.3; /* Inactive by default */
+}
+
+.progress-widget__indicator.indicator--current {
+    opacity: 1;
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.95);
+    /* Add glow effect */
+    -unity-background-image-tint-color: rgba(255, 255, 255, 1);
+}
+
+.progress-widget__indicator--yellow {
+    background-color: var(--level-yellow);
+}
+
+.progress-widget__indicator--orange {
+    background-color: var(--level-orange);
+}
+
+.progress-widget__indicator--red {
+    background-color: var(--level-red);
+}
+
+/* Level Info (Current → Peak) */
+.progress-widget__level-info {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    flex-grow: 1;
+}
+
+.progress-widget__level-value {
+    font-size: 26px;
+    color: var(--level-yellow); /* Dynamic via C# */
+    -unity-font-style: bold;
+    margin-right: 6px;
+}
+
+.progress-widget__peak-label {
+    font-size: 18px;
+    color: var(--progress-widget-text-dim);
+    -unity-font-style: normal;
+}
+
+/* ========================================
+   COUNTDOWN (Minimal)
+   ======================================== */
+
+.progress-widget__countdown {
+    font-size: 20px;
+    color: var(--progress-widget-accent);
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    margin-bottom: 8px;
+}
+
+/* ========================================
+   PROGRESS BAR (Slim)
+   ======================================== */
+
+.progress-widget__progress-bar {
+    width: 100%;
+    height: 6px; /* Slim! */
+    background-color: var(--progress-bar-bg);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-widget__progress-fill {
+    width: 0%; /* Dynamic 0-100% */
+    height: 100%;
+    background-color: var(--progress-bar-fill);
+    transition-property: width;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+}
+
+/* ========================================
+   RESPONSIVE (Landscape - Even Smaller)
+   ======================================== */
+
+@media (min-aspect-ratio: 16/9) {
+    .progress-widget {
+        width: 240px;
+        padding: 10px;
+        bottom: 100px;
+    }
+
+    .progress-widget__level-value {
+        font-size: 22px;
+    }
+
+    .progress-widget__peak-label {
+        font-size: 16px;
+    }
+
+    .progress-widget__countdown {
+        font-size: 18px;
+    }
+
+    .progress-widget__indicator {
+        width: 14px;
+        height: 14px;
+        margin-right: 5px;
+    }
+}

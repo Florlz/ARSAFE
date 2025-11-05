@@ -20,10 +20,13 @@
                     </ui:VisualElement>
                     <ui:VisualElement class="flood-alert__stats">
                         <ui:VisualElement class="flood-alert__stat-card flood-alert__stat-card--warning">
-                            <ui:Label class="flood-alert__stat-label" text="PAGASA RAINFALL WARNING"/>
+                            <ui:Label class="flood-alert__stat-label" text="CURRENT WARNING LEVEL"/>
                             <ui:Label name="rainfall-warning-value" class="flood-alert__stat-value flood-alert__stat-value--large" text="ORANGE"/>
                             <ui:Label name="rainfall-warning-label" class="flood-alert__stat-sublabel" text="15-30mm/hr - Flooding Expected"/>
                             <ui:Label name="warning-message-label" class="flood-alert__stat-sublabel-small" text="Prepare for evacuation to higher ground"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="flood-alert__progression-info">
+                            <ui:Label name="progression-info-label" class="flood-alert__progression-text" text="Water will escalate to RED warning level"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement class="flood-alert__action-box">

@@ -191,6 +191,25 @@
     white-space: normal;
 }
 
+.flood-alert__progression-info {
+    display: flex;
+    justify-content: center;
+    padding: 16px 20px;
+    margin-top: 12px;
+    background-color: rgba(0, 191, 255, 0.1);
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: var(--flood-alert-accent);
+}
+
+.flood-alert__progression-text {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: var(--flood-alert-accent);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
 .flood-alert__action-box {
     padding: 24px;
     border-radius: 20px;

@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/FloodAlert/Resources/UI/FloodAlert/FloodWarningProgressStyles.uss?fileID=7433441132597879392&amp;guid=e13cbbde0855b164a912694ff5d20615&amp;type=3#FloodWarningProgressStyles" />
+    <ui:VisualElement name="progress-widget" class="progress-widget">
+        <ui:VisualElement class="progress-widget__top-row">
+            <ui:VisualElement class="progress-widget__indicators">
+                <ui:VisualElement name="yellow-indicator" class="progress-widget__indicator progress-widget__indicator--yellow" />
+                <ui:VisualElement name="orange-indicator" class="progress-widget__indicator progress-widget__indicator--orange" />
+                <ui:VisualElement name="red-indicator" class="progress-widget__indicator progress-widget__indicator--red" />
+            </ui:VisualElement>
+            <ui:VisualElement class="progress-widget__level-info">
+                <ui:Label name="current-level-value" text="YELLOW" class="progress-widget__level-value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="countdown-label" text="Next: 45s" class="progress-widget__countdown" />
+        <ui:VisualElement name="progress-bar" class="progress-widget__progress-bar">
+            <ui:VisualElement name="progress-fill" class="progress-widget__progress-fill" />
+        </ui:VisualElement>
+        <ui:Label name="peak-level-label" text="→ RED" class="progress-widget__peak-label" />
+    </ui:VisualElement>
+</ui:UXML>

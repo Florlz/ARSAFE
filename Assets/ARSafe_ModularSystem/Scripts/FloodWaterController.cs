@@ -193,12 +193,13 @@ namespace ARSafe.Modular
         
         private void HandleParametersUpdated(FloodScenarioParameters parameters)
         {
+            bool wasActive = hasActiveScenario;
             activeParameters = parameters;
             hasActiveScenario = parameters.IsActive;
 
             if (!parameters.IsActive)
             {
-                // Hide water below floor
+                // Scenario ended - hide water below floor
                 targetHeight = hiddenBelowFloor;
                 currentHeight = hiddenBelowFloor;
                 UpdateWaterPosition(hiddenBelowFloor);
@@ -212,20 +213,32 @@ namespace ARSafe.Modular
                 return;
             }
 
-            // Scenario started - reset to hidden position
-            currentHeight = hiddenBelowFloor;
-            targetHeight = hiddenBelowFloor;
-            UpdateWaterPosition(hiddenBelowFloor);
-            HideArrows();
-            kneeReachedTime = -1f;
+            // Only reset water position on INITIAL scenario start, not during level transitions
+            if (!wasActive && parameters.IsActive)
+            {
+                // Scenario just started - reset to hidden position
+                currentHeight = hiddenBelowFloor;
+                targetHeight = hiddenBelowFloor;
+                UpdateWaterPosition(hiddenBelowFloor);
+                HideArrows();
+                kneeReachedTime = -1f;
 
-            // Auto-update shader parameters from scenario
+                Debug.Log($"<color=cyan>[FloodWater] ★★★ {name} → Scenario started! Water will rise to target depth ({parameters.TargetDepthMeters:F2}m)</color>");
+            }
+            else
+            {
+                // Level transition (Yellow→Orange→Red) - don't reset, let water continue rising smoothly
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"<color=green>[FloodWater] {name} → Level transition, new target depth: {parameters.TargetDepthMeters:F2}m</color>");
+                }
+            }
+
+            // Auto-update shader parameters from scenario (always update for new visual params)
             if (autoUpdateShaderParams)
             {
                 UpdateShaderParametersFromScenario(parameters);
             }
-
-            Debug.Log($"<color=cyan>[FloodWater] ★★★ {name} → Scenario started! Water will rise from floor ({floorHeight:F2}m) to knee level ({kneeHeight:F2}m)</color>");
         }
         
         private void HandleProgressUpdated(FloodScenarioProgress progress)
@@ -243,30 +256,31 @@ namespace ARSafe.Modular
             switch (progress.Phase)
             {
                 case FloodScenarioPhase.Rising:
-                    // Rise from floor to knee level
+                    // Rise from floor to target depth (from parameters - changes with warning level)
                     evaluated = riseCurve.Evaluate(progress.PhaseNormalized);
-                    targetHeight = Mathf.Lerp(floorHeight, kneeHeight, evaluated);
+                    float targetDepth = activeParameters.TargetDepthMeters;
+                    targetHeight = Mathf.Lerp(floorHeight, targetDepth, evaluated);
 
                     if (enableDebugLogs && (progress.PhaseNormalized < 0.15f || progress.PhaseNormalized > 0.85f))
                     {
-                        Debug.Log($"<color=cyan>[FloodWater] {name} → RISING progress={progress.PhaseNormalized:F3}, curve={evaluated:F3}, target={targetHeight:F3}m, current={currentHeight:F3}m</color>");
+                        Debug.Log($"<color=cyan>[FloodWater] {name} → RISING progress={progress.PhaseNormalized:F3}, curve={evaluated:F3}, target={targetHeight:F3}m (depth={targetDepth:F2}m), current={currentHeight:F3}m</color>");
                     }
                     break;
-                
+
                 case FloodScenarioPhase.Sustained:
-                    // Hold at knee level
-                    targetHeight = kneeHeight;
-                    
+                    // Hold at peak level (from parameters)
+                    targetHeight = activeParameters.TargetDepthMeters;
+
                     if (enableDebugLogs && progress.PhaseNormalized < 0.1f)
                     {
-                        Debug.Log($"<color=cyan>[FloodWater] {name} → SUSTAINED at knee level ({kneeHeight:F2}m)</color>");
+                        Debug.Log($"<color=cyan>[FloodWater] {name} → SUSTAINED at peak level ({activeParameters.TargetDepthMeters:F2}m)</color>");
                     }
                     break;
                 
                 case FloodScenarioPhase.Receding:
-                    // Recede from knee back to floor, then hide
+                    // Recede from peak level back to floor, then hide
                     evaluated = recedeCurve.Evaluate(progress.PhaseNormalized);
-                    targetHeight = Mathf.Lerp(kneeHeight, hiddenBelowFloor, evaluated);
+                    targetHeight = Mathf.Lerp(activeParameters.TargetDepthMeters, hiddenBelowFloor, evaluated);
 
                     if (enableDebugLogs && (progress.PhaseNormalized < 0.1f || progress.PhaseNormalized > 0.9f))
                     {

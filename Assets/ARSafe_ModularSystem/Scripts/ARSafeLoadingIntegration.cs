@@ -574,20 +574,36 @@ namespace ARSafe.Modular.Integration
             HandleLocalizationReady();
             yield break;
 #else
-            if (!requireLocalizationBeforeProceeding || activationController == null)
+            // CRITICAL: Verify activation controller is valid and not destroyed
+            if (activationController == null || activationController.gameObject == null)
             {
-                Debug.Log($"<color=magenta>[ARSafeLoadingIntegration] Localization NOT required or controller missing - skipping wait</color>");
-                if (activationController != null && activationController.HasLocalized)
+                Debug.LogError($"<color=red>[ARSafeLoadingIntegration] CRITICAL: activationController is null or destroyed! Cannot wait for localization.</color>");
+                yield break;
+            }
+
+            if (!requireLocalizationBeforeProceeding)
+            {
+                Debug.Log($"<color=magenta>[ARSafeLoadingIntegration] Localization NOT required - skipping wait</color>");
+                if (activationController.HasLocalized)
                 {
                     HandleLocalizationReady();
                 }
                 yield break;
             }
 
-            if (activationController.HasLocalized)
+            // CRITICAL: Check if controller is still valid before accessing HasLocalized
+            try
             {
-                Debug.Log($"<color=green>[ARSafeLoadingIntegration] Already localized - proceeding immediately</color>");
-                HandleLocalizationReady();
+                if (activationController.HasLocalized)
+                {
+                    Debug.Log($"<color=green>[ARSafeLoadingIntegration] Already localized - proceeding immediately</color>");
+                    HandleLocalizationReady();
+                    yield break;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"<color=red>[ARSafeLoadingIntegration] Exception checking HasLocalized: {ex.Message}. Skipping localization wait.</color>");
                 yield break;
             }
 
@@ -598,8 +614,29 @@ namespace ARSafe.Modular.Integration
 
             // CRITICAL: Wait indefinitely for localization (NO TIMEOUT)
             // Welcome screen must ONLY appear after proper localization
-            while (!activationController.HasLocalized && !isShuttingDown)
+            while (!isShuttingDown)
             {
+                // CRITICAL: Verify controller is still valid during wait loop
+                if (activationController == null || activationController.gameObject == null)
+                {
+                    Debug.LogError($"<color=red>[ARSafeLoadingIntegration] Activation controller became null during localization wait! Aborting.</color>");
+                    yield break;
+                }
+
+                // Check localization status
+                try
+                {
+                    if (activationController.HasLocalized)
+                    {
+                        break; // Localization confirmed
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"<color=red>[ARSafeLoadingIntegration] Exception during localization wait: {ex.Message}. Aborting.</color>");
+                    yield break;
+                }
+
                 // Log every 2 seconds to track progress
                 if (Time.time - lastLogTime >= 2f)
                 {

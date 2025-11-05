@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using ARSafe.Modular;
@@ -142,10 +143,29 @@ namespace ARSafe.UI
 
             // Collect all border elements for pulsing animation
             warningBorders = new List<VisualElement>();
-            warningBorders.Add(warningOverlay.Q<VisualElement>(null, "warning-border--top"));
-            warningBorders.Add(warningOverlay.Q<VisualElement>(null, "warning-border--right"));
-            warningBorders.Add(warningOverlay.Q<VisualElement>(null, "warning-border--bottom"));
-            warningBorders.Add(warningOverlay.Q<VisualElement>(null, "warning-border--left"));
+            warningBorders.Add(warningOverlay.Q<VisualElement>(className: "warning-border--top"));
+            warningBorders.Add(warningOverlay.Q<VisualElement>(className: "warning-border--right"));
+            warningBorders.Add(warningOverlay.Q<VisualElement>(className: "warning-border--bottom"));
+            warningBorders.Add(warningOverlay.Q<VisualElement>(className: "warning-border--left"));
+
+            // Validate all 4 borders were found
+            int validBorders = warningBorders.Count(b => b != null);
+            if (validBorders != 4)
+            {
+                Debug.LogError($"[ARSafeWrongWayWarning] CRITICAL: Only {validBorders}/4 borders found! Wrong-way UI will not display correctly.");
+                if (enableDebugLogs)
+                {
+                    for (int i = 0; i < warningBorders.Count; i++)
+                    {
+                        string[] borderNames = { "top", "right", "bottom", "left" };
+                        Debug.Log($"  Border {borderNames[i]}: {(warningBorders[i] != null ? "✓ Found" : "✗ NULL")}");
+                    }
+                }
+            }
+            else if (enableDebugLogs)
+            {
+                Debug.Log("[ARSafeWrongWayWarning] ✓ All 4 borders found and ready");
+            }
 
             // Get center warning message
             wrongWayMessage = warningOverlay.Q<VisualElement>("wrong-way-message");

@@ -41,6 +41,7 @@ namespace ARSafe.UI
         private Label rainfallWarningValue;
         private Label rainfallWarningLabel;
         private Label warningMessageLabel;
+        private Label progressionInfoLabel;
 
         private bool isVisible;
         private float hideTimer;
@@ -134,6 +135,7 @@ namespace ARSafe.UI
 
             FloodScenarioManager.OnParametersUpdated += HandleScenarioParameters;
             FloodScenarioManager.OnProgressUpdated += HandleScenarioProgress;
+            FloodScenarioManager.OnProgressionGenerated += HandleProgressionGenerated;
             DisasterTypeManager.OnDisasterTypeChanged += HandleDisasterChanged;
 
             // Subscribe to welcome screen completion
@@ -168,6 +170,7 @@ namespace ARSafe.UI
             {
                 FloodScenarioManager.OnParametersUpdated -= HandleScenarioParameters;
                 FloodScenarioManager.OnProgressUpdated -= HandleScenarioProgress;
+                FloodScenarioManager.OnProgressionGenerated -= HandleProgressionGenerated;
                 DisasterTypeManager.OnDisasterTypeChanged -= HandleDisasterChanged;
 
                 if (WelcomeScreenManager.TryGetInstance(out var welcomeManager))
@@ -195,6 +198,7 @@ namespace ARSafe.UI
                 rainfallWarningValue = null;
                 rainfallWarningLabel = null;
                 warningMessageLabel = null;
+                progressionInfoLabel = null;
                 uiBuilt = false;
                 showingCompletion = false;
                 welcomeScreenActive = false;
@@ -281,6 +285,7 @@ namespace ARSafe.UI
             rainfallWarningValue = root.Q<Label>("rainfall-warning-value");
             rainfallWarningLabel = root.Q<Label>("rainfall-warning-label");
             warningMessageLabel = root.Q<Label>("warning-message-label");
+            progressionInfoLabel = root.Q<Label>("progression-info-label");
 
             if (overlayRoot == null)
             {
@@ -364,9 +369,16 @@ namespace ARSafe.UI
             if (parameters.IsActive)
             {
                 UpdateContent(parameters);
-                ShowStartOverlay();
+
+                // Only show overlay on INITIAL scenario start, not on level transitions (Yellow→Orange→Red)
+                if (!scenarioActive)
+                {
+                    ShowStartOverlay();
+                    scenarioActive = true;
+                }
+                // Otherwise, just update content without re-showing overlay
+
                 hasPendingParameters = false;
-                scenarioActive = true;
             }
             else
             {
@@ -419,6 +431,53 @@ namespace ARSafe.UI
             {
                 HideOverlay();
                 scenarioActive = false;
+            }
+        }
+
+        private void HandleProgressionGenerated(FloodWarningProgression progression)
+        {
+            if (progressionInfoLabel == null)
+            {
+                return;
+            }
+
+            // Build progression info message
+            string startLevel = progression.Phases[0].Level.ToString().ToUpper();
+            string peakLevel = progression.PeakLevel.ToString().ToUpper();
+
+            string message;
+            if (progression.PeakLevel == progression.Phases[0].Level)
+            {
+                // Peak is same as start (Yellow only)
+                message = $"Starting at {startLevel} warning - Will remain at this level";
+            }
+            else
+            {
+                // Will escalate to higher level
+                message = $"Starting at {startLevel} - Will escalate to {peakLevel} warning level";
+            }
+
+            progressionInfoLabel.text = message;
+
+            // Color based on peak level
+            Color peakColor = GetWarningColorForLevel(progression.PeakLevel);
+            progressionInfoLabel.style.color = new StyleColor(peakColor);
+
+            Debug.Log($"[FloodAlertOverlayController] Progression info updated: {message}");
+        }
+
+        private Color GetWarningColorForLevel(RainfallWarningLevel level)
+        {
+            switch (level)
+            {
+                case RainfallWarningLevel.Yellow:
+                    return new Color(1f, 0.92f, 0.016f, 1f); // Bright yellow #FFEB04
+                case RainfallWarningLevel.Orange:
+                    return new Color(1f, 0.6f, 0f, 1f); // Orange #FF9900
+                case RainfallWarningLevel.Red:
+                    return new Color(0.9f, 0.1f, 0.1f, 1f); // Bright red #E61A1A
+                default:
+                    return Color.white;
             }
         }
 
