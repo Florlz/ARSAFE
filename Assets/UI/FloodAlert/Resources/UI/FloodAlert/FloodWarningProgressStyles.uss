@@ -92,7 +92,7 @@
 .progress-widget__level-info {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: flex-end; /* Changed from 'baseline' - not supported in Unity UI Toolkit */
     flex-grow: 1;
 }
 

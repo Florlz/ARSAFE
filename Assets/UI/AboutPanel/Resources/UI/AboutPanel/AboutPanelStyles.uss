@@ -174,11 +174,15 @@
 }
 
 .about-list-item__icon {
-    font-size: 50px;
+    /* Sprite-based icon (replaces emoji for Android compatibility) */
     width: 70px;
+    height: 70px;
     min-width: 70px;
+    min-height: 70px;
     margin-right: 20px;
-    -unity-text-align: middle-center;
+    -unity-background-scale-mode: scale-to-fit;
+    /* Icon will be set via C# script */
+    /* OLD TEXT-BASED: font-size: 50px; -unity-text-align: middle-center; */
 }
 
 .about-list-item__number {

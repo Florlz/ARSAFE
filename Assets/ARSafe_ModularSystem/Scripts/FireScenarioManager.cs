@@ -551,11 +551,11 @@ namespace ARSafe.Modular
                 SetProgress(progress);
             }
 
-            // Scenario complete
-            var completeProgress = new FireScenarioProgress(durationSeconds, durationSeconds, true);
-            SetProgress(completeProgress);
+            // Scenario timer complete - BUT scenario stays active until user reaches exit
+            // Do NOT send "complete" progress - fire scenario never auto-completes
+            // Only ends when user physically reaches an exit
 
-            // Stop alarm when scenario ends
+            // Stop alarm when timer ends
             StopAlarm();
 
             // NOTE: Wrong-way warnings stay active until user reaches exit
@@ -563,7 +563,7 @@ namespace ARSafe.Modular
 
             if (logSelectedParameters)
             {
-                Debug.Log("[FireScenarioManager] Fire scenario complete - stopping alarm (warnings stay active until exit reached)");
+                Debug.Log("[FireScenarioManager] Fire scenario timer complete - stopping alarm (scenario stays active until exit reached)");
             }
 
             scenarioRoutine = null;

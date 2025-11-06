@@ -257,9 +257,13 @@
 }
 
 .earthquake-alert__complete-icon {
-    font-size: 38px;
-    color: var(--earthquake-alert-accent);
-    -unity-text-align: middle-center;
+    /* Sprite-based icon (replaces text emoji for Android compatibility) */
+    width: 48px;
+    height: 48px;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: var(--earthquake-alert-accent);
+    /* Icon will be set via C# script or default fallback */
+    /* OLD TEXT-BASED: font-size: 38px; color: var(--earthquake-alert-accent); -unity-text-align: middle-center; */
 }
 
 .earthquake-alert__complete-title {

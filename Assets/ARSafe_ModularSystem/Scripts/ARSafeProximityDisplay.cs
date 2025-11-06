@@ -349,8 +349,28 @@ namespace ARSafe.Modular
                     }
                     return false;
                 }
+
+                // CRITICAL: Floor-based visibility filter for neighbors
+                // Only show augmentations on the SAME floor as current anchor
+                if (!isCurrentAnchor && isNeighborOfCurrent)
+                {
+                    var currentAnchorInfo = activationController.CurrentAnchor?.GetComponent<ARSafeTargetInfo>();
+
+                    if (currentAnchorInfo != null && targetInfo != null)
+                    {
+                        // Hide neighbor augmentations from different floors
+                        if (!currentAnchorInfo.IsOnSameFloor(targetInfo))
+                        {
+                            if (enableDebugLogs && isContentVisible)
+                            {
+                                Debug.Log($"<color=yellow>[ARSafeProximityDisplay] {name} hiding: Different floor (anchor floor={currentAnchorInfo.floorLevel}, neighbor floor={targetInfo.floorLevel})</color>");
+                            }
+                            return false;
+                        }
+                    }
+                }
             }
-            
+
             // NEW: SPECIAL RULE FOR ROOMS - Must be tracking (inside room) to show content
             if (activationController != null && activationController.hideContentWhenNotTracking && (trackingManager == null || trackingManager.GetTrackingCount() == 0))
             {

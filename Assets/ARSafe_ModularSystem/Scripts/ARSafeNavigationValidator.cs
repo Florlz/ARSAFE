@@ -486,8 +486,77 @@ namespace ARSafe.Modular
         }
 
         /// <summary>
+        /// Calculate priority score for exit selection based on floor levels and disaster type.
+        /// Lower score = higher priority.
+        /// </summary>
+        /// <param name="currentFloor">User's current floor level</param>
+        /// <param name="exitFloor">Exit's floor level</param>
+        /// <param name="exitType">Exit target type (Exit, Stairway, Room, etc.)</param>
+        /// <param name="hopDistance">BFS hop distance to exit</param>
+        /// <returns>Priority score (lower is better)</returns>
+        private float GetExitPriorityScore(int currentFloor, int exitFloor, TargetType exitType, int hopDistance)
+        {
+            float score = hopDistance; // Base score from BFS distance
+            DisasterType disaster = DisasterTypeManager.SelectedDisasterType;
+
+            // FIRE & EARTHQUAKE: Users on upper floors must go DOWN to stairways, then to ground exits
+            if (disaster == DisasterType.Fire || disaster == DisasterType.Earthquake)
+            {
+                if (currentFloor >= 2) // User on upper floor
+                {
+                    if (exitType == TargetType.Stairway && exitFloor == currentFloor)
+                    {
+                        score -= 100f; // HIGHEST PRIORITY: Stairway on same floor (go downward)
+                    }
+                    else if (exitType == TargetType.Stairway)
+                    {
+                        score -= 50f; // MEDIUM PRIORITY: Stairway on different floor
+                    }
+                    else if (exitType == TargetType.Exit)
+                    {
+                        score += 50f; // LOW PRIORITY: Ground exit (wrong floor, but acceptable if no stairway)
+                    }
+                }
+                else // User on floor 1 (ground level)
+                {
+                    if (exitType == TargetType.Exit)
+                    {
+                        score -= 50f; // HIGHEST PRIORITY: Ground exit (final destination)
+                    }
+                    else if (exitType == TargetType.Stairway)
+                    {
+                        score += 25f; // LOW PRIORITY: Stairway (wrong direction for ground floor user)
+                    }
+                }
+            }
+            // FLOOD: Users on floor 1 must go UP to stairways, floor 2+ is already safe
+            else if (disaster == DisasterType.Flood)
+            {
+                if (currentFloor == 1) // User on ground floor
+                {
+                    if (exitType == TargetType.Stairway && exitFloor == currentFloor)
+                    {
+                        score -= 100f; // HIGHEST PRIORITY: Stairway on same floor (go upward)
+                    }
+                    else if (exitType == TargetType.Stairway)
+                    {
+                        score -= 50f; // MEDIUM PRIORITY: Stairway on different floor
+                    }
+                    else if (exitFloor >= 2)
+                    {
+                        score -= 30f; // MEDIUM PRIORITY: Floor 2+ (safe zone, but prefer stairway route)
+                    }
+                }
+                // Floor 2+ is already safe - handled by IsFloodExit() returning true
+            }
+
+            return score;
+        }
+
+        /// <summary>
         /// Breadth-First Search to find nearest exit through adjacency graph
         /// OPTIMIZED: Reuses collections to avoid GC allocations
+        /// FLOOR-AWARE: Prioritizes same-floor exits and appropriate navigation direction
         /// </summary>
         private ARSafeTargetInfo FindNearestExitBFS(ARSafeTargetInfo startTarget)
         {
@@ -497,6 +566,9 @@ namespace ARSafe.Modular
             parentMap.Clear();
             cachedPath.Clear();
 
+            // Get current floor level for floor-aware navigation
+            int currentFloor = startTarget != null ? startTarget.floorLevel : 1;
+
             // Initialize BFS
             PathNode startNode = new PathNode(startTarget, null, 0);
             bfsQueue.Enqueue(startNode);
@@ -504,6 +576,7 @@ namespace ARSafe.Modular
             parentMap[startTarget] = startNode;
 
             ARSafeTargetInfo nearestExit = null;
+            float bestPriorityScore = float.MaxValue;
             int shortestDistance = int.MaxValue;
 
             // BFS traversal
@@ -512,17 +585,44 @@ namespace ARSafe.Modular
                 PathNode currentNode = bfsQueue.Dequeue();
                 ARSafeTargetInfo current = currentNode.target;
 
-                // Check if this is an exit (flood uses different logic)
-                bool isExit = DisasterTypeManager.SelectedDisasterType == DisasterType.Flood
-                    ? current.IsFloodExit() // Flood: stairways + floor 2+
-                    : current.targetType == TargetType.Exit; // Fire/Earthquake: ground exits
+                // Check if this is an exit (floor-aware logic)
+                bool isExit = false;
+                DisasterType disaster = DisasterTypeManager.SelectedDisasterType;
+
+                if (disaster == DisasterType.Flood)
+                {
+                    isExit = current.IsFloodExit(); // Flood: stairways + floor 2+
+                }
+                else if (disaster == DisasterType.Fire || disaster == DisasterType.Earthquake)
+                {
+                    // Fire/Earthquake: Ground exits OR stairways (for upper floor users)
+                    if (currentFloor >= 2)
+                    {
+                        // Upper floor users: Accept stairways AND ground exits
+                        isExit = current.targetType == TargetType.Exit || current.targetType == TargetType.Stairway;
+                    }
+                    else
+                    {
+                        // Ground floor users: Only ground exits
+                        isExit = current.targetType == TargetType.Exit;
+                    }
+                }
 
                 if (isExit)
                 {
-                    // Found an exit - check if it's closer than previous
-                    if (currentNode.distance < shortestDistance)
+                    // Calculate priority score for this exit
+                    float priorityScore = GetExitPriorityScore(
+                        currentFloor,
+                        current.floorLevel,
+                        current.targetType,
+                        currentNode.distance
+                    );
+
+                    // Found an exit - check if it has better priority than previous
+                    if (priorityScore < bestPriorityScore)
                     {
                         nearestExit = current;
+                        bestPriorityScore = priorityScore;
                         shortestDistance = currentNode.distance;
 
                         // Reconstruct path
@@ -537,10 +637,8 @@ namespace ARSafe.Modular
 
                         if (enableDebugLogs)
                         {
-                            string exitType = DisasterTypeManager.SelectedDisasterType == DisasterType.Flood
-                                ? $"flood exit (type: {current.targetType}, floor: {current.floorLevel})"
-                                : "exit";
-                            Debug.Log($"<color=green>[BFS] Found {exitType}: {nearestExit.name} at distance {shortestDistance} hops</color>");
+                            string exitTypeDesc = $"{current.targetType} (floor {current.floorLevel})";
+                            Debug.Log($"<color=green>[BFS] Found exit: {nearestExit.name} [{exitTypeDesc}] | Priority: {priorityScore:F1} | Distance: {shortestDistance} hops | User floor: {currentFloor}</color>");
                         }
                     }
 
@@ -574,11 +672,12 @@ namespace ARSafe.Modular
             {
                 if (nearestExit != null)
                 {
-                    Debug.Log($"<color=cyan>[BFS] Pathfinding complete: {nearestExit.name} ({shortestDistance} hops)</color>\nPath: {string.Join(" → ", cachedPath.ConvertAll(t => t.name))}");
+                    string exitInfo = $"{nearestExit.targetType} on floor {nearestExit.floorLevel}";
+                    Debug.Log($"<color=cyan>[BFS] ★ BEST EXIT: {nearestExit.name} [{exitInfo}] | Priority: {bestPriorityScore:F1} | Distance: {shortestDistance} hops | User floor: {currentFloor}</color>\nPath: {string.Join(" → ", cachedPath.ConvertAll(t => $"{t.name}(F{t.floorLevel})"))}");
                 }
                 else
                 {
-                    Debug.LogWarning("[BFS] No exit found from current anchor!");
+                    Debug.LogWarning($"[BFS] No exit found from current anchor! (User floor: {currentFloor})");
                 }
             }
 

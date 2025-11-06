@@ -42,15 +42,15 @@ namespace ARSafe.UI
         private Label responseLabel;
         private Button acknowledgeButton;
         private VisualElement startSection;
-        private VisualElement completeSection;
-        private Button completeButton;
+        // completeSection REMOVED - fire scenario never shows complete state
+        // completeButton REMOVED - no complete button needed
 
         private bool isVisible;
         private float hideTimer;
         private bool uiBuilt;
         private IVisualElementScheduledItem cacheRetryItem;
         private bool allowAutoHide;
-        private bool showingCompletion;
+        // showingCompletion REMOVED - fire scenario never shows complete state
         private bool welcomeScreenActive;
         private FireScenarioParameters pendingParameters;
         private bool hasPendingParameters;
@@ -182,10 +182,7 @@ namespace ARSafe.UI
                 {
                     acknowledgeButton.clicked -= HideOverlay;
                 }
-                if (completeButton != null)
-                {
-                    completeButton.clicked -= HideOverlay;
-                }
+                // completeButton event unsubscribe removed - button no longer exists
 
                 cacheRetryItem?.Pause();
                 cacheRetryItem = null;
@@ -193,10 +190,10 @@ namespace ARSafe.UI
                 responseLabel = null;
                 acknowledgeButton = null;
                 startSection = null;
-                completeSection = null;
-                completeButton = null;
+                // completeSection removed
+                // completeButton removed
                 uiBuilt = false;
-                showingCompletion = false;
+                // showingCompletion removed
                 welcomeScreenActive = false;
                 pendingParameters = default;
                 hasPendingParameters = false;
@@ -279,8 +276,8 @@ namespace ARSafe.UI
             responseLabel = root.Q<Label>(ResponseLabelName);
             acknowledgeButton = root.Q<Button>(AcknowledgeButtonName);
             startSection = root.Q<VisualElement>(StartSectionName);
-            completeSection = root.Q<VisualElement>(CompleteSectionName);
-            completeButton = root.Q<Button>(CompleteButtonName);
+            // completeSection query removed - complete state no longer exists
+            // completeButton query removed - complete state no longer exists
 
             if (overlayRoot == null)
             {
@@ -299,11 +296,7 @@ namespace ARSafe.UI
                 acknowledgeButton.clicked += HideOverlay;
             }
 
-            if (completeButton != null)
-            {
-                completeButton.clicked -= HideOverlay;
-                completeButton.clicked += HideOverlay;
-            }
+            // completeButton event subscribe removed - button no longer exists
 
             Debug.Log($"[FireAlertOverlayController] Successfully cached UI elements.");
             uiBuilt = true;
@@ -373,10 +366,8 @@ namespace ARSafe.UI
                 hasPendingParameters = false;
                 scenarioActive = false;
 
-                if (!showingCompletion)
-                {
-                    HideOverlay();
-                }
+                // Always hide overlay when scenario becomes inactive
+                HideOverlay();
             }
         }
 
@@ -387,10 +378,8 @@ namespace ARSafe.UI
                 return;
             }
 
-            if (progress.IsComplete)
-            {
-                ShowCompleteOverlay();
-            }
+            // Complete overlay removed - fire scenario never auto-completes
+            // Scenario only ends when user reaches exit (via exit detection)
         }
 
         private void HandleWelcomeCompleted()
@@ -451,17 +440,14 @@ namespace ARSafe.UI
                 return;
             }
 
-            showingCompletion = false;
+            // showingCompletion flag removed - no complete state
 
             if (startSection != null)
             {
                 startSection.RemoveFromClassList(HiddenSectionClass);
             }
 
-            if (completeSection != null)
-            {
-                completeSection.AddToClassList(HiddenSectionClass);
-            }
+            // completeSection logic removed - no complete state
 
             overlayRoot.AddToClassList(VisibleClass);
             isVisible = true;
@@ -479,31 +465,8 @@ namespace ARSafe.UI
             Debug.Log("[FireAlertOverlayController] Fire alert overlay shown (START)");
         }
 
-        private void ShowCompleteOverlay()
-        {
-            if (!uiBuilt || overlayRoot == null || showingCompletion)
-            {
-                return;
-            }
-
-            showingCompletion = true;
-
-            if (startSection != null)
-            {
-                startSection.AddToClassList(HiddenSectionClass);
-            }
-
-            if (completeSection != null)
-            {
-                completeSection.RemoveFromClassList(HiddenSectionClass);
-            }
-
-            overlayRoot.AddToClassList(VisibleClass);
-            isVisible = true;
-            allowAutoHide = false;
-
-            Debug.Log("[FireAlertOverlayController] Fire alert overlay shown (COMPLETE)");
-        }
+        // ShowCompleteOverlay() REMOVED - Fire scenario should never auto-complete
+        // Scenario only ends when user physically reaches an exit (via exit detection)
 
         private void HideOverlay()
         {
@@ -514,7 +477,7 @@ namespace ARSafe.UI
 
             overlayRoot.RemoveFromClassList(VisibleClass);
             isVisible = false;
-            showingCompletion = false;
+            // showingCompletion removed
             allowAutoHide = false;
 
             Debug.Log("[FireAlertOverlayController] Fire alert overlay hidden");
@@ -526,7 +489,7 @@ namespace ARSafe.UI
             {
                 overlayRoot.RemoveFromClassList(VisibleClass);
                 isVisible = false;
-                showingCompletion = false;
+                // showingCompletion removed
             }
         }
     }

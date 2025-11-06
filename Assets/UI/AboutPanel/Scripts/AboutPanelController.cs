@@ -31,6 +31,16 @@ namespace ARSafe.UI
         [Header("Team Roster")]
         [SerializeField] private List<TeamMember> teamMembers = new List<TeamMember>();
 
+        [Header("Disaster Icons")]
+        [SerializeField, Tooltip("Fire emergency scenario icon (replaces 🔥 emoji for Android compatibility)")]
+        private Sprite fireIcon;
+
+        [SerializeField, Tooltip("Earthquake response scenario icon (replaces ⚡ emoji for Android compatibility)")]
+        private Sprite earthquakeIcon;
+
+        [SerializeField, Tooltip("Flood preparedness scenario icon (replaces 🌊 emoji for Android compatibility)")]
+        private Sprite floodIcon;
+
         [Header("Footer")]
         [SerializeField] private string versionLabel = "Version 1.0";
 
@@ -60,6 +70,11 @@ namespace ARSafe.UI
         private VisualTreeAsset runtimeLayout;
         private bool isVisible;
         private PanelSettings runtimePanelSettings;
+
+        // Disaster icon elements
+        private VisualElement fireIconElement;
+        private VisualElement earthquakeIconElement;
+        private VisualElement floodIconElement;
 
         private const string DEFAULT_LAYOUT_RESOURCE = "UI/AboutPanel/AboutPanel";
         private const string DEFAULT_STYLE_RESOURCE = "UI/AboutPanel/AboutPanelStyles";
@@ -226,8 +241,53 @@ namespace ARSafe.UI
             teamList = root.Q<VisualElement>("about-team-list");
             versionLabelElement = root.Q<Label>("about-version");
             contactLabelElement = root.Q<Label>("about-contact");
-            
+
+            // Cache disaster icon elements
+            fireIconElement = root.Q<VisualElement>(className: "about-list-item__icon--fire");
+            earthquakeIconElement = root.Q<VisualElement>(className: "about-list-item__icon--earthquake");
+            floodIconElement = root.Q<VisualElement>(className: "about-list-item__icon--flood");
+
+            // Apply disaster icon sprites
+            ApplyDisasterIcons();
+
             Debug.Log($"<color=cyan>[AboutPanel] Elements cached - Overlay: {(overlay != null ? "OK" : "NULL")}, Card: {(card != null ? "OK" : "NULL")}</color>");
+        }
+
+        /// <summary>
+        /// Apply custom disaster icon sprites to the about panel.
+        /// Replaces hardcoded emojis for Android compatibility.
+        /// </summary>
+        private void ApplyDisasterIcons()
+        {
+            if (fireIconElement != null && fireIcon != null)
+            {
+                fireIconElement.style.backgroundImage = new StyleBackground(fireIcon);
+                Debug.Log("[AboutPanel] Applied fire icon sprite");
+            }
+            else if (fireIconElement != null && fireIcon == null)
+            {
+                Debug.LogWarning("[AboutPanel] Fire icon element found but no sprite assigned in Inspector");
+            }
+
+            if (earthquakeIconElement != null && earthquakeIcon != null)
+            {
+                earthquakeIconElement.style.backgroundImage = new StyleBackground(earthquakeIcon);
+                Debug.Log("[AboutPanel] Applied earthquake icon sprite");
+            }
+            else if (earthquakeIconElement != null && earthquakeIcon == null)
+            {
+                Debug.LogWarning("[AboutPanel] Earthquake icon element found but no sprite assigned in Inspector");
+            }
+
+            if (floodIconElement != null && floodIcon != null)
+            {
+                floodIconElement.style.backgroundImage = new StyleBackground(floodIcon);
+                Debug.Log("[AboutPanel] Applied flood icon sprite");
+            }
+            else if (floodIconElement != null && floodIcon == null)
+            {
+                Debug.LogWarning("[AboutPanel] Flood icon element found but no sprite assigned in Inspector");
+            }
         }
 
         private bool EnsureVisualTree()

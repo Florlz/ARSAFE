@@ -40,6 +40,13 @@ namespace ARSafe.UI
         [Tooltip("Maximum lifetime for any message (seconds). Messages auto-dismiss after this time even if duration=0")]
         [SerializeField] private float maxMessageLifetime = 60f;
 
+        [Header("Icon Sprites")]
+        [SerializeField, Tooltip("Success message icon (replaces ✓ emoji for Android compatibility)")]
+        private Sprite successIcon;
+
+        [SerializeField, Tooltip("Error message icon (replaces ✕ emoji for Android compatibility)")]
+        private Sprite errorIcon;
+
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
 
@@ -69,6 +76,7 @@ namespace ARSafe.UI
             public VisualElement cardElement;
             public Label messageLabel;
             public Label iconLabel;
+            public VisualElement iconSprite; // For sprite-based icons (Android compatibility)
             public float createTime;
             public float duration;
             public int index;
@@ -428,28 +436,87 @@ namespace ARSafe.UI
             {
                 case MessageType.Info:
                     msg.cardElement.AddToClassList("info");
-                    msg.iconLabel.text = "i";
+                    SetIconText(msg, "i");
                     break;
 
                 case MessageType.Success:
                     msg.cardElement.AddToClassList("success");
-                    msg.iconLabel.text = "✓";
+                    SetIconSprite(msg, successIcon, "✓");
                     break;
 
                 case MessageType.Warning:
                     msg.cardElement.AddToClassList("warning");
-                    msg.iconLabel.text = "!";
+                    SetIconText(msg, "!");
                     break;
 
                 case MessageType.Error:
                     msg.cardElement.AddToClassList("error");
-                    msg.iconLabel.text = "✕";
+                    SetIconSprite(msg, errorIcon, "✕");
                     break;
 
                 case MessageType.ARHint:
                     msg.cardElement.AddToClassList("ar-hint");
-                    msg.iconLabel.text = "AR";
+                    SetIconText(msg, "AR");
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Set icon as text (for Info, Warning, ARHint types)
+        /// </summary>
+        private void SetIconText(MessageInstance msg, string text)
+        {
+            // Hide sprite icon if exists
+            if (msg.iconSprite != null)
+            {
+                msg.iconSprite.style.display = DisplayStyle.None;
+            }
+
+            // Show text icon
+            msg.iconLabel.style.display = DisplayStyle.Flex;
+            msg.iconLabel.text = text;
+        }
+
+        /// <summary>
+        /// Set icon as sprite if available, fallback to text emoji
+        /// (for Success and Error types - Android compatibility)
+        /// </summary>
+        private void SetIconSprite(MessageInstance msg, Sprite sprite, string fallbackText)
+        {
+            if (sprite != null)
+            {
+                // Create sprite element if doesn't exist
+                if (msg.iconSprite == null)
+                {
+                    msg.iconSprite = new VisualElement();
+                    msg.iconSprite.AddToClassList("icon-sprite");
+                    msg.iconSprite.style.width = 32;
+                    msg.iconSprite.style.height = 32;
+                    msg.iconSprite.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
+                    msg.iconSprite.style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
+
+                    // Add to icon container (same parent as iconLabel)
+                    var iconContainer = msg.iconLabel.parent;
+                    if (iconContainer != null)
+                    {
+                        iconContainer.Add(msg.iconSprite);
+                    }
+                }
+
+                // Show sprite, hide text
+                msg.iconSprite.style.display = DisplayStyle.Flex;
+                msg.iconSprite.style.backgroundImage = new StyleBackground(sprite);
+                msg.iconLabel.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                // No sprite available - use text fallback
+                SetIconText(msg, fallbackText);
+
+                if (showDebugLogs)
+                {
+                    Debug.LogWarning($"[MessageNotification] No sprite assigned for icon, using text fallback: {fallbackText}");
+                }
             }
         }
 

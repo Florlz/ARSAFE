@@ -67,7 +67,7 @@ namespace ARSafe.Modular
         [SerializeField] private GameObject arrowsParent;
 
         [Tooltip("Delay in seconds before showing arrows after reaching knee level.")]
-        [SerializeField] private float arrowShowDelay = 1f;
+        [SerializeField] private float arrowShowDelay = 0f; // Changed to 0 for immediate display
 
         [Header("Shader Integration")]
         [Tooltip("Auto-update shader properties from FloodScenarioManager parameters.")]
@@ -220,7 +220,9 @@ namespace ARSafe.Modular
                 currentHeight = hiddenBelowFloor;
                 targetHeight = hiddenBelowFloor;
                 UpdateWaterPosition(hiddenBelowFloor);
-                HideArrows();
+
+                // Show arrows immediately when scenario starts
+                ShowArrows();
                 kneeReachedTime = -1f;
 
                 Debug.Log($"<color=cyan>[FloodWater] ★★★ {name} → Scenario started! Water will rise to target depth ({parameters.TargetDepthMeters:F2}m)</color>");

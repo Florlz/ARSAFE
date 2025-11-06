@@ -30,8 +30,8 @@ namespace ARSafe.Modular
         [Range(5f, 50f)]
         public float adjacencyRange = 20f;
         
-        [Header("Hallway-Room Connections (Hallways Only)")]
-        [Tooltip("List of rooms that connect to this hallway. System auto-manages bidirectional adjacency.")]
+        [Header("Connected Rooms (Hallways & Stairways)")]
+        [Tooltip("List of rooms that connect to this hallway/stairway. System auto-manages bidirectional adjacency.")]
         public ARSafeTargetInfo[] connectedRooms;
         
         [Header("Multi-Part Room Support (Rooms Only)")]
@@ -327,11 +327,12 @@ namespace ARSafe.Modular
         }
         
         /// <summary>
-        /// Check if this is a hallway with connected rooms
+        /// Check if this is a hallway or stairway with connected rooms
         /// </summary>
         public bool HasConnectedRooms()
         {
-            return targetType == TargetType.Hallway && connectedRooms != null && connectedRooms.Length > 0;
+            return (targetType == TargetType.Hallway || targetType == TargetType.Stairway)
+                   && connectedRooms != null && connectedRooms.Length > 0;
         }
 
         /// <summary>
@@ -421,7 +422,8 @@ namespace ARSafe.Modular
                 }
             }
 
-            if (targetType == TargetType.Hallway && connectedRooms != null)
+            // Add connected rooms (Hallways & Stairways can have connected rooms)
+            if ((targetType == TargetType.Hallway || targetType == TargetType.Stairway) && connectedRooms != null)
             {
                 foreach (var room in connectedRooms)
                 {
@@ -954,9 +956,10 @@ namespace ARSafe.Modular
                 SceneTargetBuffer.AddRange(FindObjectsByType<ARSafeTargetInfo>(FindObjectsSortMode.None));
             }
 
+            // NOTE: Despite method name, this includes Stairways for connectedRooms feature
             foreach (var info in SceneTargetBuffer)
             {
-                if (info != null && info.targetType == TargetType.Hallway)
+                if (info != null && (info.targetType == TargetType.Hallway || info.targetType == TargetType.Stairway))
                 {
                     yield return info;
                 }
@@ -972,8 +975,8 @@ namespace ARSafe.Modular
             // This ensures bounds recalculate when useManualBounds, defaultBoundsSize, or colliders change
             ClearBoundsCache();
             
-            // Validate hallway-room connections
-            if (targetType == TargetType.Hallway && connectedRooms != null)
+            // Validate hallway/stairway-room connections
+            if ((targetType == TargetType.Hallway || targetType == TargetType.Stairway) && connectedRooms != null)
             {
                 foreach (var room in connectedRooms)
                 {
@@ -984,11 +987,12 @@ namespace ARSafe.Modular
                 }
 
             }
-            
-            // Clear connectedRooms for non-hallways
-            if (targetType != TargetType.Hallway && connectedRooms != null && connectedRooms.Length > 0)
+
+            // Clear connectedRooms for targets that aren't Hallways or Stairways
+            if (targetType != TargetType.Hallway && targetType != TargetType.Stairway
+                && connectedRooms != null && connectedRooms.Length > 0)
             {
-                Debug.LogWarning($"[ARSafeTargetInfo] {name}: connectedRooms is only for Hallway type. Clearing.", this);
+                Debug.LogWarning($"[ARSafeTargetInfo] {name}: connectedRooms is only for Hallway or Stairway types. Clearing.", this);
                 connectedRooms = null;
             }
             

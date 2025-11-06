@@ -30,6 +30,9 @@ namespace ARSafe.UI
         [Tooltip("Navigation validator (auto-found)")]
         private ARSafeNavigationValidator navigationValidator;
 
+        [Tooltip("Activation controller for anchor detection (auto-found)")]
+        private ARSafeActivationController activationController;
+
         [Header("Audio Settings")]
         [Tooltip("Audio source for wrong-way alert sound")]
         public AudioSource wrongWayAudioSource;
@@ -87,6 +90,7 @@ namespace ARSafe.UI
 
             uiDocument = GetComponent<UIDocument>();
             navigationValidator = FindFirstObjectByType<ARSafeNavigationValidator>();
+            activationController = FindFirstObjectByType<ARSafeActivationController>();
 
             // Defensive audio initialization - force correct settings regardless of Inspector configuration
             if (wrongWayAudioSource != null)
@@ -215,6 +219,30 @@ namespace ARSafe.UI
         /// </summary>
         private void OnWrongWayStatusChanged(bool movingWrongWay)
         {
+            // CRITICAL: Check if current anchor is a Room - disable wrong-way system
+            if (activationController != null && activationController.CurrentAnchor != null)
+            {
+                var currentAnchorInfo = activationController.CurrentAnchor.GetComponent<ARSafeTargetInfo>();
+                if (currentAnchorInfo != null && currentAnchorInfo.targetType == TargetType.Room)
+                {
+                    // Hide any active warning
+                    if (isWarningActive)
+                    {
+                        HideWarning();
+                    }
+
+                    // Show room vacate message instead
+                    ShowRoomVacateMessage();
+
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"<color=yellow>[ARSafeWrongWayWarning] Current anchor is Room ({currentAnchorInfo.name}) - wrong-way system disabled</color>");
+                    }
+
+                    return; // Skip wrong-way checks when in Room
+                }
+            }
+
             // Check if warnings are enabled in settings
             if (ARSafeSettings.Instance != null && !ARSafeSettings.Instance.WrongWayWarnings)
             {
@@ -306,9 +334,9 @@ namespace ARSafe.UI
             lastStateChangeTime = Time.time;
             isWarningActive = true;
 
-            // Show border with fade in
+            // Show overlay instantly (no fade animation to avoid Unity UI Toolkit opacity bug)
             warningOverlay.style.display = DisplayStyle.Flex;
-            warningOverlay.style.opacity = 0f;
+            warningOverlay.style.opacity = 1f; // Set to full opacity immediately
 
             // Show center warning message
             if (wrongWayMessage != null)
@@ -316,18 +344,21 @@ namespace ARSafe.UI
                 wrongWayMessage.style.display = DisplayStyle.Flex;
             }
 
-            // Fade in animation
-            warningOverlay.schedule.Execute(() =>
-            {
-                warningOverlay.style.opacity = 1f;
-            }).StartingIn((long)(fadeInDuration * 1000f));
+            // Set borders to static appearance (no pulsing animation)
+            Color staticColor = new Color(255f / 255f, 50f / 255f, 50f / 255f); // rgb(255, 50, 50)
+            float staticOpacity = 0.7f;
 
-            // Start pulsing animation
-            if (pulseAnimationRoutine != null)
+            if (warningBorders != null)
             {
-                StopCoroutine(pulseAnimationRoutine);
+                foreach (var border in warningBorders)
+                {
+                    if (border != null)
+                    {
+                        border.style.backgroundColor = staticColor;
+                        border.style.opacity = staticOpacity;
+                    }
+                }
             }
-            pulseAnimationRoutine = StartCoroutine(PulseAnimation());
 
             // Play audio alert (with cooldown)
             PlayAudioAlert();
@@ -369,27 +400,37 @@ namespace ARSafe.UI
                 wrongWayMessage.style.display = DisplayStyle.None;
             }
 
-            // Stop pulsing animation
-            if (pulseAnimationRoutine != null)
-            {
-                StopCoroutine(pulseAnimationRoutine);
-                pulseAnimationRoutine = null;
-            }
-
-            // Fade out animation
-            warningOverlay.style.opacity = 1f;
-            warningOverlay.schedule.Execute(() =>
-            {
-                warningOverlay.style.opacity = 0f;
-                warningOverlay.schedule.Execute(() =>
-                {
-                    warningOverlay.style.display = DisplayStyle.None;
-                }).StartingIn((long)(fadeOutDuration * 1000f));
-            });
+            // Hide overlay instantly (no fade animation to avoid Unity UI Toolkit opacity bug)
+            warningOverlay.style.display = DisplayStyle.None;
 
             if (enableDebugLogs)
             {
                 Debug.Log("<color=green>[ARSafeWrongWayWarning] ✓ Warning hidden - back on track</color>");
+            }
+        }
+
+        /// <summary>
+        /// Show notification message when user is in a Room.
+        /// Replaces wrong-way warnings with instruction to vacate room and go to hallway.
+        /// </summary>
+        private void ShowRoomVacateMessage()
+        {
+            if (MessageNotificationController.Instance != null)
+            {
+                MessageNotificationController.Instance.ShowMessage(
+                    "Vacate the room first and go to the hallway",
+                    MessageNotificationController.MessageType.Warning,
+                    0 // Stay until user leaves room (indefinite duration)
+                );
+
+                if (enableDebugLogs)
+                {
+                    Debug.Log("<color=yellow>[ARSafeWrongWayWarning] Showing room vacate message - wrong-way system disabled while in Room</color>");
+                }
+            }
+            else if (enableDebugLogs)
+            {
+                Debug.LogWarning("[ARSafeWrongWayWarning] MessageNotificationController not found - cannot show room vacate message");
             }
         }
 
@@ -487,8 +528,10 @@ namespace ARSafe.UI
         public bool IsWarningActive => isWarningActive;
 
         /// <summary>
+        /// [DEPRECATED - NO LONGER USED]
         /// Coroutine to animate border pulsing (bright/dim cycle)
         /// Unity UI Toolkit doesn't support CSS @keyframes, so we animate in C#
+        /// NOTE: Pulsing animation disabled - borders now use static appearance
         /// </summary>
         private IEnumerator PulseAnimation()
         {

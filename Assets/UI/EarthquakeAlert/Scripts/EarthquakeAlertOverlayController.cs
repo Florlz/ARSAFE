@@ -30,6 +30,10 @@ namespace ARSafe.UI
         [SerializeField, Tooltip("Automatically hide the alert after this many seconds (0 keeps it visible until acknowledged).")]
         private float autoHideDelay = 0f;
 
+        [Header("Customization")]
+        [SerializeField, Tooltip("Custom check icon sprite for 'Shaking Has Stopped' overlay (replaces emoji for Android compatibility). Leave null for no icon.")]
+        private Sprite customCheckIcon;
+
     public static EarthquakeAlertOverlayController Instance { get; private set; }
     private static PanelSettings runtimePanelSettings;
 
@@ -42,6 +46,7 @@ namespace ARSafe.UI
         private VisualElement startSection;
         private VisualElement completeSection;
         private Button completeButton;
+        private VisualElement completeIcon;
 
         private bool isVisible;
         private float hideTimer;
@@ -190,6 +195,7 @@ namespace ARSafe.UI
             startSection = root.Q<VisualElement>(StartSectionName);
             completeSection = root.Q<VisualElement>(CompleteSectionName);
             completeButton = root.Q<Button>(CompleteButtonName);
+            completeIcon = root.Q<VisualElement>(className: "earthquake-alert__complete-icon");
 
             if (overlayRoot == null)
             {
@@ -214,6 +220,9 @@ namespace ARSafe.UI
                 completeButton.clicked += HideOverlay;
             }
 
+            // Apply custom check icon sprite if provided
+            ApplyCustomCheckIcon();
+
             Debug.Log($"[EarthquakeAlertOverlayController] Successfully cached UI elements. Root found: {overlayRoot != null}");
             uiBuilt = true;
             HideImmediate();
@@ -223,6 +232,31 @@ namespace ARSafe.UI
             {
                 Debug.Log("[EarthquakeAlertOverlayController] UI now ready - showing cached parameters");
                 HandleScenarioParameters(EarthquakeScenarioManager.CurrentParameters);
+            }
+        }
+
+        /// <summary>
+        /// Apply custom check icon sprite to the completion overlay.
+        /// Replaces hardcoded emoji for Android compatibility.
+        /// </summary>
+        private void ApplyCustomCheckIcon()
+        {
+            if (completeIcon == null)
+            {
+                Debug.LogWarning("[EarthquakeAlertOverlayController] Complete icon element not found. Check UXML structure.");
+                return;
+            }
+
+            if (customCheckIcon != null)
+            {
+                completeIcon.style.backgroundImage = new StyleBackground(customCheckIcon);
+                Debug.Log($"[EarthquakeAlertOverlayController] Applied custom check icon: {customCheckIcon.name}");
+            }
+            else
+            {
+                // No custom sprite provided - icon will be empty (invisible)
+                // User can assign sprite in Inspector
+                Debug.LogWarning("[EarthquakeAlertOverlayController] No custom check icon assigned. Assign a sprite in Inspector for 'Shaking Has Stopped' overlay.");
             }
         }
 

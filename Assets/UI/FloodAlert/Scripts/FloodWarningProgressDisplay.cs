@@ -103,6 +103,7 @@ namespace ARSafe.UI
             // Subscribe to flood scenario events
             FloodScenarioManager.OnProgressionGenerated += HandleProgressionGenerated;
             FloodScenarioManager.OnWarningLevelChanged += HandleWarningLevelChanged;
+            FloodScenarioManager.OnProgressUpdated += HandleProgressUpdated;
             DisasterTypeManager.OnDisasterTypeChanged += HandleDisasterTypeChanged;
 
             // Check current disaster type
@@ -113,6 +114,7 @@ namespace ARSafe.UI
         {
             FloodScenarioManager.OnProgressionGenerated -= HandleProgressionGenerated;
             FloodScenarioManager.OnWarningLevelChanged -= HandleWarningLevelChanged;
+            FloodScenarioManager.OnProgressUpdated -= HandleProgressUpdated;
             DisasterTypeManager.OnDisasterTypeChanged -= HandleDisasterTypeChanged;
 
             HideWidget();
@@ -235,6 +237,43 @@ namespace ARSafe.UI
         }
 
         /// <summary>
+        /// Handle real-time progress updates from FloodScenarioManager.
+        /// CRITICAL: Stops progress bar at 100% when sustained phase is reached.
+        /// </summary>
+        private void HandleProgressUpdated(FloodScenarioProgress progress)
+        {
+            if (!isScenarioActive || currentProgression == null) return;
+
+            // CRITICAL: Stop updating progress bar when sustain phase reached
+            if (progress.Phase == FloodScenarioPhase.Sustained)
+            {
+                // Clamp progress bar at 100%
+                if (progressFill != null && lastProgressValue != 100f)
+                {
+                    progressFill.style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
+                    lastProgressValue = 100f;
+
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log("[FloodWarningProgressDisplay] ✓ Progress bar clamped at 100% (sustained phase reached)");
+                    }
+                }
+
+                // Show "PEAK REACHED" in red
+                if (countdownLabel != null && lastCountdownText != "PEAK REACHED")
+                {
+                    countdownLabel.text = "PEAK REACHED";
+                    countdownLabel.style.color = new StyleColor(Color.red);
+                    lastCountdownText = "PEAK REACHED";
+                }
+
+                // Stop Update() from continuing to animate
+                isScenarioActive = false;
+                return;
+            }
+        }
+
+        /// <summary>
         /// Update progress UI elements (countdown, progress bar).
         /// Throttled to 10 FPS via Update() check.
         /// </summary>
@@ -242,8 +281,33 @@ namespace ARSafe.UI
         {
             if (currentProgression == null || currentPhaseIndex >= currentProgression.Phases.Count) return;
 
+            // Calculate elapsed time and current phase info (used throughout method)
             float elapsed = Time.time - scenarioStartTime;
             var currentPhase = currentProgression.Phases[currentPhaseIndex];
+            float phaseEndTime = currentPhase.StartTime + currentPhase.Duration;
+
+            // SAFETY CHECK: Stop updating if peak reached (belt-and-suspenders with HandleProgressUpdated)
+            if (currentPhaseIndex >= currentProgression.Phases.Count - 1)
+            {
+                // If we've passed the last phase's end time, clamp to 100% and stop
+                if (elapsed >= phaseEndTime)
+                {
+                    if (progressFill != null && lastProgressValue != 100f)
+                    {
+                        progressFill.style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
+                        lastProgressValue = 100f;
+                    }
+
+                    if (countdownLabel != null && lastCountdownText != "PEAK REACHED")
+                    {
+                        countdownLabel.text = "PEAK REACHED";
+                        countdownLabel.style.color = new StyleColor(Color.red);
+                        lastCountdownText = "PEAK REACHED";
+                    }
+
+                    return; // Stop updating
+                }
+            }
 
             // Update current level (if not already set)
             if (currentLevelValue != null && string.IsNullOrEmpty(lastLevelText))
@@ -255,7 +319,6 @@ namespace ARSafe.UI
             }
 
             // Calculate countdown to next level
-            float phaseEndTime = currentPhase.StartTime + currentPhase.Duration;
             float timeToNextLevel = phaseEndTime - elapsed;
 
             if (countdownLabel != null)

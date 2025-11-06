@@ -31,21 +31,21 @@
                         <ui:Label text="Emergency Scenarios" class="about-section__title" />
                         <ui:VisualElement class="about-list">
                             <ui:VisualElement class="about-list-item">
-                                <ui:Label text="🔥" class="about-list-item__icon" />
+                                <ui:VisualElement class="about-list-item__icon about-list-item__icon--fire" />
                                 <ui:VisualElement class="about-list-item__content">
                                     <ui:Label text="Fire Emergency" class="about-list-item__title" />
                                     <ui:Label text="Safe evacuation procedures during building fires" class="about-list-item__desc" />
                                 </ui:VisualElement>
                             </ui:VisualElement>
                             <ui:VisualElement class="about-list-item">
-                                <ui:Label text="⚡" class="about-list-item__icon" />
+                                <ui:VisualElement class="about-list-item__icon about-list-item__icon--earthquake" />
                                 <ui:VisualElement class="about-list-item__content">
                                     <ui:Label text="Earthquake Response" class="about-list-item__title" />
                                     <ui:Label text="Drop, cover, hold protocols and aftershock safety" class="about-list-item__desc" />
                                 </ui:VisualElement>
                             </ui:VisualElement>
                             <ui:VisualElement class="about-list-item">
-                                <ui:Label text="🌊" class="about-list-item__icon" />
+                                <ui:VisualElement class="about-list-item__icon about-list-item__icon--flood" />
                                 <ui:VisualElement class="about-list-item__content">
                                     <ui:Label text="Flood Preparedness" class="about-list-item__title" />
                                     <ui:Label text="Navigate to high ground and designated safe zones" class="about-list-item__desc" />

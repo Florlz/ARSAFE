@@ -42,7 +42,7 @@
             <ui:VisualElement name="earthquake-alert-complete" class="earthquake-alert__section earthquake-alert__section--complete earthquake-alert__section--hidden">
                 <ui:VisualElement class="earthquake-alert__complete-body">
                     <ui:VisualElement class="earthquake-alert__complete-icon-wrapper">
-                        <ui:Label class="earthquake-alert__complete-icon" text="&#10004;"/>
+                        <ui:VisualElement class="earthquake-alert__complete-icon"/>
                     </ui:VisualElement>
                     <ui:Label class="earthquake-alert__complete-title" text="Shaking Has Stopped"/>
                     <ui:Label class="earthquake-alert__complete-message" text="Follow the safety arrows on the floor to reach the evacuation exit."/>

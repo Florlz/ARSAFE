@@ -14,7 +14,7 @@
     opacity: 0;
     transition-property: opacity;
     transition-duration: 0.3s;
-    background-color: rgba(0, 0, 0, 0); /* Fully transparent */
+    /* background-color removed - was causing Unity UI Toolkit bug where RGBA becomes opaque during opacity animation */
     /* Note: pickingMode must be set in C# code, not CSS (warningOverlay.pickingMode = PickingMode.Ignore) */
 }
 
@@ -58,85 +58,33 @@
     height: 100%;
 }
 
-/* === CENTER WARNING MESSAGE === */
+/* === CENTER WARNING MESSAGE (SIMPLIFIED) === */
 .wrong-way-message {
     position: absolute;
     width: 100%;
-    height: 100%;
-    top: 0;
+    top: 50%;
     left: 0;
     justify-content: center;
     align-items: center;
     display: none;
+    /* No longer fullscreen - just centered horizontally, positioned vertically */
 }
 
 .wrong-way-card {
     background-color: rgba(255, 50, 50, 0.95);
-    border-radius: 25px;
-    border-width: 5px;
-    border-color: rgb(255, 255, 255);
-    padding: 40px 50px;
-    flex-direction: column;
-    align-items: center;
-    max-width: 85%;
-}
-
-.wrong-way-icon {
-    font-size: 100px;
-    color: rgb(255, 255, 255);
-    margin-bottom: 20px;
-    -unity-text-align: middle-center;
-}
-
-.wrong-way-title {
-    font-size: 60px;
-    color: rgb(255, 255, 255);
-    -unity-font-style: bold;
-    margin-bottom: 15px;
-    -unity-text-align: middle-center;
-    white-space: normal;
-}
-
-.wrong-way-subtitle {
-    font-size: 32px;
-    color: rgba(255, 255, 255, 0.9);
-    -unity-text-align: middle-center;
-    white-space: normal;
-}
-
-/* === EXIT SWITCH NOTIFICATION === */
-.exit-switch-notification {
-    position: absolute;
-    width: 100%;
-    top: 80px;
-    left: 0;
-    justify-content: center;
-    align-items: center;
-    display: none;
-}
-
-.exit-switch-card {
-    background-color: rgba(50, 200, 50, 0.95);
-    border-radius: 20px;
-    border-width: 4px;
+    border-radius: 15px;
+    border-width: 3px;
     border-color: rgb(255, 255, 255);
     padding: 20px 40px;
-    flex-direction: row;
-    align-items: center;
-    max-width: 85%;
+    /* Simplified: smaller padding, smaller border */
 }
 
-.exit-switch-icon {
-    font-size: 50px;
-    color: rgb(255, 255, 255);
-    margin-right: 15px;
-    -unity-text-align: middle-center;
-}
-
-.exit-switch-label {
-    font-size: 36px;
+.wrong-way-text {
+    font-size: 48px;
     color: rgb(255, 255, 255);
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    white-space: normal;
+    white-space: nowrap;
 }
+
+/* Exit switch notification removed - was unused and causing layout issues */

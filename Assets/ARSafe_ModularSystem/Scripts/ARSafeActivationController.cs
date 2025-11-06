@@ -197,6 +197,7 @@ namespace ARSafe.Modular
         private float lastUpdateTime;
         private float lastAnchorSwitchTime;
         private HashSet<ObserverBehaviour> currentlyEnabled = new HashSet<ObserverBehaviour>();
+        private bool isRelocalizationInProgress = false;
 
         // Anchor history for smart relocalization (tracks last 5 unique anchors)
         private List<ObserverBehaviour> anchorHistory = new List<ObserverBehaviour>();
@@ -1456,7 +1457,8 @@ namespace ARSafe.Modular
                 }
             }
 
-            if (alwaysIncludeTrackedTargets)
+            // CRITICAL: Skip tracked targets during relocalization (only selected target should be enabled)
+            if (alwaysIncludeTrackedTargets && !isRelocalizationInProgress)
             {
                 foreach (var (target, _, _) in targetData)
                 {
@@ -1470,7 +1472,12 @@ namespace ARSafe.Modular
             if (currentAnchor != null)
             {
                 desired.Add(currentAnchor);
-                IncludeAnchorNeighbors(desired, targetData);
+
+                // CRITICAL: Skip neighbors during relocalization (only selected target should be enabled)
+                if (!isRelocalizationInProgress)
+                {
+                    IncludeAnchorNeighbors(desired, targetData);
+                }
             }
 
             if (
@@ -1599,8 +1606,9 @@ namespace ARSafe.Modular
                     float boundaryDist = adjacentInfo.DistanceToBoundary;
 
                     // CRITICAL: Check if this target is directly in the anchor's connectedRooms list
+                    // Both Hallways and Stairways can have connected rooms
                     bool isDirectlyConnected =
-                        anchorInfo.targetType == TargetType.Hallway
+                        (anchorInfo.targetType == TargetType.Hallway || anchorInfo.targetType == TargetType.Stairway)
                         && anchorInfo.connectedRooms != null
                         && System.Array.Exists(
                             anchorInfo.connectedRooms,
@@ -1919,6 +1927,11 @@ namespace ARSafe.Modular
                 DisableTarget(target);
             }
 
+            // CRITICAL: Enforce max simultaneous tracking limit
+            // Only the current anchor should have Vuforia tracking enabled
+            // Neighbors stay enabled (GameObject active) but tracking disabled
+            EnforceTrackingLimit();
+
             UpdateAugmentationParenting();
         }
 
@@ -1971,6 +1984,73 @@ namespace ARSafe.Modular
             if (enableDebugLogs)
             {
                 Debug.Log($"[ARSafeActivationController] Disabled: {target.name}");
+            }
+        }
+
+        /// <summary>
+        /// CRITICAL: Enforce max simultaneous tracking limit.
+        /// When maxSimultaneousTracking = 1, only the current anchor should track.
+        /// Neighbors stay enabled (GameObject active) but ObserverBehaviour.enabled = false.
+        /// This prevents augmentation overlap while keeping neighbors discoverable.
+        /// </summary>
+        private void EnforceTrackingLimit()
+        {
+            if (trackingManager == null || currentAnchor == null)
+                return;
+
+            int maxTracking = trackingManager.maxSimultaneousTracking;
+
+            // If max tracking is unlimited (0 or very high), don't enforce
+            if (maxTracking <= 0 || maxTracking >= 10)
+                return;
+
+            int trackingEnabledCount = 0;
+            int trackingDisabledCount = 0;
+
+            // Iterate through all currently enabled targets
+            foreach (var target in currentlyEnabled)
+            {
+                if (target == null)
+                    continue;
+
+                // Current anchor: ALWAYS enable tracking
+                if (target == currentAnchor)
+                {
+                    if (!target.enabled)
+                    {
+                        target.enabled = true;
+                        trackingEnabledCount++;
+
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log($"<color=cyan>[TRACKING ENFORCEMENT] ✓ Enabled tracking on ANCHOR: {target.name}</color>");
+                        }
+                    }
+                }
+                // All other targets (neighbors): DISABLE tracking
+                else
+                {
+                    if (target.enabled)
+                    {
+                        target.enabled = false;
+                        trackingDisabledCount++;
+
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log($"<color=yellow>[TRACKING ENFORCEMENT] ✗ Disabled tracking on neighbor: {target.name}</color> (GameObject stays active)");
+                        }
+                    }
+                }
+            }
+
+            if (enableDebugLogs && (trackingEnabledCount > 0 || trackingDisabledCount > 0))
+            {
+                Debug.Log(
+                    $"<color=lime>[TRACKING ENFORCEMENT] Enforced max tracking limit: {maxTracking}</color>\n" +
+                    $"  Anchor tracking enabled: {trackingEnabledCount}\n" +
+                    $"  Neighbor tracking disabled: {trackingDisabledCount}\n" +
+                    $"  Expected tracking count: 1 (anchor only)"
+                );
             }
         }
 
@@ -2189,6 +2269,10 @@ namespace ARSafe.Modular
 
             // NOTE: Cache invalidation removed - NavigationValidator manages its own cache
             // Invalidating on every anchor switch caused UI issues from rapid recalculations during anchor jitter
+
+            // CRITICAL: Enforce tracking limit immediately after anchor switch
+            // Ensures only the new anchor is tracking, all neighbors have tracking disabled
+            EnforceTrackingLimit();
 
             // FLOOD-SPECIFIC LOGIC: Check for safe zones and stairway checkpoints
             if (anchorInfo != null && DisasterTypeManager.SelectedDisasterType == DisasterType.Flood)
@@ -2698,6 +2782,9 @@ namespace ARSafe.Modular
                 );
             }
 
+            // CRITICAL: Set flag BEFORE reset to prevent neighbor/tracked target activation
+            isRelocalizationInProgress = true;
+
             // Step 1: Reset state and disable all targets (Vuforia stays running)
             ResetForRelocalization();
 
@@ -2790,6 +2877,14 @@ namespace ARSafe.Modular
 
             // Tracking confirmed - mark as localized
             ConfirmLocalization();
+
+            // CRITICAL: Clear relocalization flag - normal neighbor activation can now resume
+            isRelocalizationInProgress = false;
+
+            if (enableDebugLogs)
+            {
+                Debug.Log("<color=green>★★★ [RELOCALIZATION] Flag cleared - normal activation rules resume</color>");
+            }
 
             // CRITICAL: Re-enable augmentations after relocalization tracking is confirmed
             if (augmentationsRoot != null)
