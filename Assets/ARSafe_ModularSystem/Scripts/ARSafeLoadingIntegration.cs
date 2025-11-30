@@ -100,10 +100,24 @@ namespace ARSafe.Modular.Integration
                 // Hook into loading manager's lifecycle
                 loadingManager.OnLoadingCompleted.AddListener(OnLoadingManagerCompleted);
             }
-            
+
             ValidateSetup();
         }
-        
+
+        void OnEnable()
+        {
+            // CRITICAL FIX: Reset shutdown flag when component is re-enabled
+            // This ensures localization wait loops work correctly on second+ simulation cycles
+            // Without this, isShuttingDown stays true from previous OnDisable() call,
+            // causing wait loops to exit immediately
+            isShuttingDown = false;
+
+            if (enableDebugLogs)
+            {
+                Debug.Log("<color=green>[ARSafeLoadingIntegration] Component enabled - reset shutdown flag</color>");
+            }
+        }
+
         void OnDisable()
         {
             // FIX: Set shutdown flag when component is disabled (scene exit, etc.)
@@ -189,14 +203,22 @@ namespace ARSafe.Modular.Integration
         private void OnLoadingManagerCompleted()
         {
             if (!isIntegrationActive) return;
-            
+
+            // CRITICAL: Validate activationController is valid before starting coroutine
+            // This prevents errors when transitioning between simulations
+            if (activationController == null || activationController.gameObject == null)
+            {
+                Debug.LogError("<color=red>[ARSafeLoadingIntegration] Cannot start AR initialization - activationController is invalid! This may occur during scene transitions.</color>");
+                return;
+            }
+
             localizationReadyVisualsShown = false;
-            
+
             if (enableDebugLogs)
             {
                 Debug.Log("[ARSafeLoadingIntegration] Loading manager completed. Starting AR initialization...");
             }
-            
+
             // Store coroutine reference for cleanup
             initializeARCoroutine = StartCoroutine(InitializeARSystem());
         }

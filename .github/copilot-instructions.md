@@ -72,15 +72,21 @@ _Last updated: October 2025 (Optimized for AI agent workflow)_
    
    **Current Documentation Structure:**
    ```
-   .github/
-   ├─ copilot-instructions.md                   (This file - AI agent instructions)
-   └─ SESSION_2025_10_22_MULTI_AREA_DRIFT_FIXES.md (Multi-area drift & relocalization fixes)
+   Documentation/
+   ├─ AI_Agents/
+   │  └─ copilot-instructions.md           (This file - AI agent instructions)
+   ├─ Systems/
+   │  └─ SESSION_2025_10_22_MULTI_AREA_DRIFT_FIXES.md
+   ├─ UI/
+   │  └─ [ComponentName].md                (Per-component setup guides)
+   ├─ Project/
+   │  ├─ TODO.md
+   │  └─ CLAUDE.md
+   └─ Archives/
+      └─ [Old memory files]
 
    .agents/
-   └─ memory.md                                 (LIVE SYSTEM STATE - update always!)
-
-   Assets/UI/[ComponentName]/
-   └─ README.md                                 (Per-component setup guides)
+   └─ memory.md                            (LIVE SYSTEM STATE - update always!)
    ```
 
 2. **🔍 Research Before Code**
@@ -125,20 +131,26 @@ _Last updated: October 2025 (Optimized for AI agent workflow)_
 **Core Documentation Files:**
 ```
 .github/
-├─ copilot-instructions.md                   (This file - AI agent instructions)
-└─ SESSION_2025_10_22_MULTI_AREA_DRIFT_FIXES.md (Multi-area drift & relocalization fixes)
+└─ copilot-instructions.md              (This file - AI agent instructions)
+
+Documentation/
+├─ Systems/
+│  └─ SESSION_2025_10_22_MULTI_AREA_DRIFT_FIXES.md
+├─ UI/
+│  └─ [ComponentName].md                (Per-component setup guides)
+├─ Project/
+│  └─ TODO.md
+└─ Archives/
+   └─ [Old memory files]
 
 .agents/
-└─ memory.md                                 (LIVE SYSTEM STATE - UPDATE ALWAYS)
-
-Assets/UI/[ComponentName]/
-└─ README.md                                 (Per-component setup guides)
+└─ memory.md                            (LIVE SYSTEM STATE - UPDATE ALWAYS)
 ```
 
 **When to Update Which File:**
 - **memory.md** → ALL significant code changes, new features, bug fixes (timestamp entries in SESSION HISTORY)
-- **copilot-instructions.md** → New patterns discovered, Unity API limitations, workflow changes
-- **Component READMEs** → UI component setup, usage examples, configuration
+- **.github/copilot-instructions.md** → New patterns discovered, Unity API limitations, workflow changes
+- **Documentation/UI/[ComponentName].md** → UI component setup, usage examples, configuration
 
 ### Rules for Creating & Maintaining Docs
 1. **Single README per system** – consolidate everything in one markdown file
@@ -150,8 +162,10 @@ Assets/UI/[ComponentName]/
 
 **Good pattern**
 ```
+Documentation/UI/
+└── MessageNotification.md            # sole documentation file
+
 Assets/UI/MessageNotification/
-├── README.md                         # sole documentation file
 ├── Resources/UI/MessageNotification/
 │   ├── MessageNotification.uxml
 │   └── MessageNotification.uss
@@ -162,7 +176,7 @@ Assets/UI/MessageNotification/
 **Bad pattern (do NOT copy)**
 ```
 Assets/UI/MessageNotification/
-├── README.md
+├── README.md               ❌ (Moved to Documentation/UI/)
 ├── SETUP_GUIDE.md          ❌
 ├── QUICK_REFERENCE.md      ❌
 ├── INTEGRATION_GUIDE.md    ❌
@@ -178,7 +192,7 @@ Assets/UI/ComponentName/
 │   └── ComponentStyles.uss
 ├── Scripts/
 │   └── ComponentController.cs
-└── README.md
+└── Documentation/UI/ComponentName.md (Documentation location)
 ```
 
 **Loading resources in code:**
@@ -199,8 +213,8 @@ Resources.Load<StyleSheet>("UI/ComponentName/StyleName");
 ### Documentation Priority Order
 1. `.agents/memory.md` (Live system state - update after EVERY significant change)
 2. `.github/copilot-instructions.md` (This file - AI agent instructions)
-3. `.github/SESSION_2025_10_22_MULTI_AREA_DRIFT_FIXES.md` (Session documentation)
-4. Component READMEs (UI components, specific systems)
+3. `Documentation/Systems/SESSION_2025_10_22_MULTI_AREA_DRIFT_FIXES.md` (Session documentation)
+4. `Documentation/UI/[ComponentName].md` (UI components, specific systems)
 5. In-code comments
 6. External documentation
 
@@ -655,6 +669,14 @@ dropTarget.RegisterCallback<DragPerformEvent>(evt => {
   - Captures all “ARSafe*” logs to `Documents/ARSAFE_Logs/ARDebug_[timestamp].txt`.
   - Add keywords for every new log pattern (include uppercase/lowercase variants).
   - Enable with `captureLogsToFile = true`.
+- **`ARSafePerformanceMonitor`** (`Assets/Scripts/ARSafePerformanceMonitor.cs`)
+  - Thesis-quality background monitoring (FPS, Frame Time, Memory, GC).
+  - Generates CSV exports and detailed summary reports in `Documents/ARSAFE_Logs/`.
+  - Scoring system (0.1-10) for "Excellent" to "Critical" classification.
+  - Enable via `ARSafeSettings.PerformanceMonitoring = true`.
+- **`ARSafeNavigationValidator`**
+  - Debug logs for wrong-way detection, pathfinding results, and virtual exit triggering.
+  - Gizmos: Green/Red path lines, Yellow movement ray, Cyan exit spheres.
 - **Reference** `.agents/memory.md` for up-to-date keyword lists, priority boosts (+200 connected rooms, +50 approaching), and debugging tips.
 
 <a id="core-modular-systems" name="core-modular-systems"></a>
@@ -663,14 +685,50 @@ dropTarget.RegisterCallback<DragPerformEvent>(evt => {
 - `ARLoadingScreenManager` governs the glassmorphism loading UI. Disable `sequentiallyActivateAreaTargets` whenever `ARSafeLoadingIntegration` is active.
 - `ARSafeLoadingIntegration` waits for Vuforia initialization and first tracking, then optionally shows the Modern UI Pack welcome modal. It also pushes localization success messages into the notification stack.
 - Runtime telemetry feeds through `ARSafeDebugOverlayIntegration` → `DebugOverlay.Instance.UpdateDisplay`. Attach `ARSafeDebugHelper` to problem Area Targets to trace visibility and activation changes.
+- **Critical Integration:** `ARSafeActivationController.ConfirmLocalization()` triggers a forced refresh of all disaster filters and proximity displays to ensure content appears immediately after localization, fixing issues with manual location selection.
 
--### Earthquake Scenario System
-- `EarthquakeScenarioManager` generates random magnitude (5.2-7.4 Richter), intensity tiers, and duration (18-28s) once `BeginScenarioIfReady()` is called after the welcome flow; broadcasts `OnParametersUpdated` and `OnProgressUpdated` events and auto-creates `EarthquakeAlertOverlayController` if the scene is missing one.
-- `EarthquakeAlertOverlayController` shows dual-section UI: start alert (magnitude/intensity/response) and completion overlay ("Shaking Has Stopped" guidance).
-- `EarthquakeCameraShake` applies Perlin noise-based shake scaled by scenario multipliers and progress curves (ramp in first 15%, fade last 20%).
+### Earthquake Scenario System
+- `EarthquakeScenarioManager` generates random magnitude (5.2-7.4 Richter), intensity tiers, and duration (18-28s) once `BeginScenarioIfReady()` is called.
+  - **Critical Logic:** Forces refresh of all debris, crack quads, and disaster filters on start to ensure content appears even if GameObjects were already active (manual location selection).
+  - **Events:** Broadcasts `OnParametersUpdated` and `OnProgressUpdated`.
+- `EarthquakeAlertOverlayController` shows dual-section UI: start alert (magnitude/intensity/response) and completion overlay ("Shaking Has Stopped").
+- `EarthquakeCameraShake` applies Perlin noise-based shake scaled by scenario multipliers and progress curves.
 - `EarthquakeDebrisController` scales particle emission with progress; `autoStopSystems` halts emission on completion.
-- `EarthquakeCrackProjectorController` fades URP DecalProjector opacity in/out synchronized with scenario timeline.
-- **Timing:** Overlay waits for welcome screen dismissal via `WelcomeScreenManager.OnWelcomeCompleted` to avoid conflicts; parameters cached if UI not built yet.
+- `EarthquakeCrackQuadController` (Replaces DecalProjector):
+  - Uses standard 3D Quad + Material (URP/Standard compatible).
+  - Supports `CrackFormationStyle` (RadialSpread, DirectionalWipe).
+  - **Billboard Modes:** `None` (Ground/Wall), `LookAtCamera`, `ConstrainedBillboard`.
+  - Animates scale/alpha based on scenario progress.
+- **Timing:** Overlay waits for welcome screen dismissal via `WelcomeScreenManager.OnWelcomeCompleted`.
+
+### Navigation & Safety System
+- **`ARSafeNavigationValidator`**
+  - **Purpose:** Validates user navigation to nearest exit using BFS pathfinding on the Area Target graph.
+  - **Features:**
+    - **Wrong-Way Detection:** Tracks movement history; triggers warning if moving away from exit > 1s (with hysteresis).
+    - **Floor-Aware:** Prioritizes stairways for upper floors (Fire/Earthquake) or upper floors for Flood.
+    - **Virtual Exits:** Supports `VirtualExitMarker` for non-Area Target exits.
+  - **Performance:** Throttled to 10-15 FPS, cached pathfinding results.
+- **`VirtualExitMarker`**
+  - **Purpose:** Marks a location as an exit without a scanned Area Target.
+  - **Setup:** Add component + BoxCollider (used for bounds, not physics).
+  - **Detection:** Uses **Local-Space** bounds checking (bulletproof against rotation/reparenting).
+  - **Integration:** Auto-registers with `ARSafeNavigationValidator`.
+
+### Flood Scenario System
+- `FloodScenarioManager` controls water levels based on PAGASA rainfall warning levels (Yellow, Orange, Red).
+- **Progression:** Linear timeline (Yellow → Orange → Red) or randomized peak.
+- **Visuals:** `FloodWaterController` drives URP water shader (depth, wave amplitude, turbidity).
+- **Audio:** Ambient rain sound with fade-in/out.
+- **Safety:** Triggers `ARSafeWrongWayWarning` to guide users to safe zones.
+- **Events:** `OnParametersUpdated`, `OnProgressUpdated`, `OnWarningLevelChanged`.
+
+### Fire Scenario System
+- `FireScenarioManager` simulates fire intensity (0-10) and BFP alarm levels (1st-5th Alarm).
+- **Features:** Fire/Smoke particle emission scaling, alarm audio loop, safety notification sequence.
+- **Safety:** `FireAlertOverlayController` shows immediate evacuation guidance.
+- **Events:** `OnParametersUpdated`, `OnProgressUpdated`.
+- **Integration:** Forces refresh of `ARSafeDisasterFilter` and `ARSafeProximityDisplay` to ensure exit visibility.
 
 #### Welcome Banners (Unity UI Toolkit)
 - Banner images are applied at runtime via `StyleBackground(Sprite)`.
@@ -800,12 +858,22 @@ Follow this process **every time** you modify behavior:
 - Entry flow: `Assets/Scenes/MainMenu.unity` → `Lovatto.SceneLoader` → `Assets/Scenes/MainScene.unity`.
 - Area Target datasets: `Assets/StreamingAssets/Vuforia/` (update configs if renamed).
 
+### Centralized Settings (`ARSafeSettings`)
+- **Singleton:** `ARSafeSettings.Instance` manages `PlayerPrefs` persistence.
+- **Controls:** Master/SFX/UI Volume, Graphics Quality, Debug Flags, Haptic Feedback.
+- **Performance Tuning:** `DriftCorrectionFPS` (default 15), `WrongWayWarnings` toggle.
+- **Events:** Subscribe to `On[Setting]Changed` for realtime updates.
+
 ### Modular Stack Guidelines
 - New features: `Assets/ARSafe_ModularSystem/Scripts/`.
 - `ARSafeActivationController` + `ARSafeTrackingManager` enforce simultaneous tracking ≤ 2.
 - `ARSafeTargetInfo` defines metadata, adjacency, bounds, start flags.
 - `ARSafeProximityDisplay` handles content visibility with pose gating (`roomsRequireInside = true` for rooms; hallways list connected rooms).
-- Disaster content uses `ARSafeDisasterFilter` and child `ARSafeDisasterContent` tags reacting to `DisasterTypeManager.SetDisasterType`.
+- `ARSafeDisasterFilter` manages content visibility:
+  - **Anchor Restrictions:** Can restrict scenario content to current anchor only (neighbors show GeneralSafety only).
+  - **Floor Filtering:** Hides neighbor augmentations if they are on a different floor (prevents floor bleed-through).
+  - **Auto-Tagging:** Auto-detects Earthquake debris/cracks and tags them as Earthquake content.
+  - **Disaster Content:** Child `ARSafeDisasterContent` components react to `DisasterTypeManager`.
 
 ### Loading, Menu, and Debug Conventions
 - Menu buttons (`Assets/Scripts/MenuButtonHandler.cs`) set `DisasterTypeManager.SelectedDisasterType` prior to scene loading. Update button lists when adding scenarios and confirm matching content exists in `MainScene`.
@@ -962,12 +1030,14 @@ Follow this process **every time** you modify behavior:
 - **Total C# Scripts:** 100+ MonoBehaviour classes
 - **Core Modular Scripts:** 20 files
 - **UI Components:** 15 components
-- **Disaster Systems:** 8 systems (Earthquake, Flood)
+- **Disaster Systems:** 3 major systems (Earthquake, Flood, Fire)
 - **Critical Files:**
   - ARSafeActivationController: 4,374 lines
   - ARSafeProximityDisplay: 1,200+ lines
   - ARSafeTargetInfo: 900+ lines
   - ARSafeTrackingManager: 250 lines
+  - ARSafeSettings: Central configuration
+  - ARSafePerformanceMonitor: Thesis reporting tool
 
 ### Performance Metrics
 | Optimization | Before | After | Improvement |

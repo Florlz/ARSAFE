@@ -30,6 +30,13 @@
                 <ui:Button name="filter-evacuation" text="Exits" class="filter-chip" />
             </ui:VisualElement>
 
+            <!-- Floor Filter Chips -->
+            <ui:VisualElement name="floor-filters" class="location-filters">
+                <ui:Button name="filter-floor-all" text="All Floors" class="filter-chip filter-chip--active" />
+                <ui:Button name="filter-floor-1" text="1st Floor" class="filter-chip" />
+                <ui:Button name="filter-floor-2" text="2nd Floor" class="filter-chip" />
+            </ui:VisualElement>
+
             <!-- Simple Location List -->
             <ui:ScrollView name="location-list-scroll" class="location-list-scroll">
                 <ui:VisualElement name="location-list" class="location-list">
@@ -41,7 +48,7 @@
             <!-- Footer Actions -->
             <ui:VisualElement class="location-footer">
                 <ui:Button name="location-back-button" text="← Back" class="location-footer__button location-footer__button--tertiary" />
-                <ui:Button name="location-skip-button" text="Skip (Auto-Detect)" class="location-footer__button location-footer__button--secondary" />
+                <ui:Button name="location-skip-button" text="Auto Detect 4 Stairways at Corners" class="location-footer__button location-footer__button--secondary" />
                 <ui:Button name="location-confirm-button" text="Start AR Experience" class="location-footer__button location-footer__button--primary" />
             </ui:VisualElement>
 

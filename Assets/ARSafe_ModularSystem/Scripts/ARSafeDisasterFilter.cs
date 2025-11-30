@@ -188,10 +188,33 @@ namespace ARSafe.Modular
             {
                 if (isNeighbor)
                 {
+                    // CRITICAL: Floor-based visibility filter for neighbors
+                    // Hide neighbor augmentations from different floors
+                    // This ensures 2nd floor content doesn't show when on 1st floor (and vice versa)
+                    var currentAnchor = activationController.GetCurrentAnchor();
+                    if (currentAnchor != null)
+                    {
+                        var currentAnchorInfo = currentAnchor.GetComponent<ARSafeTargetInfo>();
+                        var thisTargetInfo = observerBehaviour.GetComponent<ARSafeTargetInfo>();
+
+                        if (currentAnchorInfo != null && thisTargetInfo != null)
+                        {
+                            // Hide neighbors from different floors
+                            if (currentAnchorInfo.floorLevel != thisTargetInfo.floorLevel)
+                            {
+                                if (enableDebugLogs)
+                                {
+                                    Debug.Log($"<color=yellow>[ARSafeDisasterFilter] HIDDEN: {item.name} - Neighbor on different floor (anchor floor={currentAnchorInfo.floorLevel}, this floor={thisTargetInfo.floorLevel})</color>");
+                                }
+                                return false;
+                            }
+                        }
+                    }
+
                     bool result = isGeneralSafety;
                     if (enableDebugLogs)
                     {
-                        Debug.Log($"<color=cyan>[ARSafeDisasterFilter] {(result ? "VISIBLE" : "HIDDEN")}: {item.name} - Neighbor, showing only general safety (isGeneralSafety={isGeneralSafety})</color>");
+                        Debug.Log($"<color=cyan>[ARSafeDisasterFilter] {(result ? "VISIBLE" : "HIDDEN")}: {item.name} - Neighbor (same floor), showing only general safety (isGeneralSafety={isGeneralSafety})</color>");
                     }
                     return result;
                 }

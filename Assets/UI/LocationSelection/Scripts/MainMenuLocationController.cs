@@ -72,6 +72,11 @@ namespace ARSAFE.UI
         private Button filterCanteen;
         private Button filterEvacuation;
 
+        // Floor filter chip buttons
+        private Button filterFloorAll;
+        private Button filterFloor1;
+        private Button filterFloor2;
+
         // Footer button elements
         private Button skipButton;
         private Button confirmButton;
@@ -82,6 +87,7 @@ namespace ARSAFE.UI
         private LocationInfo selectedLocation = null;
         private string currentSearchQuery = "";
         private LocationType currentFilter = LocationType.All;
+        private int currentFloorFilter = 0; // 0 = All, 1 = 1st Floor, 2 = 2nd Floor
 
         #region Unity Lifecycle
 
@@ -163,6 +169,11 @@ namespace ARSAFE.UI
             filterCanteen = root.Q<Button>("filter-canteen");
             filterEvacuation = root.Q<Button>("filter-evacuation");
 
+            // Floor filter chips
+            filterFloorAll = root.Q<Button>("filter-floor-all");
+            filterFloor1 = root.Q<Button>("filter-floor-1");
+            filterFloor2 = root.Q<Button>("filter-floor-2");
+
             // Footer buttons
             skipButton = root.Q<Button>("location-skip-button");
             confirmButton = root.Q<Button>("location-confirm-button");
@@ -209,6 +220,14 @@ namespace ARSAFE.UI
             if (filterEvacuation != null)
                 filterEvacuation.clicked += () => OnFilterChanged(LocationType.Evacuation);
 
+            // Floor filter chip callbacks
+            if (filterFloorAll != null)
+                filterFloorAll.clicked += () => OnFloorFilterChanged(0);
+            if (filterFloor1 != null)
+                filterFloor1.clicked += () => OnFloorFilterChanged(1);
+            if (filterFloor2 != null)
+                filterFloor2.clicked += () => OnFloorFilterChanged(2);
+
             if (skipButton != null)
             {
                 skipButton.clicked += OnSkipButtonClicked;
@@ -248,6 +267,14 @@ namespace ARSAFE.UI
                 filterCanteen.clicked -= () => OnFilterChanged(LocationType.Canteen);
             if (filterEvacuation != null)
                 filterEvacuation.clicked -= () => OnFilterChanged(LocationType.Evacuation);
+
+            // Unregister floor filter chip callbacks
+            if (filterFloorAll != null)
+                filterFloorAll.clicked -= () => OnFloorFilterChanged(0);
+            if (filterFloor1 != null)
+                filterFloor1.clicked -= () => OnFloorFilterChanged(1);
+            if (filterFloor2 != null)
+                filterFloor2.clicked -= () => OnFloorFilterChanged(2);
 
             if (skipButton != null)
             {
@@ -322,6 +349,24 @@ namespace ARSAFE.UI
                 filteredLocations = filteredLocations
                     .Where(loc => loc.locationType == currentFilter)
                     .ToList();
+            }
+
+            // Filter by floor level
+            // Floor detection: 2nd floor locations start with "2_" prefix
+            if (currentFloorFilter != 0) // 0 = All Floors
+            {
+                if (currentFloorFilter == 1) // 1st Floor
+                {
+                    filteredLocations = filteredLocations
+                        .Where(loc => !loc.targetName.StartsWith("2_"))
+                        .ToList();
+                }
+                else if (currentFloorFilter == 2) // 2nd Floor
+                {
+                    filteredLocations = filteredLocations
+                        .Where(loc => loc.targetName.StartsWith("2_"))
+                        .ToList();
+                }
             }
 
             // Filter by search query
@@ -444,6 +489,21 @@ namespace ARSAFE.UI
         }
 
         /// <summary>
+        /// Handle floor filter chip click.
+        /// </summary>
+        private void OnFloorFilterChanged(int newFloorFilter)
+        {
+            currentFloorFilter = newFloorFilter;
+            Log($"Floor filter changed to: {newFloorFilter} (0=All, 1=1st Floor, 2=2nd Floor)");
+
+            // Update floor filter chip visual states
+            UpdateFloorFilterChipStates();
+
+            // Re-populate list with new filter
+            PopulateLocationList();
+        }
+
+        /// <summary>
         /// Update the visual state of filter chips based on current filter.
         /// </summary>
         private void UpdateFilterChipStates()
@@ -476,6 +536,31 @@ namespace ARSAFE.UI
                     break;
                 case LocationType.Evacuation:
                     filterEvacuation?.AddToClassList("filter-chip--active");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Update the visual state of floor filter chips based on current floor filter.
+        /// </summary>
+        private void UpdateFloorFilterChipStates()
+        {
+            // Remove active class from all floor filter chips
+            filterFloorAll?.RemoveFromClassList("filter-chip--active");
+            filterFloor1?.RemoveFromClassList("filter-chip--active");
+            filterFloor2?.RemoveFromClassList("filter-chip--active");
+
+            // Add active class to current floor filter chip
+            switch (currentFloorFilter)
+            {
+                case 0: // All Floors
+                    filterFloorAll?.AddToClassList("filter-chip--active");
+                    break;
+                case 1: // 1st Floor
+                    filterFloor1?.AddToClassList("filter-chip--active");
+                    break;
+                case 2: // 2nd Floor
+                    filterFloor2?.AddToClassList("filter-chip--active");
                     break;
             }
         }

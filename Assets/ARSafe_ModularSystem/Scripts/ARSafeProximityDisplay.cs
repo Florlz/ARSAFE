@@ -351,7 +351,8 @@ namespace ARSafe.Modular
                 }
 
                 // CRITICAL: Floor-based visibility filter for neighbors
-                // Only show augmentations on the SAME floor as current anchor
+                // STRICT RULE: Always hide augmentations from different floors
+                // No exceptions - even stairways must respect floor boundaries
                 if (!isCurrentAnchor && isNeighborOfCurrent)
                 {
                     var currentAnchorInfo = activationController.CurrentAnchor?.GetComponent<ARSafeTargetInfo>();
@@ -359,11 +360,12 @@ namespace ARSafe.Modular
                     if (currentAnchorInfo != null && targetInfo != null)
                     {
                         // Hide neighbor augmentations from different floors
-                        if (!currentAnchorInfo.IsOnSameFloor(targetInfo))
+                        // Use strict floor level comparison (not IsOnSameFloor method)
+                        if (currentAnchorInfo.floorLevel != targetInfo.floorLevel)
                         {
                             if (enableDebugLogs && isContentVisible)
                             {
-                                Debug.Log($"<color=yellow>[ARSafeProximityDisplay] {name} hiding: Different floor (anchor floor={currentAnchorInfo.floorLevel}, neighbor floor={targetInfo.floorLevel})</color>");
+                                Debug.Log($"<color=yellow>[ARSafeProximityDisplay] {name} hiding: Different floor (current={currentAnchorInfo.floorLevel}, target={targetInfo.floorLevel})</color>");
                             }
                             return false;
                         }
