@@ -1,20 +1,50 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/FloodAlert/Resources/UI/FloodAlert/FloodWarningProgressStyles.uss?fileID=7433441132597879392&amp;guid=e13cbbde0855b164a912694ff5d20615&amp;type=3#FloodWarningProgressStyles" />
+    
+    <!-- Full-Width Bottom Bar Container -->
     <ui:VisualElement name="progress-widget" class="progress-widget">
-        <ui:VisualElement class="progress-widget__top-row">
-            <ui:VisualElement class="progress-widget__indicators">
+        
+        <!-- Left Section: Warning Level Badge + Label -->
+        <ui:VisualElement class="progress-widget__left-section">
+            <ui:VisualElement class="progress-widget__level-badge">
                 <ui:VisualElement name="yellow-indicator" class="progress-widget__indicator progress-widget__indicator--yellow" />
                 <ui:VisualElement name="orange-indicator" class="progress-widget__indicator progress-widget__indicator--orange" />
                 <ui:VisualElement name="red-indicator" class="progress-widget__indicator progress-widget__indicator--red" />
             </ui:VisualElement>
-            <ui:VisualElement class="progress-widget__level-info">
+            <ui:VisualElement class="progress-widget__level-text">
+                <ui:Label text="Level:" class="progress-widget__level-prefix" />
                 <ui:Label name="current-level-value" text="YELLOW" class="progress-widget__level-value" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Label name="countdown-label" text="Next: 45s" class="progress-widget__countdown" />
-        <ui:VisualElement name="progress-bar" class="progress-widget__progress-bar">
-            <ui:VisualElement name="progress-fill" class="progress-widget__progress-fill" />
+        
+        <!-- Center Section: Segmented Progress Bar -->
+        <ui:VisualElement class="progress-widget__center-section">
+            <ui:VisualElement class="progress-widget__segmented-bar">
+                <!-- Yellow Segment (0-33%) -->
+                <ui:VisualElement name="yellow-segment" class="progress-widget__segment progress-widget__segment--yellow">
+                    <ui:VisualElement name="yellow-fill" class="progress-widget__segment-fill" />
+                </ui:VisualElement>
+                <!-- Orange Segment (33-66%) -->
+                <ui:VisualElement name="orange-segment" class="progress-widget__segment progress-widget__segment--orange">
+                    <ui:VisualElement name="orange-fill" class="progress-widget__segment-fill" />
+                </ui:VisualElement>
+                <!-- Red Segment (66-100%) -->
+                <ui:VisualElement name="red-segment" class="progress-widget__segment progress-widget__segment--red">
+                    <ui:VisualElement name="red-fill" class="progress-widget__segment-fill" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <!-- Legacy progress bar (hidden, for backward compatibility) -->
+            <ui:VisualElement name="progress-bar" class="progress-widget__progress-bar-hidden">
+                <ui:VisualElement name="progress-fill" class="progress-widget__progress-fill" />
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Label name="peak-level-label" text="→ RED" class="progress-widget__peak-label" />
+        
+        <!-- Right Section: Water Depth + Countdown -->
+        <ui:VisualElement class="progress-widget__right-section">
+            <ui:Label name="water-depth-label" text="Water: 0cm" class="progress-widget__water-depth" />
+            <ui:Label name="countdown-label" text="Next: 45s" class="progress-widget__countdown" />
+            <ui:Label name="peak-level-label" text="→ RED" class="progress-widget__peak-label" />
+        </ui:VisualElement>
+        
     </ui:VisualElement>
 </ui:UXML>

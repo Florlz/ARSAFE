@@ -86,6 +86,16 @@ namespace ARSafe.Modular.Integration
         {
             loadingManager = GetComponent<ARLoadingScreenManager>();
             
+            // Try to find activationController if not assigned in Inspector
+            if (activationController == null)
+            {
+                activationController = FindFirstObjectByType<ARSafeActivationController>();
+                if (activationController != null && enableDebugLogs)
+                {
+                    Debug.Log("[ARSafeLoadingIntegration] activationController auto-discovered via FindFirstObjectByType");
+                }
+            }
+
             if (activationController != null)
             {
                 trackingManager = activationController.GetComponent<ARSafeTrackingManager>();
@@ -204,11 +214,23 @@ namespace ARSafe.Modular.Integration
         {
             if (!isIntegrationActive) return;
 
+            // CRITICAL: Try to find activationController if reference is missing
+            // This can happen during scene transitions or if Inspector reference is lost
+            if (activationController == null)
+            {
+                activationController = FindFirstObjectByType<ARSafeActivationController>();
+                if (activationController != null)
+                {
+                    trackingManager = activationController.GetComponent<ARSafeTrackingManager>();
+                    Debug.LogWarning("[ARSafeLoadingIntegration] activationController was null - found via FindFirstObjectByType. Check Inspector reference.");
+                }
+            }
+
             // CRITICAL: Validate activationController is valid before starting coroutine
             // This prevents errors when transitioning between simulations
             if (activationController == null || activationController.gameObject == null)
             {
-                Debug.LogError("<color=red>[ARSafeLoadingIntegration] Cannot start AR initialization - activationController is invalid! This may occur during scene transitions.</color>");
+                Debug.LogError("<color=red>[ARSafeLoadingIntegration] Cannot start AR initialization - activationController not found! Assign in Inspector or ensure ARSafeActivationController exists in scene.</color>");
                 return;
             }
 

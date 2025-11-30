@@ -2,7 +2,7 @@
 
 **Unity 6000.2.7f2 | Vuforia 11.4.4 | Android AR | URP**
 
-_Last updated: October 2025 (Optimized for AI agent workflow)_
+_Last updated: November 2025 (Flood UI Redesign + Water Depth Fix)_
 
 > **READ `.agents/memory.md` FIRST** - Live system state, pending tasks, and session history
 
@@ -718,10 +718,43 @@ dropTarget.RegisterCallback<DragPerformEvent>(evt => {
 ### Flood Scenario System
 - `FloodScenarioManager` controls water levels based on PAGASA rainfall warning levels (Yellow, Orange, Red).
 - **Progression:** Linear timeline (Yellow → Orange → Red) or randomized peak.
+- **Water Depths (PAGASA Standard):**
+  - Yellow: 5-10cm (0.05-0.1m) - Barely ankle
+  - Orange: 10-20cm (0.1-0.2m) - Ankle-deep
+  - Red: 20-30cm (0.2-0.3m) - Low shin (max depth)
 - **Visuals:** `FloodWaterController` drives URP water shader (depth, wave amplitude, turbidity).
 - **Audio:** Ambient rain sound with fade-in/out.
 - **Safety:** Triggers `ARSafeWrongWayWarning` to guide users to safe zones.
-- **Events:** `OnParametersUpdated`, `OnProgressUpdated`, `OnWarningLevelChanged`.
+- **Events:** `OnParametersUpdated`, `OnProgressUpdated`, `OnWarningLevelChanged`, `OnProgressionGenerated`.
+
+#### FloodWaterController (Real-Time Water Animation)
+- **Location:** `Assets/ARSafe_ModularSystem/Scripts/FloodWaterController.cs`
+- **Singleton:** `FloodWaterController.Instance`
+- **Key Properties:**
+  - `CurrentWaterDepthMeters` - Real-time interpolated water depth (for UI display)
+  - `kneeHeight = 0.3f` - Maximum water height (matches PAGASA Red level max 30cm)
+  - `floorHeight = 0f` - Starting floor level
+  - `hiddenBelowFloor = -0.5f` - Where water hides before scenario starts
+- **Animation:** Exponential smoothing for smooth height interpolation
+- **Integration:** MaterialPropertyBlock for per-instance shader control (zero allocations)
+
+#### FloodWarningProgressDisplay (Full-Width Bottom Bar UI)
+- **Location:** `Assets/UI/FloodAlert/`
+- **Singleton:** `FloodWarningProgressDisplay.Instance`
+- **Layout:** Full-width horizontal bar anchored at screen bottom
+- **Structure:**
+  ```
+  progress-widget (full-width bottom bar)
+  ├─ left-section (Level badge + "Level: YELLOW" text)
+  ├─ center-section (Segmented progress bar: Yellow|Orange|Red)
+  └─ right-section (Water depth "Water: 12cm" + Countdown + Peak label)
+  ```
+- **Features:**
+  - Real-time water depth display from `FloodWaterController.Instance.CurrentWaterDepthMeters`
+  - Segmented progress bar with Yellow/Orange/Red fills
+  - Level-appropriate color coding
+  - Responsive layout (portrait stacks vertically, landscape stays horizontal)
+- **Performance:** Throttled to 10 FPS, cached values to prevent redundant UI updates
 
 ### Fire Scenario System
 - `FireScenarioManager` simulates fire intensity (0-10) and BFP alarm levels (1st-5th Alarm).

@@ -60,11 +60,15 @@ namespace ARSafe.UI
         private Label currentLevelValue;
         private Label peakLevelLabel;
         private Label countdownLabel;
+        private Label waterDepthLabel;  // NEW: Real-time water depth display
         private VisualElement progressBar;
         private VisualElement progressFill;
         private VisualElement yellowIndicator;
         private VisualElement orangeIndicator;
         private VisualElement redIndicator;
+        private VisualElement yellowSegment;  // NEW: Segmented progress bar
+        private VisualElement orangeSegment;
+        private VisualElement redSegment;
 
         // Progression state
         private FloodWarningProgression currentProgression;
@@ -80,6 +84,7 @@ namespace ARSafe.UI
         // Cached values to avoid redundant UI updates
         private string lastLevelText = "";
         private string lastCountdownText = "";
+        private string lastWaterDepthText = "";  // NEW: Cache water depth text
         private float lastProgressValue = -1f;
 
         public static FloodWarningProgressDisplay Instance { get; private set; }
@@ -159,6 +164,10 @@ namespace ARSafe.UI
             yellowIndicator = rootElement.Q<VisualElement>("yellow-indicator");
             orangeIndicator = rootElement.Q<VisualElement>("orange-indicator");
             redIndicator = rootElement.Q<VisualElement>("red-indicator");
+            waterDepthLabel = rootElement.Q<Label>("water-depth-label");  // NEW
+            yellowSegment = rootElement.Q<VisualElement>("yellow-segment");  // NEW
+            orangeSegment = rootElement.Q<VisualElement>("orange-segment");  // NEW
+            redSegment = rootElement.Q<VisualElement>("red-segment");  // NEW
 
             if (progressWidget == null)
             {
@@ -346,7 +355,10 @@ namespace ARSafe.UI
                 }
             }
 
-            // Update progress bar (0-100%)
+            // Update segmented progress bar (Yellow → Orange → Red)
+            UpdateSegmentedProgressBar(elapsed);
+
+            // Update legacy progress bar (hidden, for backward compatibility)
             if (progressFill != null)
             {
                 float totalDuration = GetTotalDuration(currentProgression);
@@ -358,6 +370,136 @@ namespace ARSafe.UI
                     progressFill.style.width = new StyleLength(new Length(progressValue, LengthUnit.Percent));
                     lastProgressValue = progressValue;
                 }
+            }
+
+            // NEW: Update real-time water depth display
+            UpdateWaterDepthDisplay();
+        }
+
+        /// <summary>
+        /// Update segmented progress bar (Yellow | Orange | Red sections).
+        /// Each segment fills based on phase progress, completed segments stay full.
+        /// </summary>
+        private void UpdateSegmentedProgressBar(float elapsed)
+        {
+            if (currentProgression == null) return;
+
+            // Calculate which phase we're in and how far through it
+            float totalDuration = GetTotalDuration(currentProgression);
+            float normalizedProgress = Mathf.Clamp01(elapsed / Mathf.Max(0.001f, totalDuration));
+
+            // Determine segment states based on current level
+            bool yellowComplete = currentLevel > RainfallWarningLevel.Yellow;
+            bool orangeComplete = currentLevel > RainfallWarningLevel.Orange;
+            bool atYellow = currentLevel == RainfallWarningLevel.Yellow;
+            bool atOrange = currentLevel == RainfallWarningLevel.Orange;
+            bool atRed = currentLevel == RainfallWarningLevel.Red;
+
+            // Calculate per-segment fill (0-100% within each segment)
+            float segmentFill = 0f;
+            if (currentPhaseIndex < currentProgression.Phases.Count)
+            {
+                var currentPhase = currentProgression.Phases[currentPhaseIndex];
+                float phaseStartTime = currentPhase.StartTime;
+                float phaseDuration = currentPhase.Duration;
+                float phaseElapsed = elapsed - phaseStartTime;
+                segmentFill = Mathf.Clamp01(phaseElapsed / Mathf.Max(0.001f, phaseDuration)) * 100f;
+            }
+
+            // Update Yellow segment
+            if (yellowSegment != null)
+            {
+                var yellowFill = yellowSegment.Q<VisualElement>("yellow-fill");
+                if (yellowFill != null)
+                {
+                    if (yellowComplete)
+                    {
+                        yellowFill.style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
+                        yellowSegment.AddToClassList("segment--complete");
+                    }
+                    else if (atYellow)
+                    {
+                        yellowFill.style.width = new StyleLength(new Length(segmentFill, LengthUnit.Percent));
+                        yellowSegment.AddToClassList("segment--active");
+                    }
+                }
+            }
+
+            // Update Orange segment
+            if (orangeSegment != null)
+            {
+                var orangeFill = orangeSegment.Q<VisualElement>("orange-fill");
+                if (orangeFill != null)
+                {
+                    bool hasOrange = currentProgression.PeakLevel >= RainfallWarningLevel.Orange;
+                    orangeSegment.style.display = hasOrange ? DisplayStyle.Flex : DisplayStyle.None;
+
+                    if (orangeComplete)
+                    {
+                        orangeFill.style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
+                        orangeSegment.AddToClassList("segment--complete");
+                    }
+                    else if (atOrange)
+                    {
+                        orangeFill.style.width = new StyleLength(new Length(segmentFill, LengthUnit.Percent));
+                        orangeSegment.AddToClassList("segment--active");
+                    }
+                    else
+                    {
+                        orangeFill.style.width = new StyleLength(new Length(0f, LengthUnit.Percent));
+                    }
+                }
+            }
+
+            // Update Red segment
+            if (redSegment != null)
+            {
+                var redFill = redSegment.Q<VisualElement>("red-fill");
+                if (redFill != null)
+                {
+                    bool hasRed = currentProgression.PeakLevel == RainfallWarningLevel.Red;
+                    redSegment.style.display = hasRed ? DisplayStyle.Flex : DisplayStyle.None;
+
+                    if (atRed)
+                    {
+                        redFill.style.width = new StyleLength(new Length(segmentFill, LengthUnit.Percent));
+                        redSegment.AddToClassList("segment--active");
+                    }
+                    else
+                    {
+                        redFill.style.width = new StyleLength(new Length(0f, LengthUnit.Percent));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update real-time water depth display from FloodWaterController.
+        /// Shows interpolated depth in centimeters with level-appropriate color.
+        /// </summary>
+        private void UpdateWaterDepthDisplay()
+        {
+            if (waterDepthLabel == null) return;
+
+            // Get real-time depth from FloodWaterController singleton
+            float depthMeters = 0f;
+            if (FloodWaterController.Instance != null)
+            {
+                depthMeters = FloodWaterController.Instance.CurrentWaterDepthMeters;
+            }
+
+            // Convert to centimeters and format
+            int depthCm = Mathf.RoundToInt(depthMeters * 100f);
+            string depthText = $"Water: {depthCm}cm";
+
+            // Only update if changed
+            if (depthText != lastWaterDepthText)
+            {
+                waterDepthLabel.text = depthText;
+                lastWaterDepthText = depthText;
+
+                // Color-code based on current warning level
+                waterDepthLabel.style.color = new StyleColor(GetLevelColor(currentLevel));
             }
         }
 
@@ -439,6 +581,7 @@ namespace ARSafe.UI
             // Reset cached values
             lastLevelText = "";
             lastCountdownText = "";
+            lastWaterDepthText = "";  // NEW
             lastProgressValue = -1f;
             isScenarioActive = false;
         }

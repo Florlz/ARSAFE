@@ -1,79 +1,82 @@
 /* ========================================
-   FLOOD WARNING PROGRESS DISPLAY (MINIMAL)
-   Mobile-First Design | UI Toolkit
+   FLOOD WARNING PROGRESS DISPLAY
+   Full-Width Bottom Bar | Mobile-First Design
+   PAGASA Warning Levels | UI Toolkit (Unity 6)
    ======================================== */
 
 /* CSS Variables (Theme Colors) */
 :root {
-    --progress-widget-card: rgba(16, 24, 36, 0.95);
-    --progress-widget-border: rgba(0, 191, 255, 0.5);
+    --progress-widget-card: rgba(16, 24, 36, 0.92);
+    --progress-widget-border: rgba(0, 191, 255, 0.6);
     --progress-widget-text: rgba(255, 255, 255, 0.95);
     --progress-widget-text-dim: rgba(255, 255, 255, 0.65);
     --progress-widget-accent: #00bfff;
 
     /* Warning Level Colors (PAGASA Official) */
     --level-yellow: rgba(255, 235, 4, 1);
+    --level-yellow-dim: rgba(255, 235, 4, 0.25);
     --level-orange: rgba(255, 153, 0, 1);
+    --level-orange-dim: rgba(255, 153, 0, 0.25);
     --level-red: rgba(230, 26, 26, 1);
+    --level-red-dim: rgba(230, 26, 26, 0.25);
 
     /* Progress Bar */
     --progress-bar-bg: rgba(255, 255, 255, 0.12);
-    --progress-bar-fill: rgba(0, 191, 255, 0.9);
+    --segment-border: rgba(255, 255, 255, 0.2);
 }
 
 /* ========================================
-   COMPACT WIDGET (Bottom-Left Corner)
+   FULL-WIDTH BOTTOM BAR CONTAINER
    ======================================== */
 
 .progress-widget {
     position: absolute;
-    left: 20px;
-    bottom: 120px;
-    width: 260px; /* Slightly wider to prevent text overflow */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+    min-height: 80px;
     background-color: var(--progress-widget-card);
-    border-radius: 10px;
-    border-width: 2px;
-    border-color: var(--progress-widget-border);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ========================================
-   TOP ROW (Badges + Level Info)
-   ======================================== */
-
-.progress-widget__top-row {
+    border-top-width: 2px;
+    border-top-color: var(--progress-widget-border);
+    padding: 12px 16px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
 }
 
-/* Level Indicators (Compact Dots) */
-.progress-widget__indicators {
+/* ========================================
+   LEFT SECTION: Warning Level Badge + Label
+   ======================================== */
+
+.progress-widget__left-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 100px;
+}
+
+.progress-widget__level-badge {
     display: flex;
     flex-direction: row;
-    margin-right: 10px;
+    margin-bottom: 6px;
 }
 
 .progress-widget__indicator {
-    width: 16px;
-    height: 16px;
-    border-radius: 8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
     margin-right: 6px;
     border-width: 2px;
     border-color: rgba(255, 255, 255, 0.3);
-    opacity: 0.3; /* Inactive by default */
+    opacity: 0.3;
 }
 
 .progress-widget__indicator.indicator--current {
     opacity: 1;
     border-width: 3px;
     border-color: rgba(255, 255, 255, 0.95);
-    /* Add glow effect */
-    -unity-background-image-tint-color: rgba(255, 255, 255, 1);
 }
 
 .progress-widget__indicator--yellow {
@@ -88,77 +91,169 @@
     background-color: var(--level-red);
 }
 
-/* Level Info (Current → Peak) */
-.progress-widget__level-info {
+.progress-widget__level-text {
     display: flex;
     flex-direction: row;
-    align-items: flex-end; /* Changed from 'baseline' - not supported in Unity UI Toolkit */
-    flex-grow: 1;
+    align-items: center;
 }
 
-.progress-widget__level-value {
-    font-size: 26px;
-    color: var(--level-yellow); /* Dynamic via C# */
-    -unity-font-style: bold;
+.progress-widget__level-prefix {
+    font-size: 18px;
+    color: var(--progress-widget-text-dim);
     margin-right: 6px;
 }
 
-.progress-widget__peak-label {
-    font-size: 18px;
-    color: var(--progress-widget-text-dim);
-    -unity-font-style: normal;
-}
-
-/* ========================================
-   COUNTDOWN (Minimal)
-   ======================================== */
-
-.progress-widget__countdown {
-    font-size: 20px;
-    color: var(--progress-widget-accent);
+.progress-widget__level-value {
+    font-size: 24px;
+    color: var(--level-yellow);
     -unity-font-style: bold;
-    -unity-text-align: middle-left;
-    margin-bottom: 8px;
 }
 
 /* ========================================
-   PROGRESS BAR (Slim)
+   CENTER SECTION: Segmented Progress Bar
    ======================================== */
 
-.progress-widget__progress-bar {
-    width: 100%;
-    height: 6px; /* Slim! */
-    background-color: var(--progress-bar-bg);
-    border-radius: 3px;
-    overflow: hidden;
+.progress-widget__center-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
-.progress-widget__progress-fill {
-    width: 0%; /* Dynamic 0-100% */
+.progress-widget__segmented-bar {
+    display: flex;
+    flex-direction: row;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--progress-bar-bg);
+}
+
+.progress-widget__segment {
+    flex-grow: 1;
+    flex-basis: 33%;
     height: 100%;
-    background-color: var(--progress-bar-fill);
+    position: relative;
+    border-right-width: 1px;
+    border-right-color: var(--segment-border);
+}
+
+/* Red segment is last - remove right border manually (pseudo-selectors not supported) */
+.progress-widget__segment--red {
+    border-right-width: 0;
+}
+
+.progress-widget__segment--yellow {
+    background-color: var(--level-yellow-dim);
+}
+
+.progress-widget__segment--orange {
+    background-color: var(--level-orange-dim);
+}
+
+.progress-widget__segment--red {
+    background-color: var(--level-red-dim);
+}
+
+.progress-widget__segment-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
     transition-property: width;
     transition-duration: 0.3s;
     transition-timing-function: ease-out;
 }
 
+.progress-widget__segment--yellow .progress-widget__segment-fill {
+    background-color: var(--level-yellow);
+}
+
+.progress-widget__segment--orange .progress-widget__segment-fill {
+    background-color: var(--level-orange);
+}
+
+.progress-widget__segment--red .progress-widget__segment-fill {
+    background-color: var(--level-red);
+}
+
+/* Active segment: fully filled */
+.progress-widget__segment.segment--active .progress-widget__segment-fill {
+    width: 100%;
+}
+
+/* Completed segment: fully filled */
+.progress-widget__segment.segment--complete .progress-widget__segment-fill {
+    width: 100%;
+}
+
+/* Hidden legacy progress bar for backward compatibility */
+.progress-widget__progress-bar-hidden {
+    display: none;
+}
+
+.progress-widget__progress-fill {
+    width: 0%;
+    height: 100%;
+}
+
 /* ========================================
-   RESPONSIVE (Landscape - Even Smaller)
+   RIGHT SECTION: Water Depth + Countdown
+   ======================================== */
+
+.progress-widget__right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 120px;
+}
+
+.progress-widget__water-depth {
+    font-size: 26px;
+    color: var(--level-yellow);
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+    margin-bottom: 4px;
+}
+
+.progress-widget__countdown {
+    font-size: 20px;
+    color: var(--progress-widget-accent);
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+.progress-widget__peak-label {
+    font-size: 16px;
+    color: var(--progress-widget-text-dim);
+    -unity-text-align: middle-right;
+    margin-top: 2px;
+}
+
+/* ========================================
+   RESPONSIVE: Landscape Mode (Wider Screens)
    ======================================== */
 
 @media (min-aspect-ratio: 16/9) {
     .progress-widget {
-        width: 240px;
-        padding: 10px;
-        bottom: 100px;
+        padding: 10px 20px;
+        min-height: 70px;
     }
 
-    .progress-widget__level-value {
+    .progress-widget__segmented-bar {
+        height: 16px;
+        border-radius: 8px;
+    }
+
+    .progress-widget__water-depth {
         font-size: 22px;
     }
 
-    .progress-widget__peak-label {
-        font-size: 16px;
+    .progress-widget__level-value {
+        font-size: 20px;
     }
 
     .progress-widget__countdown {
@@ -169,5 +264,52 @@
         width: 14px;
         height: 14px;
         margin-right: 5px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE: Portrait Mode (Narrow Screens)
+   ======================================== */
+
+@media (max-aspect-ratio: 9/16) {
+    .progress-widget {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px 12px;
+    }
+
+    .progress-widget__left-section {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        min-width: auto;
+    }
+
+    .progress-widget__level-badge {
+        margin-bottom: 0;
+        margin-right: 10px;
+    }
+
+    .progress-widget__center-section {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .progress-widget__right-section {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        min-width: auto;
+    }
+
+    .progress-widget__water-depth {
+        margin-bottom: 0;
+        margin-right: 12px;
+    }
+
+    .progress-widget__peak-label {
+        margin-top: 0;
     }
 }

@@ -41,14 +41,25 @@ namespace ARSafe.Modular
     [AddComponentMenu("ARSafe/Modular/Flood Water Controller")]
     public class FloodWaterController : MonoBehaviour
     {
-        [Header("Water Levels (World Space Meters)")]
-        [Tooltip("Starting height (floor level). Water starts hidden below this.")]
+        /// <summary>
+        /// Singleton instance for easy UI access to real-time water depth.
+        /// </summary>
+        public static FloodWaterController Instance { get; private set; }
+
+        /// <summary>
+        /// Current interpolated water depth in meters (real-time, smooth).
+        /// Used by FloodWarningProgressDisplay for "Water: Xcm" display.
+        /// </summary>
+        public float CurrentWaterDepthMeters { get; private set; }
+
+        [Header("Water Levels (Relative Offsets from Initial Position)")]
+        [Tooltip("Floor level offset from initial Y position. 0 = water at initial position (floor level).")]
         [SerializeField] private float floorHeight = 0f;
         
-        [Tooltip("Target knee level height in meters (average adult knee ~0.6m).")]
-        [SerializeField] private float kneeHeight = 0.6f;
+        [Tooltip("Knee level offset from initial Y position. 0.3m = 30cm above floor (PAGASA Red max).")]
+        [SerializeField] private float kneeHeight = 0.3f;
         
-        [Tooltip("Height below floor where water starts hidden (-0.5m = half meter below floor).")]
+        [Tooltip("Hidden offset below initial Y position. -0.5m = half meter below floor (hidden state).")]
         [SerializeField] private float hiddenBelowFloor = -0.5f;
         
         [Header("Animation")]
@@ -103,6 +114,13 @@ namespace ARSafe.Modular
         
         private void Awake()
         {
+            // Multi-instance support: Set Instance to first enabled controller for UI access
+            // Unlike singletons, we allow multiple instances - each Area Target has its own water
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+
             // Cache initial position
             initialPosition = transform.position;
 
@@ -162,6 +180,9 @@ namespace ARSafe.Modular
             float lerpFactor = 1f - Mathf.Exp(-heightSmoothSpeed * Time.deltaTime);
             currentHeight = Mathf.Lerp(currentHeight, targetHeight, lerpFactor);
             UpdateWaterPosition(currentHeight);
+
+            // Update public property for UI access (clamp to 0 minimum for display)
+            CurrentWaterDepthMeters = Mathf.Max(0f, currentHeight - floorHeight);
 
             // Check if we should show arrows (arrows are siblings, so they stay at fixed height automatically)
             if (!arrowsShown && currentHeight >= kneeHeight - 0.05f)
@@ -306,12 +327,13 @@ namespace ARSafe.Modular
         }
         
         /// <summary>
-        /// Update water plane Y position in world space
+        /// Update water plane Y position relative to initial position.
+        /// waterLevelOffset is a relative offset (0 = floor level, 0.3 = knee level, -0.5 = hidden).
         /// </summary>
-        private void UpdateWaterPosition(float worldHeightY)
+        private void UpdateWaterPosition(float waterLevelOffset)
         {
             Vector3 pos = transform.position;
-            pos.y = worldHeightY;
+            pos.y = initialPosition.y + waterLevelOffset;
             transform.position = pos;
         }
         
@@ -447,30 +469,33 @@ namespace ARSafe.Modular
         
         private void OnDrawGizmosSelected()
         {
-            // Draw floor level (green)
+            // Use initial position as base (at runtime) or current position (in editor)
+            Vector3 basePos = Application.isPlaying ? initialPosition : transform.position;
+            
+            // Draw floor level (green) - relative to base position
             Gizmos.color = Color.green;
-            Vector3 floorPos = transform.position;
-            floorPos.y = floorHeight;
+            Vector3 floorPos = basePos;
+            floorPos.y = basePos.y + floorHeight;
             Gizmos.DrawWireCube(floorPos, new Vector3(1f, 0.01f, 1f));
             
-            // Draw knee level (yellow)
+            // Draw knee level (yellow) - relative to base position
             Gizmos.color = Color.yellow;
-            Vector3 kneePos = transform.position;
-            kneePos.y = kneeHeight;
+            Vector3 kneePos = basePos;
+            kneePos.y = basePos.y + kneeHeight;
             Gizmos.DrawWireCube(kneePos, new Vector3(1f, 0.01f, 1f));
             
-            // Draw hidden level (red)
+            // Draw hidden level (red) - relative to base position
             Gizmos.color = Color.red;
-            Vector3 hiddenPos = transform.position;
-            hiddenPos.y = hiddenBelowFloor;
+            Vector3 hiddenPos = basePos;
+            hiddenPos.y = basePos.y + hiddenBelowFloor;
             Gizmos.DrawWireCube(hiddenPos, new Vector3(1f, 0.01f, 1f));
             
             // Draw current height (cyan - runtime only)
             if (Application.isPlaying)
             {
                 Gizmos.color = Color.cyan;
-                Vector3 currentPos = transform.position;
-                currentPos.y = currentHeight;
+                Vector3 currentPos = basePos;
+                currentPos.y = initialPosition.y + currentHeight;
                 Gizmos.DrawWireCube(currentPos, new Vector3(1.2f, 0.02f, 1.2f));
             }
         }
